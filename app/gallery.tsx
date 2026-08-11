@@ -20,14 +20,12 @@ function Preview({ slug, name, index }: { slug: string; name: string; index: num
   return (
     <div
       className="card-preview"
-      style={{
-        backgroundColor: accent,
-        backgroundImage: `url(/previews/${slug}.png)`,
-      }}
+      style={{ backgroundColor: accent }}
       role="img"
       aria-label={`${name} design preview`}
     >
       <span className="preview-fallback">{String(index + 1).padStart(3, "0")}</span>
+      <img src={`/previews/${slug}.png`} alt="" width="720" height="520" loading="lazy" />
     </div>
   );
 }

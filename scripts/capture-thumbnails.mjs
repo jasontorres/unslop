@@ -30,7 +30,7 @@ async function waitForArtboard(sessionId) {
     const ready = await request(`/session/${sessionId}/execute/sync`, {
       method: "POST",
       body: JSON.stringify({
-        script: "return document.readyState === 'complete' && document.querySelectorAll('.dc-card').length > 0",
+        script: "return document.readyState === 'complete' && document.querySelector('.dc-embedded-card, .dc-card') !== null",
         args: [],
       }),
     });

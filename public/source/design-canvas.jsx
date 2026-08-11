@@ -149,7 +149,9 @@ function dcExpandSections(children) {
 const DC_STATE_FILE = '.design-canvas.state.json';
 
 function DesignCanvas({ children, minScale, maxScale, style }) {
-  const requestedFocus = new URLSearchParams(window.location.search).get('focus');
+  const searchParams = new URLSearchParams(window.location.search);
+  const requestedFocus = searchParams.get('focus');
+  const embedded = searchParams.get('embed') === '1';
   const [state, setState] = React.useState({ sections: {}, focus: requestedFocus || null });
   // Hold rendering until the sidecar read settles so the saved order/titles
   // appear on first paint (no source-order flash). didRead gates writes until
@@ -232,7 +234,7 @@ function DesignCanvas({ children, minScale, maxScale, style }) {
 
   // Esc exits focus; any outside pointerdown commits an in-progress rename.
   React.useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') api.setFocus(null); };
+    const onKey = (e) => { if (!embedded && e.key === 'Escape') api.setFocus(null); };
     const onPd = (e) => {
       const ae = document.activeElement;
       if (ae && ae.isContentEditable && !ae.contains(e.target)) ae.blur();
@@ -243,13 +245,19 @@ function DesignCanvas({ children, minScale, maxScale, style }) {
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('pointerdown', onPd, true);
     };
-  }, [api]);
+  }, [api, embedded]);
+
+  const focusedEntry = state.focus && registry[state.focus];
 
   return (
     <DCCtx.Provider value={api}>
-      <DCViewport minScale={minScale} maxScale={maxScale} style={style}>{ready && children}</DCViewport>
-      {state.focus && registry[state.focus] && (
-        <DCFocusOverlay entry={registry[state.focus]} sectionMeta={sectionMeta} sectionOrder={sectionOrder} />
+      {ready && embedded && focusedEntry ? (
+        <DCEmbeddedArtboard entry={focusedEntry} />
+      ) : (
+        <DCViewport minScale={minScale} maxScale={maxScale} style={style}>{ready && children}</DCViewport>
+      )}
+      {!embedded && focusedEntry && (
+        <DCFocusOverlay entry={focusedEntry} sectionMeta={sectionMeta} sectionOrder={sectionOrder} />
       )}
     </DCCtx.Provider>
   );
@@ -829,6 +837,42 @@ function DCEditable({ value, onChange, style, tag = 'span', onClick }) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Embedded mode — render one requested artboard edge-to-edge with no canvas
+// chrome. This is used by the gallery detail page and screenshot capture.
+// The full artboard remains visible, with only unavoidable letterboxing when
+// its aspect ratio differs from the viewport.
+// ─────────────────────────────────────────────────────────────
+function DCEmbeddedArtboard({ entry }) {
+  const { artboard } = entry;
+  const { width = 260, height = 480, children, style = {} } = artboard.props;
+  const [vp, setVp] = React.useState({ w: window.innerWidth, h: window.innerHeight });
+
+  React.useEffect(() => {
+    const resize = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
+
+  const scale = Math.max(0.1, Math.min(vp.w / width, vp.h / height));
+  const backdrop = style.backgroundColor || style.background || '#fff';
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, overflow: 'hidden', display: 'grid', placeItems: 'center',
+      background: backdrop,
+    }}>
+      <div style={{ width: width * scale, height: height * scale, position: 'relative', overflow: 'hidden' }}>
+        <div className="dc-embedded-card" style={{
+          width, height, transform: `scale(${scale})`, transformOrigin: 'top left',
+          overflow: 'hidden', background: '#fff', ...style,
+        }}>
+          {children || <div style={{ height: '100%', display: 'grid', placeItems: 'center', color: '#bbb' }} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Focus mode — overlay one artboard; ←/→ within section, ↑/↓ across
 // sections, Esc or backdrop click to exit.
 // ─────────────────────────────────────────────────────────────

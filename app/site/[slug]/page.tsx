@@ -49,11 +49,6 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
       </section>
 
       <section className="reference-stage" aria-label={`${site.name} interactive design reference`}>
-        <div className="stage-bar">
-          <div className="stage-dots"><i /><i /><i /></div>
-          <p>Interactive reference</p>
-          <a href={sourceUrl} target="_blank" rel="noreferrer">Open full screen ↗</a>
-        </div>
         <iframe src={sourceUrl} title={`${site.name} interactive preview`} loading="eager" />
       </section>
 
