@@ -839,8 +839,8 @@ function DCEditable({ value, onChange, style, tag = 'span', onClick }) {
 // ─────────────────────────────────────────────────────────────
 // Embedded mode — render one requested artboard edge-to-edge with no canvas
 // chrome. This is used by the gallery detail page and screenshot capture.
-// The full artboard remains visible, with only unavoidable letterboxing when
-// its aspect ratio differs from the viewport.
+// The artboard always fills the available width. Taller formats scroll
+// vertically instead of being shrunk into a letterboxed viewport.
 // ─────────────────────────────────────────────────────────────
 function DCEmbeddedArtboard({ entry }) {
   const { artboard } = entry;
@@ -853,13 +853,12 @@ function DCEmbeddedArtboard({ entry }) {
     return () => window.removeEventListener('resize', resize);
   }, []);
 
-  const scale = Math.max(0.1, Math.min(vp.w / width, vp.h / height));
+  const scale = Math.max(0.1, vp.w / width);
   const backdrop = style.backgroundColor || style.background || '#fff';
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, overflow: 'hidden', display: 'grid', placeItems: 'center',
-      background: backdrop,
+      position: 'fixed', inset: 0, overflowX: 'hidden', overflowY: 'auto', background: backdrop,
     }}>
       <div style={{ width: width * scale, height: height * scale, position: 'relative', overflow: 'hidden' }}>
         <div className="dc-embedded-card" style={{

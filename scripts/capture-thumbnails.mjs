@@ -43,6 +43,13 @@ async function waitForArtboard(sessionId) {
   throw new Error("Timed out waiting for the design artboard");
 }
 
+async function findElement(sessionId, selector) {
+  return request(`/session/${sessionId}/element`, {
+    method: "POST",
+    body: JSON.stringify({ using: "css selector", value: selector }),
+  });
+}
+
 await mkdir(outputDirectory, { recursive: true });
 
 const session = await request("/session", {
@@ -71,7 +78,22 @@ try {
       body: JSON.stringify({ url: pageUrl }),
     });
     await waitForArtboard(sessionId);
-    const screenshot = await request(`/session/${sessionId}/screenshot`);
+    const geometry = await request(`/session/${sessionId}/execute/sync`, {
+      method: "POST",
+      body: JSON.stringify({
+        script: "const el = document.querySelector('.dc-embedded-card'); return { width: el.offsetWidth, height: el.offsetHeight, chrome: window.outerHeight - window.innerHeight }",
+        args: [],
+      }),
+    });
+    const viewportHeight = Math.round(720 * geometry.height / geometry.width);
+    await request(`/session/${sessionId}/window/rect`, {
+      method: "POST",
+      body: JSON.stringify({ width: 720, height: viewportHeight + geometry.chrome }),
+    });
+    await new Promise((resolve) => setTimeout(resolve, 120));
+    const element = await findElement(sessionId, ".dc-embedded-card");
+    const elementId = element["element-6066-11e4-a52e-4f735466cecf"];
+    const screenshot = await request(`/session/${sessionId}/element/${elementId}/screenshot`);
     await writeFile(new URL(`${site.slug}.png`, outputDirectory), Buffer.from(screenshot, "base64"));
     process.stdout.write(`[${String(index + 1).padStart(3, "0")}/${selectedSites.length}] ${site.slug}\n`);
   }

@@ -79,7 +79,10 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
         <div className="related-grid">
           {related.map((item) => (
             <Link href={`/site/${item.slug}`} key={item.slug} className="related-card">
-              <div style={{ backgroundImage: `url(/previews/${item.slug}.png)` }}><span>{String(item.index + 1).padStart(3, "0")}</span></div>
+              <div>
+                <img src={`/previews/${item.slug}.png`} alt="" loading="lazy" decoding="async" />
+                <span>{String(item.index + 1).padStart(3, "0")}</span>
+              </div>
               <h3>{item.name}</h3>
               <p>{item.subcategory}</p>
             </Link>

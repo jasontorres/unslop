@@ -25,7 +25,7 @@ function Preview({ slug, name, index }: { slug: string; name: string; index: num
       aria-label={`${name} design preview`}
     >
       <span className="preview-fallback">{String(index + 1).padStart(3, "0")}</span>
-      <img src={`/previews/${slug}.png`} alt="" width="720" height="520" loading="lazy" />
+      <img src={`/previews/${slug}.png`} alt="" loading="lazy" decoding="async" />
     </div>
   );
 }
