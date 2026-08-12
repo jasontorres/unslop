@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { writeTextToClipboard } from "./clipboard";
-import { allSites, categoryDefinitions, getCategoryCount } from "./data";
+import {
+  allSites,
+  categoryDefinitions,
+  featuredSlugs,
+  featuredSlugSet,
+  getCategoryCount,
+} from "./data";
 
 const fallbackColors = [
   "#ff6b3d",
@@ -38,13 +44,22 @@ export function Gallery() {
 
   const visibleSites = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return allSites.filter((site) => {
-      const inCategory = category === "all" || site.categorySlug === category;
-      const haystack = [site.name, site.category, site.subcategory, ...site.tags]
-        .join(" ")
-        .toLowerCase();
-      return inCategory && (!normalizedQuery || haystack.includes(normalizedQuery));
-    });
+    const featuredRank = new Map(featuredSlugs.map((slug, index) => [slug, index]));
+
+    return allSites
+      .filter((site) => {
+        const inCategory = category === "all"
+          || (category === "featured" ? featuredSlugSet.has(site.slug) : site.categorySlug === category);
+        const haystack = [site.name, site.category, site.subcategory, ...site.tags]
+          .join(" ")
+          .toLowerCase();
+        return inCategory && (!normalizedQuery || haystack.includes(normalizedQuery));
+      })
+      .sort((a, b) => {
+        const aRank = featuredRank.get(a.slug) ?? Number.POSITIVE_INFINITY;
+        const bRank = featuredRank.get(b.slug) ?? Number.POSITIVE_INFINITY;
+        return aRank - bRank || a.index - b.index;
+      });
   }, [category, query]);
 
   async function copySite(slug: string) {
@@ -101,6 +116,9 @@ export function Gallery() {
           <button className={category === "all" ? "active" : ""} onClick={() => setCategory("all")}>
             All <span>{allSites.length}</span>
           </button>
+          <button className={category === "featured" ? "active featured-filter" : "featured-filter"} onClick={() => setCategory("featured")}>
+            Featured <span>{featuredSlugs.length}</span>
+          </button>
           {categoryDefinitions.map((item) => (
             <button
               key={item.slug}
@@ -121,10 +139,13 @@ export function Gallery() {
 
         {visibleSites.length ? (
           <div className="gallery-grid">
-            {visibleSites.map((site) => (
-              <article className="gallery-card" key={site.slug}>
+            {visibleSites.map((site) => {
+              const featured = featuredSlugSet.has(site.slug);
+              return (
+              <article className={`gallery-card${featured ? " is-featured" : ""}`} key={site.slug}>
                 <Link href={`/site/${site.slug}`} className="preview-link" aria-label={`Open ${site.name}`}>
                   <Preview slug={site.slug} name={site.name} index={site.index} />
+                  {featured && <span className="featured-badge">Featured</span>}
                   <span className="open-corner" aria-hidden="true">↗</span>
                 </Link>
                 <div className="card-meta">
@@ -137,7 +158,8 @@ export function Gallery() {
                   </button>
                 </div>
               </article>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="empty-state">

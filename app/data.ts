@@ -429,6 +429,19 @@ export const allSites: GallerySite[] = categoryDefinitions.flatMap((category) =>
 
 export const sitesBySlug = new Map(allSites.map((site) => [site.slug, site]));
 
+export const featuredSlugs = [
+  "display-anti-design",
+  "lime-sport",
+  "district-map-forward",
+  "about-manifesto-dark",
+  "careers-dark",
+  "athlete-pace-form",
+  "health-rings",
+  "job-board",
+] as const;
+
+export const featuredSlugSet = new Set<string>(featuredSlugs);
+
 export function getCategoryCount(slug: string) {
   return allSites.filter((site) => site.categorySlug === slug).length;
 }
@@ -437,4 +450,3 @@ export function getSourceUrl(site: GallerySite) {
   const focus = `${site.sectionId}/${site.artboardId}`;
   return `/source/${encodeURIComponent(site.sourceFile)}?focus=${encodeURIComponent(focus)}`;
 }
-
