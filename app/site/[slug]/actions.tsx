@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { writeTextToClipboard } from "../../clipboard";
 
-type CopyKind = "link" | "brief" | "html";
+type CopyKind = "guide" | "brief" | "html" | "share";
 
 type ReferenceWindow = Window & {
   __UNSLOP_EXPORT_HTML__?: () => Promise<string>;
@@ -19,10 +19,10 @@ export function SiteActions({ slug, brief }: { slug: string; brief: string }) {
     window.setTimeout(() => setCopied(null), 1600);
   }
 
-  async function copy(kind: "link" | "brief") {
-    const url = `${window.location.origin}/site/${slug}`;
+  async function copy(kind: "guide" | "brief") {
+    const guideUrl = `${window.location.origin}/reference/${slug}`;
     try {
-      await writeTextToClipboard(kind === "link" ? url : `${brief}\n\nReference: ${url}`);
+      await writeTextToClipboard(kind === "guide" ? guideUrl : `${brief}\n\nAI-only reference: ${guideUrl}`);
       showCopied(kind);
     } catch (copyError) {
       setError(copyError instanceof Error ? copyError.message : "Copy failed");
@@ -43,11 +43,16 @@ export function SiteActions({ slug, brief }: { slug: string; brief: string }) {
 
   async function share() {
     const url = `${window.location.origin}/site/${slug}`;
-    if (navigator.share) {
-      await navigator.share({ title: "unslop.site reference", url });
-      return;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "unslop.site reference", url });
+        return;
+      }
+      await writeTextToClipboard(url);
+      showCopied("share");
+    } catch (shareError) {
+      setError(shareError instanceof Error ? shareError.message : "Share failed");
     }
-    await copy("link");
   }
 
   return (
@@ -59,10 +64,12 @@ export function SiteActions({ slug, brief }: { slug: string; brief: string }) {
       <button className="secondary-action html-action" onClick={copyHtml} aria-describedby="html-export-note">
         {copied === "html" ? "HTML + CSS copied" : "Copy HTML + CSS"}
       </button>
-      <button className="secondary-action" onClick={() => copy("link")}>
-        {copied === "link" ? "Copied" : "Copy URL"}
+      <button className="secondary-action" onClick={() => copy("guide")} aria-describedby="html-export-note">
+        {copied === "guide" ? "AI URL copied" : "Copy AI guide URL"}
       </button>
-      <button className="icon-action" onClick={share} aria-label="Share this design reference">↗</button>
+      <button className="icon-action" onClick={share} aria-label="Share this design reference">
+        {copied === "share" ? "✓" : "↗"}
+      </button>
       {error && <p className="copy-error" role="status">{error}</p>}
     </div>
   );
@@ -72,9 +79,9 @@ export function CopyBrief({ brief, slug }: { brief: string; slug: string }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
-    const url = `${window.location.origin}/site/${slug}`;
+    const guideUrl = `${window.location.origin}/reference/${slug}`;
     try {
-      await writeTextToClipboard(`${brief}\n\nReference: ${url}`);
+      await writeTextToClipboard(`${brief}\n\nAI-only reference: ${guideUrl}`);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1600);
     } catch {

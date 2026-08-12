@@ -97,8 +97,8 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
       </section>
 
       <div id="html-export-note" className="reference-export-note">
-        <span>AI-ready export</span>
-        <p><strong>Copy HTML + CSS</strong> includes compact computed styles plus explicit font and asset URLs—useful visual evidence without binary bloat.</p>
+        <span>AI-only reference</span>
+        <p><strong>Copy AI guide URL</strong> opens only this interactive design—no gallery header, notes, footer, or related directions. <strong>Copy HTML + CSS</strong> adds exact visual values.</p>
       </div>
 
       <section className="reference-notes">

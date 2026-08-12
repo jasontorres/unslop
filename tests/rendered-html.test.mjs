@@ -58,9 +58,21 @@ test("server-renders an AI-ready detail page", async () => {
   assert.match(html, /Editorial Serif interactive design reference/i);
   assert.match(html, /Copy agent brief/i);
   assert.match(html, /Copy HTML \+ CSS/i);
-  assert.match(html, /AI-ready export/i);
+  assert.match(html, /Copy AI guide URL/i);
+  assert.match(html, /AI-only reference/i);
   assert.match(html, /<link rel="canonical" href="https:\/\/unslop\.site\/site\/editorial-serif"\/>/i);
   assert.match(html, /"@type":"CreativeWork"/i);
+});
+
+test("keeps the AI guide URL isolated from gallery chrome", async () => {
+  const response = await render("/reference/editorial-serif");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /class="isolated-reference-page"/i);
+  assert.match(html, /Editorial Serif isolated interactive reference/i);
+  assert.match(html, /name="robots" content="noindex, nofollow"/i);
+  assert.doesNotMatch(html, /unslop\.site home|Reference notes|Related directions|detail-footer/i);
 });
 
 test("publishes crawl directives and every reference in the sitemap", async () => {

@@ -177,6 +177,8 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 .copy-error { flex-basis: 100%; margin: 2px 0 0; color: #a43d2b; font-family: var(--font-geist-mono); font-size: 8px; text-align: right; }
 .reference-stage { width: 100%; background: #fff; }
 .reference-stage iframe { display: block; width: 100%; height: calc(100vh - 74px); min-height: 680px; border: 0; background: #fff; }
+.isolated-reference-page { width: 100%; height: 100dvh; overflow: hidden; background: #fff; }
+.isolated-reference-page iframe { display: block; width: 100%; height: 100%; border: 0; background: #fff; }
 .reference-export-note { min-height: 58px; padding: 13px 3.2vw; border-top: 1px solid #cdccc5; border-bottom: 1px solid #cdccc5; display: flex; align-items: center; justify-content: space-between; gap: 32px; background: var(--paper); }
 .reference-export-note > span { flex: none; color: var(--blue); font-family: var(--font-geist-mono); font-size: 9px; text-transform: uppercase; letter-spacing: .07em; }
 .reference-export-note p { max-width: 690px; margin: 0; color: #62615c; font-size: 11px; line-height: 1.5; text-align: right; }
