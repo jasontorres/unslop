@@ -1,8 +1,8 @@
-# vinext-starter
+# unslop.site
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+An index of design references you can inspect, interact with, and hand directly
+to an AI coding agent. Built with [vinext](https://github.com/cloudflare/vinext)
+for Cloudflare Workers.
 
 ## Prerequisites
 
@@ -16,13 +16,30 @@ npm run dev
 npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+The committed `wrangler.jsonc` targets the `unslop` Worker in the Neon
+Playground Cloudflare account and attaches the `unslop.site` custom domain.
+
+## Cloudflare Deployment
+
+Authenticate once with `npx wrangler login`, then deploy the production build:
+
+```bash
+npm run deploy
+```
+
+For a local deployment bundle check that does not publish anything:
+
+```bash
+npm run deploy:dry-run
+```
+
+In CI, set `CLOUDFLARE_API_TOKEN` to a token with Workers edit permissions.
 
 ## Included Shape
 
 - edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
+- `wrangler.jsonc` declares the Cloudflare account, Worker, domain, and bindings
+- `.openai/hosting.json` retains compatibility with OpenAI Sites hosting
 - `db/schema.ts` starts intentionally empty
 - `examples/d1/` contains an optional D1 example surface
 - `drizzle.config.ts` supports local migration generation when needed
@@ -91,7 +108,9 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 
 - `npm run dev`: start local development
 - `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
+- `npm run deploy:dry-run`: build and validate the Cloudflare deployment bundle
+- `npm run deploy`: build and deploy the `unslop` Worker
+- `npm test`: build and verify the landing and detail page HTML
 - `npm run db:generate`: generate Drizzle migrations after schema changes
 
 ## Learn More
