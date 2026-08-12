@@ -82,7 +82,7 @@ button { color: inherit; }
   font-weight: 590;
 }
 .hero h1::first-line { font-family: var(--font-instrument-serif), Georgia, serif; font-weight: 400; letter-spacing: -.055em; }
-.hero-copy { max-width: 570px; margin: 0 0 0 42%; font-size: clamp(15px, 1.25vw, 19px); line-height: 1.45; letter-spacing: -.025em; color: #484842; }
+.hero-copy { max-width: 570px; margin: 0; font-size: clamp(15px, 1.25vw, 19px); line-height: 1.45; letter-spacing: -.025em; color: #484842; }
 .hero-stats { position: absolute; bottom: 30px; left: 3.2vw; display: flex; gap: 40px; }
 .hero-stats div { display: flex; flex-direction: column; gap: 4px; }
 .hero-stats strong { font-size: 20px; letter-spacing: -.04em; }
@@ -217,7 +217,7 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
   .hero { min-height: 500px; padding: 38px 18px 28px; }
   .hero::after { width: 70px; height: 70px; right: 18px; top: 25px; font-size: 30px; }
   .hero h1 { font-size: clamp(54px, 19vw, 78px); margin-top: 72px; }
-  .hero-copy { margin: 24px 0 0; max-width: 470px; font-size: 14px; }
+  .hero-copy { margin: 0; max-width: 470px; font-size: 14px; }
   .hero-stats { left: 18px; bottom: 28px; gap: 24px; }
   .hero-stats strong { font-size: 17px; }
   .library { padding: 65px 18px 90px; }

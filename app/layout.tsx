@@ -1,6 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
-import { headers } from "next/headers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,36 +18,73 @@ const instrumentSerif = Instrument_Serif({
   weight: "400",
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
-  const origin = `${protocol}://${host}`;
-  const canonicalOrigin = "https://unslop.site";
-  const title = "unslop.site — Interface References for Better AI Builds";
-  const description = "Find, copy, and share 131 curated interface references for clearer AI briefs and less generic first drafts.";
+const canonicalOrigin = "https://unslop.site";
+const title = "unslop.site — Interface References for Better AI Builds";
+const description = "Browse 131 curated interface references, copy AI-ready briefs and HTML, and give your coding agent a clearer visual direction.";
+const socialImage = `${canonicalOrigin}/og.png`;
 
-  return {
-    metadataBase: new URL(origin),
-    title,
+export const metadata: Metadata = {
+    metadataBase: new URL(canonicalOrigin),
+    applicationName: "unslop.site",
+    title: {
+      default: title,
+      template: "%s — unslop.site",
+    },
     description,
+    keywords: [
+      "interface design references",
+      "web design inspiration",
+      "UI design library",
+      "AI coding agent briefs",
+      "landing page inspiration",
+      "product design references",
+    ],
+    authors: [{ name: "unslop.site", url: canonicalOrigin }],
+    creator: "unslop.site",
+    publisher: "unslop.site",
+    category: "Design",
     alternates: { canonical: canonicalOrigin },
     icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+    referrer: "origin-when-cross-origin",
+    formatDetection: { email: false, address: false, telephone: false },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
     openGraph: {
       title,
       description,
       type: "website",
       url: canonicalOrigin,
-      images: [{ url: `${origin}/og.png`, width: 1727, height: 910, alt: "unslop.site — 131 interface references for better AI builds" }],
+      siteName: "unslop.site",
+      locale: "en_US",
+      images: [{
+        url: socialImage,
+        width: 1200,
+        height: 630,
+        type: "image/png",
+        alt: "unslop.site landing page — Find the interface you mean",
+      }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [`${origin}/og.png`],
+      images: [{ url: socialImage, alt: "unslop.site landing page — Find the interface you mean" }],
     },
-  };
-}
+};
+
+export const viewport: Viewport = {
+  colorScheme: "light",
+  themeColor: "#f4f3ee",
+};
 
 export default function RootLayout({
   children,

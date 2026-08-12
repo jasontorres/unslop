@@ -32,10 +32,21 @@ test("server-renders the unslop.site landing page", async () => {
   const html = await response.text();
   assert.match(html, /<title>unslop\.site — Interface References for Better AI Builds<\/title>/i);
   assert.match(html, /<link rel="canonical" href="https:\/\/unslop\.site"\/>/i);
+  assert.match(html, /<meta property="og:image" content="https:\/\/unslop\.site\/og\.png"\/>/i);
+  assert.match(html, /<meta property="og:image:width" content="1200"\/>/i);
+  assert.match(html, /<meta property="og:image:height" content="630"\/>/i);
+  assert.match(html, /<script type="application\/ld\+json">/i);
   assert.match(html, /aria-label="unslop\.site home"/i);
   assert.match(html, /131<!-- --> studies/i);
+  assert.match(html, /<h2>Browse<\/h2>/i);
   assert.match(html, /<img src="\/previews\/editorial-serif\.png"/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
+
+  const agencyCategory = html.indexOf("Software Agency");
+  const mobileCategory = html.indexOf("Mobile Apps");
+  const socialCategory = html.indexOf("Social Media");
+  assert.ok(agencyCategory >= 0 && mobileCategory > agencyCategory);
+  assert.ok(socialCategory > mobileCategory);
 });
 
 test("server-renders an AI-ready detail page", async () => {
@@ -48,4 +59,25 @@ test("server-renders an AI-ready detail page", async () => {
   assert.match(html, /Copy agent brief/i);
   assert.match(html, /Copy HTML \+ CSS/i);
   assert.match(html, /AI-ready export/i);
+  assert.match(html, /<link rel="canonical" href="https:\/\/unslop\.site\/site\/editorial-serif"\/>/i);
+  assert.match(html, /"@type":"CreativeWork"/i);
+});
+
+test("publishes crawl directives and every reference in the sitemap", async () => {
+  const [robotsResponse, sitemapResponse] = await Promise.all([
+    render("/robots.txt"),
+    render("/sitemap.xml"),
+  ]);
+
+  assert.equal(robotsResponse.status, 200);
+  assert.equal(sitemapResponse.status, 200);
+
+  const robots = await robotsResponse.text();
+  const sitemap = await sitemapResponse.text();
+  assert.match(robots, /User-Agent: \*/i);
+  assert.match(robots, /Allow: \//i);
+  assert.match(robots, /Sitemap: https:\/\/unslop\.site\/sitemap\.xml/i);
+  assert.match(sitemap, /<loc>https:\/\/unslop\.site\/<\/loc>/i);
+  assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/editorial-serif<\/loc>/i);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 132);
 });

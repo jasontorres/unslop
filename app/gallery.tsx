@@ -22,6 +22,14 @@ const fallbackColors = [
   "#ef7357",
 ];
 
+const trailingCategorySlugs = ["mobile-apps", "social-media"];
+const orderedCategoryDefinitions = [
+  ...categoryDefinitions.filter(({ slug }) => !trailingCategorySlugs.includes(slug)),
+  ...trailingCategorySlugs.flatMap((slug) =>
+    categoryDefinitions.filter((categoryDefinition) => categoryDefinition.slug === slug),
+  ),
+];
+
 function Preview({ slug, name, index }: { slug: string; name: string; index: number }) {
   const accent = fallbackColors[index % fallbackColors.length];
   return (
@@ -98,7 +106,7 @@ export function Gallery() {
         <div className="library-head">
           <div>
             <p className="section-label">Library / 2026</p>
-            <h2>All references</h2>
+            <h2>Browse</h2>
           </div>
           <label className="searchbox">
             <span aria-hidden="true">⌕</span>
@@ -119,7 +127,7 @@ export function Gallery() {
           <button className={category === "featured" ? "active featured-filter" : "featured-filter"} onClick={() => setCategory("featured")}>
             Featured <span>{featuredSlugs.length}</span>
           </button>
-          {categoryDefinitions.map((item) => (
+          {orderedCategoryDefinitions.map((item) => (
             <button
               key={item.slug}
               className={category === item.slug ? "active" : ""}
