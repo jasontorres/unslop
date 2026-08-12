@@ -24,20 +24,22 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
-  const title = "Design Index — Interface References for Humans & Agents";
-  const description = "Browse, copy, and share 131 design references across landing pages, apps, editorial, commerce, civic, and agency work.";
+  const canonicalOrigin = "https://unslop.site";
+  const title = "unslop.site — Interface References for Better AI Builds";
+  const description = "Find, copy, and share 131 curated interface references for clearer AI briefs and less generic first drafts.";
 
   return {
     metadataBase: new URL(origin),
     title,
     description,
+    alternates: { canonical: canonicalOrigin },
     icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
     openGraph: {
       title,
       description,
       type: "website",
-      url: origin,
-      images: [{ url: `${origin}/og.png`, width: 1730, height: 909, alt: "Design Index — 131 interface references for humans and agents" }],
+      url: canonicalOrigin,
+      images: [{ url: `${origin}/og.png`, width: 1727, height: 910, alt: "unslop.site — 131 interface references for better AI builds" }],
     },
     twitter: {
       card: "summary_large_image",

@@ -15,7 +15,7 @@ export function SiteActions({ slug, brief }: { slug: string; brief: string }) {
   async function share() {
     const url = `${window.location.origin}/site/${slug}`;
     if (navigator.share) {
-      await navigator.share({ title: "Design Index reference", url });
+      await navigator.share({ title: "unslop.site reference", url });
       return;
     }
     await copy("link");

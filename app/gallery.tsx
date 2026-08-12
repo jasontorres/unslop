@@ -56,20 +56,20 @@ export function Gallery() {
   return (
     <main>
       <header className="topbar">
-        <Link href="/" className="brand" aria-label="Design Index home">
-          <span className="brand-mark">DI</span>
-          <span>Design Index</span>
+        <Link href="/" className="brand" aria-label="unslop.site home">
+          <span className="brand-mark">u.</span>
+          <span>unslop.site</span>
         </Link>
         <p className="topbar-note">Curated interface references · {allSites.length} studies</p>
         <a className="topbar-link" href="#library">Browse library <span>↓</span></a>
       </header>
 
       <section className="hero">
-        <div className="hero-kicker"><span /> Agent-ready design archive</div>
+        <div className="hero-kicker"><span /> The anti-slop design archive</div>
         <h1>Find the interface<br />you mean.</h1>
         <p className="hero-copy">
           A visual reference library for choosing a direction, briefing an AI agent,
-          and sharing exactly the design you want to build from.
+          and getting past generic first drafts.
         </p>
         <div className="hero-stats" aria-label="Library statistics">
           <div><strong>{allSites.length}</strong><span>Design references</span></div>
@@ -149,8 +149,8 @@ export function Gallery() {
       </section>
 
       <footer>
-        <div><span className="brand-mark inverse">DI</span><strong>Design Index</strong></div>
-        <p>Built for taste-making, clear briefs, and better first drafts.</p>
+        <div><span className="brand-mark inverse">u.</span><strong>unslop.site</strong></div>
+        <p>Better references. Clearer briefs. Less slop.</p>
         <a href="#library">Back to library ↑</a>
       </footer>
     </main>

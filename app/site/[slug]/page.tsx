@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const site = sitesBySlug.get(slug);
   if (!site) return {};
   return {
-    title: `${site.name} — Design Index`,
-    description: `${site.name}, a ${site.subcategory.toLowerCase()} reference from the Design Index.`,
+    title: `${site.name} — unslop.site`,
+    description: `${site.name}, a ${site.subcategory.toLowerCase()} reference from unslop.site.`,
   };
 }
 
@@ -33,7 +33,7 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
   return (
     <main className="detail-page">
       <header className="detail-topbar">
-        <Link href="/" className="brand"><span className="brand-mark">DI</span><span>Design Index</span></Link>
+        <Link href="/" className="brand"><span className="brand-mark">u.</span><span>unslop.site</span></Link>
         <nav aria-label="Breadcrumb">
           <Link href="/">Library</Link><span>/</span><span>{site.category}</span><span>/</span><strong>{site.name}</strong>
         </nav>
@@ -92,7 +92,7 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
 
       <footer className="detail-footer">
         <Link href="/">← Back to the full library</Link>
-        <p>Design Index · {allSites.length} references for humans and agents</p>
+        <p>unslop.site · {allSites.length} references for better AI builds</p>
       </footer>
     </main>
   );
