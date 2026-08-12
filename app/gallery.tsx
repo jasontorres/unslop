@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { writeTextToClipboard } from "./clipboard";
 import { allSites, categoryDefinitions, getCategoryCount } from "./data";
 
 const fallbackColors = [
@@ -48,7 +49,7 @@ export function Gallery() {
 
   async function copySite(slug: string) {
     const url = `${window.location.origin}/site/${slug}`;
-    await navigator.clipboard.writeText(url);
+    await writeTextToClipboard(url);
     setCopied(slug);
     window.setTimeout(() => setCopied(null), 1400);
   }

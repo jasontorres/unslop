@@ -574,13 +574,18 @@ function DCSection({ id, title, subtitle, children, gap = 48 }) {
 // DCArtboard — marker; rendered by DCArtboardFrame via DCSection.
 function DCArtboard() { return null; }
 
-// Per-artboard export (kind: 'png' | 'html'). Both paths share the same
+// Per-artboard export (kind: 'png' | 'html' | 'html-text'). PNG and download
+// HTML share the same
 // self-contained clone: computed styles baked in, @font-face / <img> /
 // inline-style background-image urls inlined as data URIs. PNG wraps the
 // clone in foreignObject→canvas at 3× the artboard's natural width×height
 // (same pipeline the host uses for page captures); HTML wraps it in a
-// minimal standalone document. Both are independent of viewport zoom.
+// minimal standalone document. html-text is optimized for AI input instead:
+// it keeps a compact set of meaningful computed CSS inline and preserves
+// explicit font/image URLs without embedding megabytes of binary data.
+// All paths are independent of viewport zoom.
 async function dcExport(node, w, h, name, kind) {
+  const aiCopy = kind === 'html-text';
   try { await document.fonts.ready; } catch {}
   const toDataURL = (url) => fetch(url).then((r) => r.blob()).then((b) => new Promise((res) => {
     const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(url); fr.readAsDataURL(b);
@@ -609,12 +614,14 @@ async function dcExport(node, w, h, name, kind) {
       } else if (r.cssRules) walk(r.cssRules, base);
     }
   };
-  for (const ss of document.styleSheets) {
-    const base = ss.href || location.href;
-    try { walk(ss.cssRules, base); } catch { if (ss.href) scrapeCss(ss.href); }
+  if (!aiCopy) {
+    for (const ss of document.styleSheets) {
+      const base = ss.href || location.href;
+      try { walk(ss.cssRules, base); } catch { if (ss.href) scrapeCss(ss.href); }
+    }
+    while (pending.length) await pending.shift();
   }
-  while (pending.length) await pending.shift();
-  const fontCss = (await Promise.all(fontRules.map(async (rule) => {
+  const fontCss = aiCopy ? '' : (await Promise.all(fontRules.map(async (rule) => {
     let out = rule.css, m; const re = /url\((['"]?)([^'")]+)\1\)/g;
     while ((m = re.exec(rule.css))) {
       if (m[2].indexOf('data:') === 0) continue;
@@ -624,12 +631,41 @@ async function dcExport(node, w, h, name, kind) {
     return out;
   }))).join('\n');
 
+  const aiStyleProperties = [
+    'display', 'position', 'top', 'right', 'bottom', 'left', 'inset', 'z-index', 'box-sizing',
+    'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height', 'aspect-ratio',
+    'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+    'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+    'overflow', 'overflow-x', 'overflow-y',
+    'flex', 'flex-basis', 'flex-direction', 'flex-flow', 'flex-grow', 'flex-shrink', 'flex-wrap',
+    'gap', 'row-gap', 'column-gap', 'align-content', 'align-items', 'align-self',
+    'justify-content', 'justify-items', 'justify-self', 'order',
+    'grid', 'grid-template-columns', 'grid-template-rows', 'grid-auto-columns', 'grid-auto-rows',
+    'grid-column', 'grid-row', 'place-content', 'place-items', 'place-self',
+    'font-family', 'font-size', 'font-style', 'font-weight', 'font-variant', 'line-height',
+    'letter-spacing', 'word-spacing', 'text-align', 'text-transform', 'text-decoration',
+    'text-indent', 'text-overflow', 'text-shadow', 'white-space', 'word-break',
+    'color', 'background', 'background-color', 'background-image', 'background-position',
+    'background-size', 'background-repeat', 'border', 'border-top', 'border-right',
+    'border-bottom', 'border-left', 'border-color', 'border-style', 'border-width',
+    'border-radius', 'box-shadow', 'opacity', 'visibility',
+    'transform', 'transform-origin', 'object-fit', 'object-position', 'clip-path',
+    'fill', 'stroke', 'stroke-width', 'list-style',
+  ];
+
   const cloneStyled = (src) => {
     if (src.nodeType === 8 || (src.nodeType === 1 && src.tagName === 'SCRIPT')) return document.createTextNode('');
     const dst = src.cloneNode(false);
     if (src.nodeType === 1) {
       const cs = getComputedStyle(src); let txt = '';
-      for (let i = 0; i < cs.length; i++) txt += cs[i] + ':' + cs.getPropertyValue(cs[i]) + ';';
+      if (aiCopy) {
+        for (const prop of aiStyleProperties) {
+          const value = cs.getPropertyValue(prop);
+          if (value) txt += prop + ':' + value + ';';
+        }
+      } else {
+        for (let i = 0; i < cs.length; i++) txt += cs[i] + ':' + cs.getPropertyValue(cs[i]) + ';';
+      }
       dst.setAttribute('style', txt + 'animation:none;transition:none;');
       if (src.tagName === 'CANVAS') try { const im = document.createElement('img'); im.src = src.toDataURL(); im.setAttribute('style', txt); return im; } catch {}
     }
@@ -641,6 +677,20 @@ async function dcExport(node, w, h, name, kind) {
   // Drop the card's own shadow/radius so the export is a flush w×h rect;
   // the artboard's own background (if any) is already in the computed style.
   clone.style.boxShadow = 'none'; clone.style.borderRadius = '0';
+
+  if (aiCopy) {
+    clone.querySelectorAll('img').forEach((el) => {
+      const src = el.getAttribute('src');
+      if (src && src.indexOf('data:') !== 0) try { el.setAttribute('src', new URL(src, location.href).href); } catch {}
+    });
+    const fontLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"][href]'))
+      .map((link) => '<link rel="stylesheet" href="' + link.href + '">').join('');
+    const xml = new XMLSerializer().serializeToString(clone);
+    return '<!doctype html>\n<!-- AI-ready visual reference exported from unslop.site. Meaningful computed CSS is inline; font and image URLs are explicit. Use the exact visual values as implementation evidence, then adapt semantics, content, responsiveness, and interactions for your product. -->\n' +
+      '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<meta name="generator" content="unslop.site"><title>' + name + '</title>' + fontLinks +
+      '</head><body style="margin:0">' + xml + '</body></html>';
+  }
 
   const jobs = [];
   clone.querySelectorAll('img').forEach((el) => {
@@ -667,7 +717,9 @@ async function dcExport(node, w, h, name, kind) {
   };
 
   if (kind === 'html') {
-    const html = '<!doctype html><html><head><meta charset="utf-8"><title>' + name + '</title>' +
+    const html = '<!doctype html>\n<!-- Exported from unslop.site. Computed CSS is inline; fonts and images are embedded. Use this as a visual and structural reference, then adapt semantics, content, responsiveness, and interactions for your product. -->\n' +
+      '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<meta name="generator" content="unslop.site"><title>' + name + '</title>' +
       (fontCss ? '<style>' + fontCss + '</style>' : '') +
       '</head><body style="margin:0">' + xml + '</body></html>';
     return save(new Blob([html], { type: 'text/html' }), 'html');
@@ -844,14 +896,32 @@ function DCEditable({ value, onChange, style, tag = 'span', onClick }) {
 // ─────────────────────────────────────────────────────────────
 function DCEmbeddedArtboard({ entry }) {
   const { artboard } = entry;
-  const { width = 260, height = 480, children, style = {} } = artboard.props;
+  const { id, label, width = 260, height = 480, children, style = {} } = artboard.props;
   const [vp, setVp] = React.useState({ w: window.innerWidth, h: window.innerHeight });
+  const cardRef = React.useRef(null);
 
   React.useEffect(() => {
     const resize = () => setVp({ w: window.innerWidth, h: window.innerHeight });
     window.addEventListener('resize', resize);
     return () => window.removeEventListener('resize', resize);
   }, []);
+
+  React.useEffect(() => {
+    const name = String(label || id || 'unslop-reference').replace(/[^\w\s.-]+/g, '_');
+    let exportPromise = null;
+    const build = () => {
+      if (!cardRef.current) return Promise.reject(new Error('Reference is still loading'));
+      return exportPromise || (exportPromise = dcExport(cardRef.current, width, height, name, 'html-text'));
+    };
+    window.__UNSLOP_EXPORT_HTML__ = build;
+    // Prepare the styled export as soon as the artboard mounts so the copy
+    // action can complete inside the user's click gesture on insecure hosts.
+    const timer = setTimeout(() => build().catch(() => { exportPromise = null; }), 0);
+    return () => {
+      clearTimeout(timer);
+      if (window.__UNSLOP_EXPORT_HTML__ === build) delete window.__UNSLOP_EXPORT_HTML__;
+    };
+  }, [id, label, width, height]);
 
   const scale = Math.max(0.1, vp.w / width);
   const backdrop = style.backgroundColor || style.background || '#fff';
@@ -861,7 +931,7 @@ function DCEmbeddedArtboard({ entry }) {
       position: 'fixed', inset: 0, overflowX: 'hidden', overflowY: 'auto', background: backdrop,
     }}>
       <div style={{ width: width * scale, height: height * scale, position: 'relative', overflow: 'hidden' }}>
-        <div className="dc-embedded-card" style={{
+        <div ref={cardRef} className="dc-embedded-card" style={{
           width, height, transform: `scale(${scale})`, transformOrigin: 'top left',
           overflow: 'hidden', background: '#fff', ...style,
         }}>

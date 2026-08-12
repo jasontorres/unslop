@@ -27,7 +27,7 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
     .filter((item) => item.categorySlug === site.categorySlug && item.slug !== site.slug)
     .slice(Math.max(0, allSites.indexOf(site) % 4), Math.max(0, allSites.indexOf(site) % 4) + 4);
 
-  const brief = `Use “${site.name}” as the visual direction for this interface. It belongs to ${site.category} / ${site.subcategory}. Study the reference for its hierarchy, typography, color system, spacing, density, border treatment, and interaction vocabulary. Adapt those principles to my product and content—do not copy the sample brand or wording. Keep the result responsive, accessible, and production-ready.`;
+  const brief = `Use “${site.name}” as the visual direction for this interface. It belongs to ${site.category} / ${site.subcategory}. Study the reference for its hierarchy, typography, color system, spacing, density, border treatment, and interaction vocabulary. Adapt those principles to my product and content—do not copy the sample brand or wording. If I provide an unslop.site HTML export, inspect its inline computed CSS, embedded fonts, and asset data for exact visual values; treat it as an implementation reference, not production-ready source. Keep the result responsive, accessible, and production-ready.`;
   const sourceUrl = `${getSourceUrl(site)}&embed=1`;
 
   return (
@@ -43,14 +43,19 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
         <div>
           <p className="eyebrow"><span>{String(site.index + 1).padStart(3, "0")}</span> {site.category} / {site.subcategory}</p>
           <h1>{site.name}</h1>
-          <p className="detail-summary">A shareable visual reference with a ready-to-copy brief for your next build.</p>
+          <p className="detail-summary">Copy the direction as an agent brief—or take the standalone HTML with its styles included.</p>
         </div>
         <SiteActions slug={site.slug} brief={brief} />
       </section>
 
       <section className="reference-stage" aria-label={`${site.name} interactive design reference`}>
-        <iframe src={sourceUrl} title={`${site.name} interactive preview`} loading="eager" />
+        <iframe id="reference-frame" src={sourceUrl} title={`${site.name} interactive preview`} loading="eager" />
       </section>
+
+      <div id="html-export-note" className="reference-export-note">
+        <span>AI-ready export</span>
+        <p><strong>Copy HTML + CSS</strong> includes compact computed styles plus explicit font and asset URLs—useful visual evidence without binary bloat.</p>
+      </div>
 
       <section className="reference-notes">
         <div className="reference-about">
@@ -58,7 +63,8 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
           <h2>Give your agent the direction,<br />not just the screenshot.</h2>
           <p>
             This brief names the design decisions worth preserving while leaving your agent room
-            to adapt the system to a different product, brand, and content model.
+            to adapt the system to a different product, brand, and content model. Pair it with
+            the standalone HTML when the agent also needs exact type, spacing, color, and layout values.
           </p>
           <div className="tag-list">
             {site.tags.map((tag) => <span key={tag}>{tag}</span>)}

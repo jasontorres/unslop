@@ -161,9 +161,15 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 .action-group button { height: 43px; padding: 0 16px; border: 1px solid var(--ink); background: transparent; cursor: pointer; font-size: 11px; }
 .action-group .primary-action { background: var(--ink); color: #fff; min-width: 156px; }
 .primary-action span { color: var(--acid); margin-right: 8px; }
+.action-group .html-action { background: var(--acid); border-color: var(--ink); font-weight: 650; }
 .action-group .icon-action { width: 43px; padding: 0; border-radius: 50%; }
+.copy-error { flex-basis: 100%; margin: 2px 0 0; color: #a43d2b; font-family: var(--font-geist-mono); font-size: 8px; text-align: right; }
 .reference-stage { width: 100%; background: #fff; }
 .reference-stage iframe { display: block; width: 100%; height: calc(100vh - 74px); min-height: 680px; border: 0; background: #fff; }
+.reference-export-note { min-height: 58px; padding: 13px 3.2vw; border-top: 1px solid #cdccc5; border-bottom: 1px solid #cdccc5; display: flex; align-items: center; justify-content: space-between; gap: 32px; background: var(--paper); }
+.reference-export-note > span { flex: none; color: var(--blue); font-family: var(--font-geist-mono); font-size: 9px; text-transform: uppercase; letter-spacing: .07em; }
+.reference-export-note p { max-width: 690px; margin: 0; color: #62615c; font-size: 11px; line-height: 1.5; text-align: right; }
+.reference-export-note strong { color: var(--ink); font-weight: 650; }
 .reference-notes { padding: 130px 3.2vw; display: grid; grid-template-columns: 1fr .8fr; gap: 8vw; align-items: center; }
 .reference-about > p:not(.section-label) { max-width: 570px; color: #62615c; font-size: 15px; line-height: 1.65; margin: 34px 0 25px; }
 .tag-list { display: flex; flex-wrap: wrap; gap: 7px; }
@@ -216,7 +222,10 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
   .detail-intro h1 { font-size: clamp(46px, 14vw, 70px); }
   .detail-summary { margin-top: 10px; }
   .action-group { justify-content: flex-start; margin-top: 21px; }
+  .copy-error { text-align: left; }
   .reference-stage iframe { height: calc(100dvh - 63px); min-height: 560px; }
+  .reference-export-note { padding: 14px 18px; align-items: flex-start; flex-direction: column; gap: 6px; }
+  .reference-export-note p { text-align: left; }
   .reference-notes { padding: 85px 18px 100px; grid-template-columns: 1fr; gap: 52px; }
   .brief-card { box-shadow: 9px 9px 0 var(--acid); }
   .related-section { padding: 70px 18px 90px; }
