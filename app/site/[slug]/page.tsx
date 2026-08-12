@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { allSites, getSourceUrl, sitesBySlug } from "../../data";
+import { allSites, getEmbeddedSourceUrl, sitesBySlug } from "../../data";
 import { CopyBrief, SiteActions } from "./actions";
 
 export function generateStaticParams() {
@@ -52,7 +52,7 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
     .slice(Math.max(0, allSites.indexOf(site) % 4), Math.max(0, allSites.indexOf(site) % 4) + 4);
 
   const brief = `Use “${site.name}” as the visual direction for this interface. It belongs to ${site.category} / ${site.subcategory}. Study the reference for its hierarchy, typography, color system, spacing, density, border treatment, and interaction vocabulary. Adapt those principles to my product and content—do not copy the sample brand or wording. If I provide an unslop.site HTML export, inspect its inline computed CSS, embedded fonts, and asset data for exact visual values; treat it as an implementation reference, not production-ready source. Keep the result responsive, accessible, and production-ready.`;
-  const sourceUrl = `${getSourceUrl(site)}&embed=1`;
+  const sourceUrl = getEmbeddedSourceUrl(site);
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CreativeWork",

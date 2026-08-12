@@ -450,3 +450,9 @@ export function getSourceUrl(site: GallerySite) {
   const focus = `${site.sectionId}/${site.artboardId}`;
   return `/source/${encodeURIComponent(site.sourceFile)}?focus=${encodeURIComponent(focus)}`;
 }
+
+export function getEmbeddedSourceUrl(site: GallerySite) {
+  const containedCategories = new Set(["mobile-apps", "social-media"]);
+  const fit = containedCategories.has(site.categorySlug) ? "&fit=contain" : "";
+  return `${getSourceUrl(site)}&embed=1${fit}`;
+}

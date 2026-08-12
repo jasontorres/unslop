@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -73,6 +74,31 @@ test("keeps the AI guide URL isolated from gallery chrome", async () => {
   assert.match(html, /Editorial Serif isolated interactive reference/i);
   assert.match(html, /name="robots" content="noindex, nofollow"/i);
   assert.doesNotMatch(html, /unslop\.site home|Reference notes|Related directions|detail-footer/i);
+});
+
+test("contains mobile and social embeds without shrinking desktop references", async () => {
+  const [mobileResponse, socialResponse, desktopResponse] = await Promise.all([
+    render("/site/food-delivery"),
+    render("/site/spotify-share-card"),
+    render("/site/editorial-serif"),
+  ]);
+
+  const [mobile, social, desktop] = await Promise.all([
+    mobileResponse.text(),
+    socialResponse.text(),
+    desktopResponse.text(),
+  ]);
+
+  assert.match(mobile, /fit=contain/i);
+  assert.match(social, /fit=contain/i);
+  assert.doesNotMatch(desktop, /fit=contain/i);
+
+  const canvasSource = await readFile(
+    new URL("../public/source/design-canvas.jsx", import.meta.url),
+    "utf8",
+  );
+  assert.match(canvasSource, /embeddedFit.*contain/);
+  assert.match(canvasSource, /Math\.min\(\(vp\.w - gutter \* 2\) \/ width, \(vp\.h - gutter \* 2\) \/ height, 1\)/);
 });
 
 test("publishes crawl directives and every reference in the sitemap", async () => {

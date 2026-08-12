@@ -152,6 +152,7 @@ function DesignCanvas({ children, minScale, maxScale, style }) {
   const searchParams = new URLSearchParams(window.location.search);
   const requestedFocus = searchParams.get('focus');
   const embedded = searchParams.get('embed') === '1';
+  const embeddedFit = searchParams.get('fit') === 'contain' ? 'contain' : 'width';
   const [state, setState] = React.useState({ sections: {}, focus: requestedFocus || null });
   // Hold rendering until the sidecar read settles so the saved order/titles
   // appear on first paint (no source-order flash). didRead gates writes until
@@ -252,7 +253,7 @@ function DesignCanvas({ children, minScale, maxScale, style }) {
   return (
     <DCCtx.Provider value={api}>
       {ready && embedded && focusedEntry ? (
-        <DCEmbeddedArtboard entry={focusedEntry} />
+        <DCEmbeddedArtboard entry={focusedEntry} fit={embeddedFit} />
       ) : (
         <DCViewport minScale={minScale} maxScale={maxScale} style={style}>{ready && children}</DCViewport>
       )}
@@ -889,12 +890,11 @@ function DCEditable({ value, onChange, style, tag = 'span', onClick }) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Embedded mode — render one requested artboard edge-to-edge with no canvas
-// chrome. This is used by the gallery detail page and screenshot capture.
-// The artboard always fills the available width. Taller formats scroll
-// vertically instead of being shrunk into a letterboxed viewport.
+// Embedded mode — render one requested artboard with no canvas chrome. Wide
+// site references fill the available width. Narrow mobile and social formats
+// can opt into `fit=contain` so their natural proportions remain legible.
 // ─────────────────────────────────────────────────────────────
-function DCEmbeddedArtboard({ entry }) {
+function DCEmbeddedArtboard({ entry, fit = 'width' }) {
   const { artboard } = entry;
   const { id, label, width = 260, height = 480, children, style = {} } = artboard.props;
   const [vp, setVp] = React.useState({ w: window.innerWidth, h: window.innerHeight });
@@ -923,14 +923,30 @@ function DCEmbeddedArtboard({ entry }) {
     };
   }, [id, label, width, height]);
 
-  const scale = Math.max(0.1, vp.w / width);
-  const backdrop = style.backgroundColor || style.background || '#fff';
+  const contained = fit === 'contain';
+  const gutter = Math.max(20, Math.min(48, Math.min(vp.w, vp.h) * 0.055));
+  const scale = contained
+    ? Math.max(0.1, Math.min((vp.w - gutter * 2) / width, (vp.h - gutter * 2) / height, 1))
+    : Math.max(0.1, vp.w / width);
+  const backdrop = contained
+    ? '#e7e5df'
+    : (style.backgroundColor || style.background || '#fff');
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, overflowX: 'hidden', overflowY: 'auto', background: backdrop,
+      position: 'fixed', inset: 0,
+      overflowX: 'hidden', overflowY: contained ? 'hidden' : 'auto',
+      background: backdrop,
+      display: contained ? 'grid' : 'block',
+      placeItems: contained ? 'center' : undefined,
     }}>
-      <div style={{ width: width * scale, height: height * scale, position: 'relative', overflow: 'hidden' }}>
+      <div style={{
+        width: width * scale,
+        height: height * scale,
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: contained ? '0 22px 70px rgba(28, 27, 24, 0.18)' : 'none',
+      }}>
         <div ref={cardRef} className="dc-embedded-card" style={{
           width, height, transform: `scale(${scale})`, transformOrigin: 'top left',
           overflow: 'hidden', background: '#fff', ...style,

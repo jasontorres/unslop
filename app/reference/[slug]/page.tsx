@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { allSites, getSourceUrl, sitesBySlug } from "../../data";
+import { allSites, getEmbeddedSourceUrl, sitesBySlug } from "../../data";
 
 export function generateStaticParams() {
   return allSites.map((site) => ({ slug: site.slug }));
@@ -27,7 +27,7 @@ export default async function IsolatedReferencePage({ params }: { params: Promis
   return (
     <main className="isolated-reference-page">
       <iframe
-        src={`${getSourceUrl(site)}&embed=1`}
+        src={getEmbeddedSourceUrl(site)}
         title={`${site.name} isolated interactive reference`}
         loading="eager"
       />
