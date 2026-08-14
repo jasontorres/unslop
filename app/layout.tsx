@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
-import { allSites } from "./data";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,32 +19,30 @@ const instrumentSerif = Instrument_Serif({
 });
 
 const canonicalOrigin = "https://unslop.site";
-const title = "unslop.site — Interface References for Better AI Builds";
-const description = `Browse ${allSites.length} curated interface references, copy AI-ready briefs and HTML, and give your coding agent a clearer visual direction.`;
+const title = "Facet — Turn Any Image Into a Low-Poly Mascot";
+const description = "Create a polished low-poly cartoon mascot or app logo from a reference image and a short creative brief.";
 const socialImage = `${canonicalOrigin}/og.png`;
 
 export const metadata: Metadata = {
     metadataBase: new URL(canonicalOrigin),
-    applicationName: "unslop.site",
+    applicationName: "Facet",
     title: {
       default: title,
-      template: "%s — unslop.site",
+      template: "%s — Facet",
     },
     description,
     keywords: [
-      "interface design references",
-      "web design inspiration",
-      "UI design library",
-      "AI coding agent briefs",
-      "landing page inspiration",
-      "product design references",
+      "AI mascot maker",
+      "low-poly logo generator",
+      "cartoon app icon",
+      "image to mascot",
     ],
-    authors: [{ name: "unslop.site", url: canonicalOrigin }],
-    creator: "unslop.site",
-    publisher: "unslop.site",
+    authors: [{ name: "Facet", url: canonicalOrigin }],
+    creator: "Facet",
+    publisher: "Facet",
     category: "Design",
     alternates: { canonical: canonicalOrigin },
-    icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+    icons: { icon: "/favicon.png", shortcut: "/favicon.png" },
     referrer: "origin-when-cross-origin",
     formatDetection: { email: false, address: false, telephone: false },
     robots: {
@@ -64,27 +61,27 @@ export const metadata: Metadata = {
       description,
       type: "website",
       url: canonicalOrigin,
-      siteName: "unslop.site",
+      siteName: "Facet",
       locale: "en_US",
       images: [{
         url: socialImage,
         width: 1200,
         height: 630,
         type: "image/png",
-        alt: "unslop.site landing page — Find the interface you mean",
+        alt: "Facet — low-poly mascot maker",
       }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [{ url: socialImage, alt: "unslop.site landing page — Find the interface you mean" }],
+      images: [{ url: socialImage, alt: "Facet — low-poly mascot maker" }],
     },
 };
 
 export const viewport: Viewport = {
   colorScheme: "light",
-  themeColor: "#f4f3ee",
+  themeColor: "#f7f2e8",
 };
 
 export default function RootLayout({

@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const canonicalUrl = `https://unslop.site/site/${site.slug}`;
   const description = `${site.name}, a ${site.subcategory.toLowerCase()} interface reference with an AI-ready brief and standalone HTML.`;
   return {
-    title: site.name,
+    title: { absolute: `${site.name} — unslop.site` },
     description,
     keywords: [...site.tags, site.category, site.subcategory, "interface reference", "design inspiration"],
     alternates: { canonical: canonicalUrl },
@@ -26,18 +26,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: "website",
       siteName: "unslop.site",
       images: [{
-        url: "https://unslop.site/og.png",
-        width: 1200,
-        height: 630,
-        type: "image/png",
-        alt: "unslop.site landing page — Find the interface you mean",
+        url: `https://unslop.site/previews/${site.slug}.png`,
+        alt: `${site.name} interface preview`,
       }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${site.name} — unslop.site`,
       description,
-      images: ["https://unslop.site/og.png"],
+      images: [`https://unslop.site/previews/${site.slug}.png`],
     },
   };
 }
