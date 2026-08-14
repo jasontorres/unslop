@@ -45,10 +45,10 @@ function Preview({ slug, name, index }: { slug: string; name: string; index: num
   );
 }
 
-export function Gallery() {
+export function Gallery({ initialCategory = "all" }: { initialCategory?: string }) {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("all");
   const [copied, setCopied] = useState<string | null>(null);
+  const category = initialCategory;
 
   const visibleSites = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -121,27 +121,27 @@ export function Gallery() {
         </div>
 
         <nav className="filters" aria-label="Design categories">
-          <button className={category === "all" ? "active" : ""} onClick={() => setCategory("all")}>
+          <Link href="/" className={category === "all" ? "active" : ""}>
             All <span>{allSites.length}</span>
-          </button>
-          <button className={category === "featured" ? "active featured-filter" : "featured-filter"} onClick={() => setCategory("featured")}>
+          </Link>
+          <Link href="/featured" className={category === "featured" ? "active featured-filter" : "featured-filter"}>
             Featured <span>{featuredSlugs.length}</span>
-          </button>
+          </Link>
           {orderedCategoryDefinitions.map((item) => (
-            <button
+            <Link
               key={item.slug}
+              href={`/${item.slug}`}
               className={category === item.slug ? "active" : ""}
-              onClick={() => setCategory(item.slug)}
             >
               {item.name} <span>{getCategoryCount(item.slug)}</span>
-            </button>
+            </Link>
           ))}
         </nav>
 
         <div className="results-row">
           <p>{visibleSites.length} {visibleSites.length === 1 ? "reference" : "references"}</p>
           {(category !== "all" || query) && (
-            <button onClick={() => { setCategory("all"); setQuery(""); }}>Reset filters</button>
+            <Link href="/" onClick={() => setQuery("")}>Reset filters</Link>
           )}
         </div>
 
@@ -174,7 +174,7 @@ export function Gallery() {
             <span>∅</span>
             <h3>No references found</h3>
             <p>Try a broader phrase or reset the current category.</p>
-            <button onClick={() => { setQuery(""); setCategory("all"); }}>Show everything</button>
+            <Link href="/" onClick={() => setQuery("")}>Show everything</Link>
           </div>
         )}
       </section>

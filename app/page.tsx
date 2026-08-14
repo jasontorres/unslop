@@ -1,7 +1,7 @@
 import { Gallery } from "./gallery";
 import { allSites } from "./data";
 
-const description = "Browse 131 curated interface references, copy AI-ready briefs and HTML, and give your coding agent a clearer visual direction.";
+const description = `Browse ${allSites.length} curated interface references, copy AI-ready briefs and HTML, and give your coding agent a clearer visual direction.`;
 
 const structuredData = {
   "@context": "https://schema.org",

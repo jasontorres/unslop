@@ -41,6 +41,8 @@ test("server-renders the unslop.site landing page", async () => {
   assert.match(html, /143<!-- --> studies/i);
   assert.match(html, /<h2>Browse<\/h2>/i);
   assert.match(html, /<img src="\/previews\/editorial-serif\.png"/i);
+  assert.match(html, /href="\/featured"[^>]*>Featured/i);
+  assert.match(html, /href="\/financial-apps"[^>]*>Financial Apps/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 
   const agencyCategory = html.indexOf("Software Agency");
@@ -50,6 +52,33 @@ test("server-renders the unslop.site landing page", async () => {
   assert.ok(agencyCategory >= 0 && financialCategory > agencyCategory);
   assert.ok(mobileCategory > financialCategory);
   assert.ok(socialCategory > mobileCategory);
+});
+
+test("serves linkable category and featured collection pages", async () => {
+  const [financialResponse, featuredResponse] = await Promise.all([
+    render("/financial-apps"),
+    render("/featured"),
+  ]);
+
+  assert.equal(financialResponse.status, 200);
+  assert.equal(featuredResponse.status, 200);
+
+  const [financial, featured] = await Promise.all([
+    financialResponse.text(),
+    featuredResponse.text(),
+  ]);
+
+  assert.match(financial, /<title>Financial Apps Interface References — unslop\.site<\/title>/i);
+  assert.match(financial, /<link rel="canonical" href="https:\/\/unslop\.site\/financial-apps"\/>/i);
+  assert.match(financial, /12(?:<!-- -->|\s)+references/i);
+  assert.match(financial, /Centsible · Envelope Budget/i);
+  assert.doesNotMatch(financial, /Editorial Serif design preview/i);
+  assert.match(financial, /"@type":"CollectionPage"/i);
+
+  assert.match(featured, /<title>Featured Interface References — unslop\.site<\/title>/i);
+  assert.match(featured, /<link rel="canonical" href="https:\/\/unslop\.site\/featured"\/>/i);
+  assert.match(featured, /8(?:<!-- -->|\s)+references/i);
+  assert.match(featured, /Display \/ Anti-design/i);
 });
 
 test("server-renders an AI-ready detail page", async () => {
@@ -121,6 +150,8 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(robots, /Allow: \//i);
   assert.match(robots, /Sitemap: https:\/\/unslop\.site\/sitemap\.xml/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/<\/loc>/i);
+  assert.match(sitemap, /<loc>https:\/\/unslop\.site\/featured<\/loc>/i);
+  assert.match(sitemap, /<loc>https:\/\/unslop\.site\/financial-apps<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/editorial-serif<\/loc>/i);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 144);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 154);
 });
