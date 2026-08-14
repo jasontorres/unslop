@@ -377,6 +377,44 @@ export const categoryDefinitions: CategoryDefinition[] = [
       },
     ],
   },
+  {
+    slug: "financial-apps",
+    name: "Financial Apps",
+    sourceFile: "Financial Apps.html",
+    description: "Twelve mobile-first money products spanning budgeting, planning, payoff, treasury, tax, investing, and subscription management.",
+    groups: [
+      {
+        title: "Everyday Money",
+        sectionId: "financial-everyday",
+        entries: [
+          ["fin-centsible", "01 · Centsible · Envelope Budget"],
+          ["fin-monthline", "02 · Monthline · Cash Calendar"],
+          ["fin-common", "03 · Common Ground · Household"],
+          ["fin-tab", "04 · Tab! · Split Expenses"],
+        ],
+      },
+      {
+        title: "Planning & Payoff",
+        sectionId: "financial-planning",
+        entries: [
+          ["fin-northstar", "05 · Northstar · Retirement"],
+          ["fin-snowball", "06 · Snowball · Debt Quest"],
+          ["fin-future-self", "07 · Future Self · Goal Planner"],
+          ["fin-true-cost", "08 · True/Cost · Purchase Coach"],
+        ],
+      },
+      {
+        title: "Work & Wealth",
+        sectionId: "financial-specialist",
+        entries: [
+          ["fin-halid", "09 · Halid · Treasury"],
+          ["fin-solo-tax", "10 · Solo/Tax · Freelancer Vault"],
+          ["fin-signal", "11 · Signal · Ethical Portfolio"],
+          ["fin-subscape", "12 · Subscape · Subscription Garden"],
+        ],
+      },
+    ],
+  },
 ];
 
 function cleanName(label: string) {
@@ -452,7 +490,7 @@ export function getSourceUrl(site: GallerySite) {
 }
 
 export function getEmbeddedSourceUrl(site: GallerySite) {
-  const containedCategories = new Set(["mobile-apps", "social-media"]);
+  const containedCategories = new Set(["mobile-apps", "social-media", "financial-apps"]);
   const fit = containedCategories.has(site.categorySlug) ? "&fit=contain" : "";
   return `${getSourceUrl(site)}&embed=1${fit}`;
 }

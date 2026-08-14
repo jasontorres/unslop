@@ -22,6 +22,7 @@ artboard to focus it full-screen.
 | `Social Media Posts.html` | 3 sections, 16 artboards | IG posts, stories/reels, text platforms (X, Threads, LinkedIn, YouTube) |
 | `Profiles and Product Pages.html` | 3 sections, 12 artboards | Profile views (social, portfolio, account, athlete, creator) + PDPs (fashion, furniture, tech, prints) + listings (property, vehicle, app) |
 | `Articles and Editorial.html` | 3 sections, 12 artboards | Long-form reading (essay, magazine, photo essay, interview) + editorial indexes (broadsheet, newsletter, riso zine) + specialized formats (docs, recipe, dev blog, album review, podcast) |
+| `Financial Apps.html` | 3 sections, 12 artboards | Mobile-first budgeting, household money, group expenses, retirement, debt payoff, goals, treasury, tax, investing, and subscription tools |
 
 ## Working principles
 
@@ -94,9 +95,13 @@ Theme and Typography (project)
 ├── Profiles and Product Pages.html ← page 5
 │   └── profiles.jsx                ← 12 profile/PDP/listing layouts, 3 sections
 │
-└── Articles and Editorial.html     ← page 6
-    ├── articles.jsx                ← rows 1-2 (7 layouts) + bootstraps App
-    └── articles-2.jsx              ← row 3 (5 specialized formats), exposed via window
+├── Articles and Editorial.html     ← page 6
+│   ├── articles.jsx                ← rows 1-2 (7 layouts) + bootstraps App
+│   └── articles-2.jsx              ← row 3 (5 specialized formats), exposed via window
+│
+└── Financial Apps.html             ← mobile financial product study
+    ├── financial-apps.jsx          ← everyday money + bootstraps App
+    └── financial-apps-2.jsx        ← planning/payoff + work/wealth sections
 ```
 
 ## What good "more" looks like

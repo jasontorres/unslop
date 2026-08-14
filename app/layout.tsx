@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { allSites } from "./data";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,7 +21,7 @@ const instrumentSerif = Instrument_Serif({
 
 const canonicalOrigin = "https://unslop.site";
 const title = "unslop.site — Interface References for Better AI Builds";
-const description = "Browse 131 curated interface references, copy AI-ready briefs and HTML, and give your coding agent a clearer visual direction.";
+const description = `Browse ${allSites.length} curated interface references, copy AI-ready briefs and HTML, and give your coding agent a clearer visual direction.`;
 const socialImage = `${canonicalOrigin}/og.png`;
 
 export const metadata: Metadata = {

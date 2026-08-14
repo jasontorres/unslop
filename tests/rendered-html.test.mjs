@@ -38,15 +38,17 @@ test("server-renders the unslop.site landing page", async () => {
   assert.match(html, /<meta property="og:image:height" content="630"\/>/i);
   assert.match(html, /<script type="application\/ld\+json">/i);
   assert.match(html, /aria-label="unslop\.site home"/i);
-  assert.match(html, /131<!-- --> studies/i);
+  assert.match(html, /143<!-- --> studies/i);
   assert.match(html, /<h2>Browse<\/h2>/i);
   assert.match(html, /<img src="\/previews\/editorial-serif\.png"/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 
   const agencyCategory = html.indexOf("Software Agency");
+  const financialCategory = html.indexOf("Financial Apps");
   const mobileCategory = html.indexOf("Mobile Apps");
   const socialCategory = html.indexOf("Social Media");
-  assert.ok(agencyCategory >= 0 && mobileCategory > agencyCategory);
+  assert.ok(agencyCategory >= 0 && financialCategory > agencyCategory);
+  assert.ok(mobileCategory > financialCategory);
   assert.ok(socialCategory > mobileCategory);
 });
 
@@ -77,20 +79,23 @@ test("keeps the AI guide URL isolated from gallery chrome", async () => {
 });
 
 test("contains mobile and social embeds without shrinking desktop references", async () => {
-  const [mobileResponse, socialResponse, desktopResponse] = await Promise.all([
+  const [mobileResponse, socialResponse, financialResponse, desktopResponse] = await Promise.all([
     render("/site/food-delivery"),
     render("/site/spotify-share-card"),
+    render("/site/centsible-envelope-budget"),
     render("/site/editorial-serif"),
   ]);
 
-  const [mobile, social, desktop] = await Promise.all([
+  const [mobile, social, financial, desktop] = await Promise.all([
     mobileResponse.text(),
     socialResponse.text(),
+    financialResponse.text(),
     desktopResponse.text(),
   ]);
 
   assert.match(mobile, /fit=contain/i);
   assert.match(social, /fit=contain/i);
+  assert.match(financial, /fit=contain/i);
   assert.doesNotMatch(desktop, /fit=contain/i);
 
   const canvasSource = await readFile(
@@ -117,5 +122,5 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(robots, /Sitemap: https:\/\/unslop\.site\/sitemap\.xml/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/editorial-serif<\/loc>/i);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 132);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 144);
 });
