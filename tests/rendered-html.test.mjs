@@ -38,7 +38,8 @@ test("server-renders the unslop.site landing page", async () => {
   assert.match(html, /<meta property="og:image:height" content="630"\/>/i);
   assert.match(html, /<script type="application\/ld\+json">/i);
   assert.match(html, /aria-label="unslop\.site home"/i);
-  assert.match(html, /143<!-- --> studies/i);
+  assert.match(html, /href="\/" class="active" aria-current="page">Gallery/i);
+  assert.match(html, /href="\/logo">Logo Maker/i);
   assert.match(html, /<h2>Browse<\/h2>/i);
   assert.match(html, /<img src="\/previews\/editorial-serif\.png"/i);
   assert.match(html, /href="\/featured"[^>]*>Featured/i);
@@ -68,7 +69,8 @@ test("serves the identity maker only under /logo", async () => {
   assert.match(logo, /Create 3 variations/i);
   assert.match(logo, /Find existing logo/i);
   assert.match(logo, /aria-label="unslop\.site home"/i);
-  assert.match(logo, /Back to gallery/i);
+  assert.match(logo, /href="\/">Gallery/i);
+  assert.match(logo, /href="\/logo" class="active" aria-current="page">Logo Maker/i);
   assert.match(logo, /name="robots" content="noindex, nofollow"/i);
   assert.doesNotMatch(logo, /Turn any idea into a/i);
   assert.doesNotMatch(logo, /polygon|cost/i);

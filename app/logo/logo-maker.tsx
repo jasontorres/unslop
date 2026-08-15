@@ -205,8 +205,11 @@ export function LogoMaker() {
           <span className="brand-mark">u.</span>
           <span>unslop.site</span>
         </Link>
-        <p className="topbar-note">Logo &amp; mascot maker · 3 directions</p>
-        <Link className="topbar-link" href="/">Back to gallery <span>←</span></Link>
+        <nav className="site-nav" aria-label="Primary navigation">
+          <Link href="/">Gallery</Link>
+          <Link href="/logo" className="active" aria-current="page">Logo Maker</Link>
+        </nav>
+        <p className="topbar-context">Three creative directions</p>
       </header>
 
       <section className="poly-studio poly-studio-compact" id="studio" aria-label="Logo and mascot studio">

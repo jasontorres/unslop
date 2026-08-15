@@ -84,7 +84,10 @@ export function Gallery({ initialCategory = "all" }: { initialCategory?: string 
           <span className="brand-mark">u.</span>
           <span>unslop.site</span>
         </Link>
-        <p className="topbar-note">Curated interface references · {allSites.length} studies</p>
+        <nav className="site-nav" aria-label="Primary navigation">
+          <Link href="/" className="active" aria-current="page">Gallery</Link>
+          <Link href="/logo">Logo Maker</Link>
+        </nav>
         <a className="topbar-link" href="#library">Browse library <span>↓</span></a>
       </header>
 
