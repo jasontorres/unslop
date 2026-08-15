@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+
+/* eslint-disable @next/next/no-img-element -- Related screenshots preserve source-canvas aspect ratios. */
+
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { allSites, getAgentBrief, getEmbeddedSourceUrl, sitesBySlug } from "../../data";

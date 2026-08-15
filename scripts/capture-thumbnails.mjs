@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { allSites, getSourceUrl } from "../app/data.ts";
 
 const webdriver = process.env.WEBDRIVER_URL || "http://127.0.0.1:4444";
-const origin = process.env.GALLERY_ORIGIN || "http://localhost:3000";
+const origin = process.env.GALLERY_ORIGIN || "http://localhost:5100";
 const outputDirectory = new URL("../public/previews/", import.meta.url);
 const requestedSlugs = new Set(process.argv.slice(2));
 const requestedSections = new Set(

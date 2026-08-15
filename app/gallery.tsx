@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- Gallery screenshots preserve source-canvas aspect ratios. */
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { writeTextToClipboard } from "./clipboard";
