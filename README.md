@@ -1,8 +1,9 @@
 # unslop.site
 
 [unslop.site](https://unslop.site) is a curated library of interface references
-and a browser-based logo maker. It is built with Next.js, React, vinext, and
-Cloudflare Workers.
+and a browser-based logo maker. It is built with vinext, React, Vite, and
+Cloudflare Workers. vinext provides a Next.js-compatible API surface without
+using the Next.js build system.
 
 ## Features
 
@@ -56,7 +57,7 @@ a new tab. Environment files are ignored by Git.
 ## Project structure
 
 ```text
-app/                    Next.js routes, gallery UI, and logo maker
+app/                    vinext App Router routes, gallery UI, and logo maker
 app/api/logo/           Server-side image search and generation endpoints
 public/previews/        Gallery thumbnail images
 public/source/          Interactive reference canvases and their dependencies
