@@ -14,12 +14,14 @@ using the Next.js build system.
 - Create one logo, app-icon, mascot, poster, or brand-lockup direction from a
   short brief and an optional source image.
 - Keep recent logo generations in browser-local history.
+- Publish generated images to a shared, cursor-paginated R2 showcase.
 
 ## Requirements
 
 - Node.js `>=22.13.0`
 - A Runware API key to use image generation
 - Optional Google Programmable Search credentials for in-app image search
+- An R2 bucket for the shared generated-logo showcase
 
 ## Local development
 
@@ -51,6 +53,10 @@ a new tab. Environment files are ignored by Git.
 - `npm test` — build and verify rendered routes and metadata
 - `npm run lint` — run ESLint
 - `npm run capture:thumbnails` — regenerate gallery previews through WebDriver
+- `npm run gallery:prepare` — sanitize and split a local Runware usage export
+- `npm run gallery:download` — cache the exported generated images locally
+- `npm run gallery:upload` — upload cached images and index pages to R2
+- `npm run gallery:verify` — verify the imported R2 image and page counts
 - `npm run deploy:dry-run` — validate the Cloudflare deployment bundle
 - `npm run deploy` — build and deploy the Worker
 
@@ -59,6 +65,7 @@ a new tab. Environment files are ignored by Git.
 ```text
 app/                    vinext App Router routes, gallery UI, and logo maker
 app/api/logo/           Server-side image search and generation endpoints
+app/logo/gallery/       Hidden shared generated-logo showcase
 public/previews/        Gallery thumbnail images
 public/source/          Interactive reference canvases and their dependencies
 scripts/                Reference-thumbnail capture tooling
@@ -87,6 +94,35 @@ npx wrangler secret put GOOGLE_SEARCH_ENGINE_ID
 npm run deploy
 ```
 
+The Worker expects an R2 binding named `LOGO_GALLERY`. The canonical
+configuration binds it to the `unslop` bucket. Gallery images are served
+directly from R2 through `https://assets.unslop.site`; they do not pass through
+the application Worker. Forks should create their own bucket, configure a
+public R2 custom domain, and update both `wrangler.jsonc` and the gallery asset
+origin in `app/api/logo/gallery/storage.ts` before deploying.
+
+### Importing a Runware usage export
+
+Place the export at `runware_api_usage.json`; the filename and generated staging
+directory are ignored by Git. Prepare and download the sanitized archive:
+
+```bash
+npm run gallery:prepare
+npm run gallery:download
+```
+
+Upload with temporary S3-compatible R2 credentials supplied only to the shell:
+
+```bash
+R2_ACCESS_KEY_ID=... R2_SECRET_ACCESS_KEY=... npm run gallery:upload
+R2_ACCESS_KEY_ID=... R2_SECRET_ACCESS_KEY=... npm run gallery:verify
+```
+
+The importer stores images under `logo-gallery/images/`, splits metadata into
+200-item JSON pages, and publishes the manifest only after every image upload
+succeeds. It is resumable through the ignored `.logo-gallery-import/` staging
+directory.
+
 The Google secrets are optional. In CI, provide `CLOUDFLARE_API_TOKEN` with
 Workers edit permissions instead of using interactive login.
 
@@ -101,8 +137,10 @@ npm run deploy:dry-run
 - Never commit `.env.local`, `.dev.vars`, API keys, or Cloudflare tokens.
 - Image-provider credentials are read only by server routes and are not exposed
   to browser bundles.
-- Logo history is stored locally in the visitor's browser and is not uploaded
-  to this application.
+- Personal logo history remains in the visitor's browser. Generated images are
+  also copied to the public R2 bucket and exposed through the hidden, `noindex`
+  community showcase; source images and full prompts are not stored.
+- Raw Runware usage exports and local gallery-import caches are ignored by Git.
 
 ## Contributing
 

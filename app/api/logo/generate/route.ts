@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { hasLogoApiAccess, logoAccessDeniedResponse } from "../../../logo/access";
+import { storeGalleryImage } from "../gallery/storage";
 
 export const runtime = "edge";
 
@@ -70,9 +71,6 @@ export async function POST(request: Request) {
   if (!hasLogoApiAccess(request)) return logoAccessDeniedResponse();
 
   try {
-    const apiKey = process.env.RUNWARE_API_KEY;
-    if (!apiKey) return NextResponse.json({ error: "Image generation isn’t configured yet." }, { status: 503 });
-
     const body = (await request.json()) as GenerateBody;
     const appName = cleanText(body.appName, 60);
     const context = cleanText(body.context, 240);
@@ -88,6 +86,9 @@ export async function POST(request: Request) {
     if (!isAllowedSource(sourceImage)) {
       return NextResponse.json({ error: "The source must be a small image upload or public HTTPS image URL." }, { status: 400 });
     }
+
+    const apiKey = process.env.RUNWARE_API_KEY;
+    if (!apiKey) return NextResponse.json({ error: "Image generation isn’t configured yet." }, { status: 503 });
 
     const prompt = [
       `Design a polished visual identity direction for an app named “${appName}”.`,
@@ -146,6 +147,20 @@ export async function POST(request: Request) {
       const providerMessage = payload.errors?.[0]?.message || payload.error;
       console.error("Runware generation failed", runwareResponse.status, providerMessage || "No image returned");
       return NextResponse.json({ error: providerMessage || "The image model couldn’t complete that request." }, { status: 502 });
+    }
+
+    const galleryWrites = await Promise.allSettled(images.map((image) => storeGalleryImage({
+      ...image,
+      appName,
+      model,
+      outputType,
+      width: dimensions.width,
+      height: dimensions.height,
+    })));
+    for (const write of galleryWrites) {
+      if (write.status === "rejected") {
+        console.error("Logo gallery save failed", write.reason instanceof Error ? write.reason.message : write.reason);
+      }
     }
 
     return NextResponse.json({ images, model, outputType, width: dimensions.width, height: dimensions.height });

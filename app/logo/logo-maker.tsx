@@ -4,26 +4,20 @@
 
 import { ChangeEvent, DragEvent, FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-
-type ModelId = "openai:gpt-image@2" | "ideogram:4@0";
-type OutputType = "logo" | "app-icon" | "mascot" | "poster" | "logo-with-name";
-
-type GeneratedImage = { imageURL: string; imageUUID?: string };
-type GenerationResult = {
-  images: GeneratedImage[];
-  model: ModelId;
-  outputType: OutputType;
-  width: number;
-  height: number;
-};
-
-type GenerationHistoryItem = {
-  id: string;
-  createdAt: number;
-  appName: string;
-  context: string;
-  result: GenerationResult;
-};
+import {
+  HISTORY_STORAGE_KEY,
+  HISTORY_UPDATE_EVENT,
+  MAX_HISTORY_ITEMS,
+  historySnapshot,
+  parseHistory,
+  persistHistory,
+  serverHistorySnapshot,
+  subscribeToHistory,
+  type GenerationHistoryItem,
+  type GenerationResult,
+  type ModelId,
+  type OutputType,
+} from "./history";
 
 type SearchResult = {
   title: string;
@@ -33,9 +27,6 @@ type SearchResult = {
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const MAX_HISTORY_ITEMS = 12;
-const HISTORY_STORAGE_KEY = "unslop.logo-history.v1";
-const HISTORY_UPDATE_EVENT = "unslop:logo-history-updated";
 
 const modelLabels: Record<ModelId, string> = {
   "openai:gpt-image@2": "Model 1",
@@ -65,63 +56,6 @@ function fileToDataUrl(file: File) {
     reader.onerror = () => reject(new Error("We couldn’t read that image."));
     reader.readAsDataURL(file);
   });
-}
-
-function isHistoryItem(value: unknown): value is GenerationHistoryItem {
-  if (!value || typeof value !== "object") return false;
-  const item = value as Partial<GenerationHistoryItem>;
-  const result = item.result;
-  return typeof item.id === "string"
-    && typeof item.createdAt === "number"
-    && typeof item.appName === "string"
-    && typeof item.context === "string"
-    && Boolean(result)
-    && Array.isArray(result?.images)
-    && result.images.length > 0
-    && result.images.every((image) => typeof image?.imageURL === "string")
-    && (result.model === "openai:gpt-image@2" || result.model === "ideogram:4@0")
-    && outputOptions.some((option) => option.id === result.outputType)
-    && typeof result.width === "number"
-    && typeof result.height === "number";
-}
-
-function persistHistory(items: GenerationHistoryItem[]) {
-  try {
-    window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(items));
-    window.dispatchEvent(new Event(HISTORY_UPDATE_EVENT));
-  } catch {
-    // The current result still works if private browsing or storage quotas block persistence.
-  }
-}
-
-function historySnapshot() {
-  return window.localStorage.getItem(HISTORY_STORAGE_KEY) ?? "";
-}
-
-function serverHistorySnapshot() {
-  return "";
-}
-
-function subscribeToHistory(onStoreChange: () => void) {
-  function handleStorage(event: StorageEvent) {
-    if (event.key === HISTORY_STORAGE_KEY) onStoreChange();
-  }
-  window.addEventListener("storage", handleStorage);
-  window.addEventListener(HISTORY_UPDATE_EVENT, onStoreChange);
-  return () => {
-    window.removeEventListener("storage", handleStorage);
-    window.removeEventListener(HISTORY_UPDATE_EVENT, onStoreChange);
-  };
-}
-
-function parseHistory(value: string) {
-  if (!value) return [];
-  try {
-    const parsed: unknown = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed.filter(isHistoryItem).slice(0, MAX_HISTORY_ITEMS) : [];
-  } catch {
-    return [];
-  }
 }
 
 export function LogoMaker({ apiAccessKey }: { apiAccessKey: string }) {
@@ -418,6 +352,7 @@ export function LogoMaker({ apiAccessKey }: { apiAccessKey: string }) {
                 <span>{isGenerating ? `Creating a direction… ${progress}%` : result ? "Create a new variation" : "Create a variation"}</span>
                 <span aria-hidden="true">{isGenerating ? "◌" : "✦"}</span>
               </button>
+              <p className="poly-showcase-note">Generated images may appear in the community showcase.</p>
             </form>
           </div>
 

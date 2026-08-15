@@ -32,6 +32,9 @@ yarn-error.log*
 .env*
 !.env.example
 .dev.vars*
+runware_api_usage*.json
+.logo-gallery-import/
+*.tsbuildinfo
 
 # vercel
 .vercel

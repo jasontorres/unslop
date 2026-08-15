@@ -17,6 +17,12 @@
     "not_found_handling": "none",
     "binding": "ASSETS"
   },
+  "r2_buckets": [
+    {
+      "binding": "LOGO_GALLERY",
+      "bucket_name": "unslop"
+    }
+  ],
   "observability": {
     "enabled": true
   }

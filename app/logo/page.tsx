@@ -10,14 +10,14 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   openGraph: {
     title: "Facet — Logo & Mascot Maker",
-    description: "Turn a reference image into three polished identity directions.",
+    description: "Turn a reference image into one polished identity direction.",
     type: "website",
     url: "https://unslop.site/logo",
   },
   twitter: {
     card: "summary_large_image",
     title: "Facet — Logo & Mascot Maker",
-    description: "Turn a reference image into three polished identity directions.",
+    description: "Turn a reference image into one polished identity direction.",
   },
   referrer: "no-referrer",
 };

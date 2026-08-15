@@ -823,6 +823,7 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 }
 .logo-maker-page .poly-create-button:hover { transform: translateY(-1px); background: #2949d8; box-shadow: 0 10px 22px rgba(52, 88, 244, .27); }
 .logo-maker-page .poly-create-button:disabled { background: #bbb9b1; box-shadow: none; color: #f8f7f2; }
+.logo-maker-page .poly-showcase-note { margin: -5px 0 0; color: var(--muted); font-size: 9px; text-align: center; }
 .logo-maker-page .poly-preview-panel {
   position: relative;
   background: linear-gradient(155deg, #eeede7 0%, #e6e5df 100%);
@@ -1145,4 +1146,188 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
   .logo-closed-hero { padding-top: 50px; }
   .logo-closed-lede { margin-top: 24px; }
   .logo-closed-card { border-radius: 20px; padding: 22px; box-shadow: 14px 16px 0 var(--acid), 0 24px 55px rgba(52, 88, 244, .2); }
+}
+
+/* Hidden shared showcase at /logo/gallery */
+.logo-gallery-page {
+  height: auto;
+  min-height: 100dvh;
+  overflow: visible;
+}
+.logo-gallery-intro {
+  padding: 58px 3.2vw 44px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+}
+.logo-gallery-intro .section-label { margin-bottom: 16px; }
+.logo-gallery-intro h1 {
+  margin: 0;
+  font-family: var(--font-instrument-serif), Georgia, serif !important;
+  font-size: clamp(48px, 6.5vw, 90px);
+  line-height: .88;
+  font-weight: 400;
+  letter-spacing: -.055em;
+}
+.logo-gallery-intro > div:first-child > p:last-child {
+  max-width: 520px;
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.logo-gallery-summary { display: flex; align-items: center; gap: 22px; }
+.logo-gallery-summary > span { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.logo-gallery-summary > span strong { color: var(--ink); font-size: 18px; font-weight: 650; }
+.logo-gallery-summary > a,
+.logo-gallery-empty > a {
+  min-height: 42px;
+  padding: 0 15px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 650;
+}
+.logo-gallery-summary > a:hover,
+.logo-gallery-empty > a:hover { background: #2949d8; }
+.logo-gallery-summary b,
+.logo-gallery-empty b { font-size: 14px; font-weight: 500; }
+.logo-gallery-library { padding: 30px 3.2vw 100px; }
+.logo-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 32px 12px;
+}
+.logo-gallery-card { min-width: 0; }
+.logo-gallery-art {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #fffefb;
+  box-shadow: 0 5px 14px rgba(21, 21, 19, .04);
+  transition: border-color .16s, box-shadow .16s, transform .16s;
+}
+.logo-gallery-art:hover {
+  border-color: #aab5ef;
+  box-shadow: 0 10px 24px rgba(21, 21, 19, .09);
+  transform: translateY(-2px);
+}
+.logo-gallery-art img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+}
+.logo-gallery-type {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  padding: 5px 7px;
+  border: 1px solid #aab5ef;
+  border-radius: 99px;
+  background: rgba(241, 243, 255, .94);
+  color: var(--blue);
+  font-size: 8px;
+  font-weight: 650;
+}
+.logo-gallery-open {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(244, 243, 238, .94);
+  color: var(--ink);
+  font-size: 11px;
+  transform: translateY(-48px);
+  transition: transform .18s;
+}
+.logo-gallery-art:hover .logo-gallery-open { transform: translateY(0); }
+.logo-gallery-unavailable {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 9px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.logo-gallery-unavailable b { color: var(--blue); font-size: 28px; font-weight: 400; }
+.logo-gallery-meta { padding: 11px 3px 0; }
+.logo-gallery-meta strong {
+  display: block;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.logo-gallery-meta span {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--blue);
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.logo-gallery-error { margin: 0 0 22px; padding: 12px 14px; border: 1px solid #e6b7ac; border-radius: 10px; background: #fff4f0; color: #923924; font-size: 11px; }
+.logo-gallery-more {
+  min-width: 190px;
+  min-height: 44px;
+  margin: 52px auto 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: block;
+  background: #fffefb;
+  color: var(--blue);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 650;
+}
+.logo-gallery-more:hover { border-color: var(--blue); background: #f1f3ff; }
+.logo-gallery-more:disabled { cursor: wait; opacity: .62; }
+.logo-gallery-loading,
+.logo-gallery-empty {
+  min-height: calc(100dvh - 330px);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: rgba(255, 254, 251, .62);
+  text-align: center;
+}
+.logo-gallery-loading { gap: 12px; color: var(--muted); font-size: 12px; }
+.logo-gallery-loading > span { color: var(--blue); font-size: 42px; animation: poly-float 2s ease-in-out infinite; }
+.logo-gallery-loading strong { font-weight: 600; }
+.logo-gallery-empty > span { color: var(--blue); font-size: 42px; }
+.logo-gallery-empty h2 { margin: 12px 0 0; font-size: 21px; font-weight: 650; letter-spacing: -.03em; }
+.logo-gallery-empty p { margin: 7px 20px 22px; color: var(--muted); font-size: 12px; }
+
+@media (max-width: 760px) {
+  .logo-gallery-intro { padding: 44px 18px 34px; align-items: flex-start; flex-direction: column; gap: 28px; }
+  .logo-gallery-intro h1 { font-size: clamp(48px, 16vw, 68px); }
+  .logo-gallery-summary { width: 100%; justify-content: space-between; }
+  .logo-gallery-library { padding: 22px 18px 72px; }
+  .logo-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 9px; }
+  .logo-gallery-art { padding: 5px; border-radius: 11px; }
+  .logo-gallery-type { left: 9px; top: 9px; max-width: calc(100% - 18px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .logo-gallery-open { display: none; }
 }
