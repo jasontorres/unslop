@@ -483,7 +483,7 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 .poly-variation-strip { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; align-self: start; }
 .poly-variation-strip button { aspect-ratio: 1.55; padding: 3px; border: 1px solid rgba(28,29,27,.4); background: #fff; cursor: pointer; overflow: hidden; }
 .poly-variation-strip button.is-active { border: 2px solid var(--poly-coral); }
-.poly-variation-strip img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.poly-variation-strip img { width: 100%; height: 100%; display: block; object-fit: contain; object-position: center; }
 .poly-footer { min-height: 170px; padding: 43px clamp(22px, 4vw, 64px); display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: start; gap: 30px; background: var(--poly-ink); color: #fff; }
 .poly-footer .poly-brand { font-size: 21px; }
 .poly-footer .poly-brand-gem { background: var(--poly-yellow); }
@@ -495,7 +495,7 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 .logo-topbar { position: relative; z-index: 10; }
 .logo-topbar .topbar-link span { font-size: 13px; }
 .poly-studio-compact {
-  height: calc(100dvh - 68px);
+  height: calc(100dvh - 74px);
   min-height: 576px;
   padding: 18px 3.2vw 24px;
   display: flex;
@@ -630,66 +630,66 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 
 /* Modern visual treatment for /logo */
 .logo-maker-page {
-  --poly-ink: #171a21;
-  --poly-paper: #f4f6f9;
-  --poly-coral: #5368ee;
-  --poly-yellow: #f0f3ff;
-  --poly-blue: #5368ee;
-  --poly-mint: #e8f7ef;
+  --poly-ink: var(--ink);
+  --poly-paper: var(--paper);
+  --poly-coral: var(--blue);
+  --poly-yellow: var(--acid);
+  --poly-blue: var(--blue);
+  --poly-mint: var(--acid);
   background:
-    radial-gradient(circle at 92% 12%, rgba(83, 104, 238, .08), transparent 24%),
-    #f4f6f9;
+    radial-gradient(circle at 92% 12%, rgba(52, 88, 244, .09), transparent 24%),
+    var(--paper);
 }
 .logo-maker-page * { font-family: var(--font-geist-sans), Arial, sans-serif !important; }
 .logo-maker-page .logo-topbar {
-  min-height: 68px;
-  height: 68px;
+  min-height: 74px;
+  height: 74px;
   padding: 0 3.2vw;
-  border-bottom: 1px solid #e5e7ec;
-  background: rgba(255, 255, 255, .88);
-  box-shadow: 0 1px 8px rgba(23, 26, 33, .035);
+  border-bottom: 1px solid var(--line);
+  background: rgba(244, 243, 238, .92);
+  box-shadow: none;
 }
-.logo-maker-page .brand { gap: 10px; font-size: 15px; font-weight: 680; letter-spacing: -.02em; }
+.logo-maker-page .brand { gap: 11px; font-size: 14px; font-weight: 650; letter-spacing: -.02em; }
 .logo-maker-page .brand-mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: #5368ee;
-  box-shadow: 0 5px 14px rgba(83, 104, 238, .22);
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: none;
   font-size: 11px;
-  letter-spacing: -.04em;
+  letter-spacing: -.08em;
 }
-.logo-maker-page .site-nav { border-color: #e2e5eb; background: #f4f6f9; }
-.logo-maker-page .site-nav a { color: #656c79; font-size: 13px; }
-.logo-maker-page .site-nav a:hover { color: #303642; background: #fff; }
-.logo-maker-page .site-nav a.active { color: #4056d5; background: #fff; box-shadow: 0 2px 6px rgba(30,35,48,.08); }
-.logo-maker-page .topbar-context { color: #747b88; font-size: 12px; font-weight: 540; }
+.logo-maker-page .site-nav { border-color: var(--line); background: rgba(255,255,255,.54); }
+.logo-maker-page .site-nav a { color: var(--muted); font-size: 12px; }
+.logo-maker-page .site-nav a:hover { color: var(--ink); background: rgba(255,255,255,.72); }
+.logo-maker-page .site-nav a.active { color: var(--ink); background: #fff; box-shadow: 0 1px 4px rgba(21,21,19,.09); }
+.logo-maker-page .topbar-context { color: var(--muted); font-size: 12px; font-weight: 540; }
 .logo-maker-page .poly-workbench {
-  border: 1px solid #e2e5ea;
+  border: 1px solid var(--line);
   border-radius: 20px;
-  background: rgba(255, 255, 255, .96);
-  box-shadow: 0 18px 50px rgba(28, 34, 49, .09);
+  background: rgba(255, 254, 251, .97);
+  box-shadow: 0 18px 50px rgba(21, 21, 19, .09);
   overflow: hidden;
 }
-.logo-maker-page .poly-form-panel { border-right: 1px solid #e6e8ed; background: #fff; }
+.logo-maker-page .poly-form-panel { border-right: 1px solid var(--line); background: #fffefb; }
 .logo-maker-page .poly-form-head {
-  border-bottom: 1px solid #eceef2;
-  background: #fbfcfd;
+  border-bottom: 1px solid var(--line);
+  background: #f8f7f2;
 }
 .logo-maker-page .poly-form-head > span:first-child {
   border-radius: 10px;
-  background: #eef1ff;
-  color: #485fdf;
+  background: var(--blue);
+  color: #fff;
   font-size: 12px;
   font-weight: 720;
 }
-.logo-maker-page .poly-form-head strong { color: #20232b; font-size: 15px; font-weight: 660; }
-.logo-maker-page .poly-form-head small { color: #858b98; font-size: 11px; }
+.logo-maker-page .poly-form-head strong { color: var(--ink); font-size: 15px; font-weight: 660; }
+.logo-maker-page .poly-form-head small { color: var(--muted); font-size: 11px; }
 .logo-maker-page .poly-status {
   padding: 6px 9px;
-  border: 1px solid #d8eee2;
-  background: #edf9f2;
-  color: #34805a;
+  border: 1px solid #bdd92d;
+  background: var(--acid);
+  color: var(--ink);
   font-size: 10px;
   font-weight: 650;
   text-transform: none;
@@ -699,7 +699,7 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 .logo-maker-page .poly-label,
 .logo-maker-page .poly-output-fieldset legend,
 .logo-maker-page .poly-model-fieldset legend {
-  color: #4d5360;
+  color: #55554f;
   font-size: 12px;
   font-weight: 620;
   text-transform: none;
@@ -707,188 +707,260 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 }
 .logo-maker-page .poly-studio-compact .poly-form input:not([type="file"]),
 .logo-maker-page .poly-studio-compact .poly-form textarea {
-  border: 1px solid #dfe3e9;
+  border: 1px solid var(--line);
   border-radius: 9px;
   padding: 8px 10px !important;
-  background: #f8f9fb;
-  color: #20232b;
+  background: #f8f7f2;
+  color: var(--ink);
   font-size: 14px;
   letter-spacing: -.01em;
   transition: border-color .16s, box-shadow .16s, background .16s;
 }
 .logo-maker-page .poly-studio-compact .poly-form input:focus,
 .logo-maker-page .poly-studio-compact .poly-form textarea:focus {
-  border-color: #8291eb;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(83, 104, 238, .11);
+  border-color: var(--blue);
+  background: #fffefb;
+  box-shadow: 0 0 0 3px rgba(52, 88, 244, .11);
 }
 .logo-maker-page .poly-form input::placeholder,
-.logo-maker-page .poly-form textarea::placeholder { color: #a2a7b1; }
+.logo-maker-page .poly-form textarea::placeholder { color: #999890; }
 .logo-maker-page .poly-studio-compact .poly-form label small { font-size: 10px; }
 .logo-maker-page .poly-output-grid > label,
 .logo-maker-page .poly-model-grid > label {
-  border: 1px solid #e0e3e9;
+  border: 1px solid var(--line);
   border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 2px 5px rgba(27, 31, 43, .025);
+  background: #fffefb;
+  box-shadow: 0 2px 5px rgba(21, 21, 19, .025);
   transition: border-color .16s, box-shadow .16s, background .16s, transform .16s;
 }
 .logo-maker-page .poly-output-grid > label:hover,
-.logo-maker-page .poly-model-grid > label:hover { border-color: #bfc7ef; background: #fafbff; }
+.logo-maker-page .poly-model-grid > label:hover { border-color: #aab5ef; background: #f7f8ff; }
 .logo-maker-page .poly-output-grid > label.is-selected,
 .logo-maker-page .poly-model-grid > label.is-selected {
-  border: 1px solid #7182e7;
-  background: #f5f7ff;
-  box-shadow: 0 0 0 2px rgba(83, 104, 238, .08);
+  border: 1px solid var(--blue);
+  background: #f1f3ff;
+  box-shadow: 0 0 0 2px rgba(52, 88, 244, .08);
 }
 .logo-maker-page .poly-output-glyph {
   border-radius: 8px;
-  background: #f0f2f6;
-  color: #687080;
+  background: #e9e8e2;
+  color: var(--muted);
 }
-.logo-maker-page .poly-output-grid .is-selected .poly-output-glyph { background: #5368ee; color: #fff; }
+.logo-maker-page .poly-output-grid .is-selected .poly-output-glyph { background: var(--blue); color: #fff; }
 .logo-maker-page .poly-output-grid strong,
-.logo-maker-page .poly-model-grid strong { color: #292d37; font-size: 12px; font-weight: 650; text-transform: none; }
+.logo-maker-page .poly-model-grid strong { color: var(--ink); font-size: 12px; font-weight: 650; text-transform: none; }
 .logo-maker-page .poly-output-grid small,
-.logo-maker-page .poly-model-grid small { color: #858b97; font-size: 10px; text-transform: none; letter-spacing: 0; }
+.logo-maker-page .poly-model-grid small { color: var(--muted); font-size: 10px; text-transform: none; letter-spacing: 0; }
 .logo-maker-page .poly-studio-compact .poly-output-grid strong { font-size: 10px; }
 .logo-maker-page .poly-studio-compact .poly-output-grid small { font-size: 9px; }
 .logo-maker-page .poly-model-radio { border: 1px solid #aeb4bf; background: #fff; }
-.logo-maker-page .poly-model-grid .is-selected .poly-model-radio { border-color: #5368ee; }
-.logo-maker-page .poly-model-grid .is-selected .poly-model-radio::after { background: #5368ee; }
+.logo-maker-page .poly-model-grid .is-selected .poly-model-radio { border-color: var(--blue); }
+.logo-maker-page .poly-model-grid .is-selected .poly-model-radio::after { background: var(--blue); }
 .logo-maker-page .poly-model-grid em {
   right: 8px;
   top: 6px;
-  color: #5368ee;
+  color: var(--blue);
   font-size: 9px;
   font-weight: 650;
   text-transform: none;
   letter-spacing: 0;
 }
 .logo-maker-page .poly-search-button {
-  border: 1px solid #d9dde5;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
-  color: #454b58;
+  background: #fffefb;
+  color: #4f4f49;
   font-weight: 600;
   font-size: 11px;
 }
-.logo-maker-page .poly-search-button:hover { border-color: #b9c1eb; background: #f5f7ff; color: #4157d5; }
-.logo-maker-page .poly-search-button:disabled { border-color: #e5e7ec; background: #f7f8fa; color: #9a9faa; }
+.logo-maker-page .poly-search-button:hover { border-color: var(--blue); background: #f1f3ff; color: var(--blue); }
+.logo-maker-page .poly-search-button:disabled { border-color: var(--line); background: #f3f2ed; color: #999890; }
 .logo-maker-page .poly-dropzone {
-  border: 1px dashed #cbd0da;
+  border: 1px dashed #aaa9a1;
   border-radius: 11px;
-  background: #f9fafc;
+  background: #f8f7f2;
 }
 .logo-maker-page .poly-dropzone:hover,
-.logo-maker-page .poly-dropzone.is-dragging { border-color: #7f8fe8; background: #f4f6ff; }
+.logo-maker-page .poly-dropzone.is-dragging { border-color: var(--blue); background: #f1f3ff; }
 .logo-maker-page .poly-upload-icon {
   border-radius: 9px;
-  background: #e9edff;
-  color: #5368ee;
+  background: var(--blue);
+  color: #fff;
 }
-.logo-maker-page .poly-dropzone.has-source { background: #f9fafc; }
-.logo-maker-page .poly-dropzone.has-source > img { border: 1px solid #e0e3e9; border-radius: 8px; background: #fff; }
+.logo-maker-page .poly-dropzone.has-source { background: #f8f7f2; }
+.logo-maker-page .poly-dropzone.has-source > img { border: 1px solid var(--line); border-radius: 8px; background: #fff; }
 .logo-maker-page .poly-dropzone strong { font-size: 13px; }
 .logo-maker-page .poly-dropzone small { font-size: 10px; }
 .logo-maker-page .poly-url-row { grid-template-columns: 20px 1fr auto; gap: 8px; }
-.logo-maker-page .poly-url-row > span { color: #989eaa; font-size: 10px; font-style: normal; text-align: center; }
-.logo-maker-page .poly-studio-compact .poly-url-row input { border: 1px solid #e0e3e9 !important; border-radius: 8px; background: #fff; font-size: 12px !important; }
+.logo-maker-page .poly-url-row > span { color: #8c8b84; font-size: 10px; font-style: normal; text-align: center; }
+.logo-maker-page .poly-studio-compact .poly-url-row input { border: 1px solid var(--line) !important; border-radius: 8px; background: #fffefb; font-size: 12px !important; }
 .logo-maker-page .poly-url-row button {
   border: 0;
   border-radius: 8px;
   padding: 0 12px;
-  background: #eef1f6;
-  color: #454b58;
+  background: #e9e8e2;
+  color: #4f4f49;
   font-size: 11px;
   font-weight: 620;
 }
 .logo-maker-page .poly-search-results {
-  border: 1px solid #e0e3e9;
+  border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 16px 38px rgba(27, 32, 47, .15);
+  background: #fffefb;
+  box-shadow: 0 16px 38px rgba(21, 21, 19, .15);
 }
-.logo-maker-page .poly-search-results button { border-radius: 8px; background: #f8f9fb; }
-.logo-maker-page .poly-search-results button:hover { border-color: #8b99e9; }
-.logo-maker-page .poly-search-results > a { border: 0; color: #5368ee; font-size: 10px; }
+.logo-maker-page .poly-search-results button { border-radius: 8px; background: #f8f7f2; }
+.logo-maker-page .poly-search-results button:hover { border-color: var(--blue); }
+.logo-maker-page .poly-search-results > a { border: 0; color: var(--blue); font-size: 10px; }
 .logo-maker-page .poly-create-button {
   border: 0;
   border-radius: 10px;
-  background: #5368ee;
+  background: var(--blue);
   color: #fff;
-  box-shadow: 0 8px 18px rgba(83, 104, 238, .22);
+  box-shadow: 0 8px 18px rgba(52, 88, 244, .22);
   font-size: 13px;
   font-weight: 650;
 }
-.logo-maker-page .poly-create-button:hover { transform: translateY(-1px); background: #485de1; box-shadow: 0 10px 22px rgba(83, 104, 238, .27); }
-.logo-maker-page .poly-create-button:disabled { background: #c7ccda; box-shadow: none; color: #f7f8fb; }
+.logo-maker-page .poly-create-button:hover { transform: translateY(-1px); background: #2949d8; box-shadow: 0 10px 22px rgba(52, 88, 244, .27); }
+.logo-maker-page .poly-create-button:disabled { background: #bbb9b1; box-shadow: none; color: #f8f7f2; }
 .logo-maker-page .poly-preview-panel {
-  background: linear-gradient(155deg, #f3f5ff 0%, #eef2f8 100%);
+  position: relative;
+  background: linear-gradient(155deg, #eeede7 0%, #e6e5df 100%);
 }
 .logo-maker-page .poly-preview-head,
 .logo-maker-page .poly-preview-foot {
-  color: #656c7a;
+  color: var(--muted);
   font-size: 10px;
   font-weight: 620;
   text-transform: none;
   letter-spacing: .01em;
 }
+.logo-maker-page .poly-preview-head { align-items: center; gap: 12px; }
+.logo-maker-page .poly-preview-tools { display: flex; align-items: center; gap: 9px; }
+.logo-maker-page .poly-preview-tools > button {
+  min-height: 25px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 9px;
+  background: #fffefb;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 650;
+}
+.logo-maker-page .poly-preview-tools > button:hover,
+.logo-maker-page .poly-preview-tools > button[aria-expanded="true"] { border-color: var(--blue); color: var(--blue); }
+.logo-maker-page .poly-history-panel {
+  position: absolute;
+  z-index: 8;
+  inset: 48px 14px 14px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  padding: 16px;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 13px;
+  background: rgba(255, 254, 251, .98);
+  box-shadow: 0 18px 45px rgba(21, 21, 19, .16);
+}
+.logo-maker-page .poly-history-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.logo-maker-page .poly-history-head > div { display: flex; flex-direction: column; gap: 3px; }
+.logo-maker-page .poly-history-head strong { color: var(--ink); font-size: 14px; }
+.logo-maker-page .poly-history-head small { color: var(--muted); font-size: 10px; }
+.logo-maker-page .poly-history-head > button {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 3px 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 10px;
+}
+.logo-maker-page .poly-history-list { display: flex; min-height: 0; flex: 1; flex-direction: column; gap: 7px; overflow-y: auto; padding-right: 3px; }
+.logo-maker-page .poly-history-item {
+  width: 100%;
+  min-height: 72px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 7px;
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+}
+.logo-maker-page .poly-history-item:hover { border-color: var(--blue); background: #f8f9ff; }
+.logo-maker-page .poly-history-item > img { width: 70px; height: 58px; display: block; border-radius: 7px; background: #f1f0ea; object-fit: contain; object-position: center; }
+.logo-maker-page .poly-history-item > span { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.logo-maker-page .poly-history-item strong { overflow: hidden; color: var(--ink); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.logo-maker-page .poly-history-item small { color: var(--blue); font-size: 9px; }
+.logo-maker-page .poly-history-item em { overflow: hidden; color: var(--muted); font-size: 10px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+.logo-maker-page .poly-history-item b { color: var(--blue); font-size: 15px; font-weight: 500; }
+.logo-maker-page .poly-history-empty { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+.logo-maker-page .poly-history-empty > span { color: var(--blue); font-size: 30px; }
+.logo-maker-page .poly-history-empty strong { margin-top: 8px; color: var(--ink); font-size: 14px; }
+.logo-maker-page .poly-history-empty small { margin-top: 5px; color: var(--muted); font-size: 10px; }
 .logo-maker-page .poly-preview-canvas {
-  border: 1px solid #dfe3eb;
+  border: 1px solid var(--line);
   border-radius: 16px;
   background:
     radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 1) 0, rgba(255, 255, 255, .72) 42%, transparent 72%),
-    #e9edf4;
+    #e9e8e2;
   background-image: none;
   overflow: hidden;
-  box-shadow: inset 0 1px 2px rgba(23, 26, 33, .025);
+  box-shadow: inset 0 1px 2px rgba(21, 21, 19, .025);
 }
+.logo-maker-page .poly-result-image { object-fit: contain; object-position: center; background: #fffefb; }
 .logo-maker-page .poly-preview-empty {
   width: auto;
   aspect-ratio: auto;
   padding: 30px 42px;
-  border: 1px solid #e5e8ee;
+  border: 1px solid var(--line);
   border-radius: 18px;
-  background: rgba(255, 255, 255, .86);
-  box-shadow: 0 14px 34px rgba(38, 44, 61, .09);
+  background: rgba(255, 254, 251, .9);
+  box-shadow: 0 14px 34px rgba(21, 21, 19, .09);
 }
-.logo-maker-page .poly-empty-mark { color: #5368ee; font-size: 34px; }
-.logo-maker-page .poly-preview-empty strong { color: #292d37; font-size: 19px; line-height: 1.12; font-weight: 650; }
-.logo-maker-page .poly-preview-empty small { color: #858b97; font-size: 11px; }
+.logo-maker-page .poly-empty-mark { color: var(--blue); font-size: 34px; }
+.logo-maker-page .poly-preview-empty strong,
+.logo-maker-page .poly-generating-state strong { color: var(--ink); font-family: var(--font-instrument-serif), Georgia, serif !important; font-size: 22px; line-height: 1.08; font-weight: 400; }
+.logo-maker-page .poly-preview-empty small { color: var(--muted); font-size: 11px; }
 .logo-maker-page .poly-source-preview {
-  border: 1px solid #dfe3e9;
+  border: 1px solid var(--line);
   border-radius: 14px;
-  box-shadow: 0 16px 34px rgba(31, 36, 49, .12);
+  box-shadow: 0 16px 34px rgba(21, 21, 19, .12);
   transform: none;
 }
 .logo-maker-page .poly-source-preview span,
 .logo-maker-page .poly-result-badge {
-  border: 1px solid #dfe4ff;
+  border: 1px solid #aab5ef;
   border-radius: 99px;
-  background: rgba(245, 247, 255, .94);
-  color: #485edb;
+  background: rgba(241, 243, 255, .94);
+  color: var(--blue);
   font-size: 10px;
   text-transform: none;
   letter-spacing: 0;
 }
-.logo-maker-page .poly-progress { height: 6px; border: 0; border-radius: 99px; background: #dfe3ec; overflow: hidden; }
-.logo-maker-page .poly-progress span { border-radius: inherit; background: #5368ee; }
-.logo-maker-page .poly-generating-state strong { color: #292d37; font-weight: 650; }
-.logo-maker-page .poly-generating-state small { color: #858b97; font-size: 10px; text-transform: none; letter-spacing: 0; }
-.logo-maker-page .poly-loader i:nth-child(1) { background: #5368ee; }
-.logo-maker-page .poly-loader i:nth-child(2) { background: #8a98ea; }
-.logo-maker-page .poly-loader i:nth-child(3) { background: #cbd2fa; }
+.logo-maker-page .poly-progress { height: 6px; border: 0; border-radius: 99px; background: #d7d6cf; overflow: hidden; }
+.logo-maker-page .poly-progress span { border-radius: inherit; background: var(--blue); }
+.logo-maker-page .poly-generating-state small { color: var(--muted); font-size: 10px; text-transform: none; letter-spacing: 0; }
+.logo-maker-page .poly-loader i:nth-child(1) { background: var(--blue); }
+.logo-maker-page .poly-loader i:nth-child(2) { background: var(--acid); }
+.logo-maker-page .poly-loader i:nth-child(3) { background: #9cabfa; }
 .logo-maker-page .poly-preview-foot i { border: 0; }
-.logo-maker-page .dot-coral { background: #5368ee; }
-.logo-maker-page .dot-blue { background: #79a68b; }
-.logo-maker-page .poly-variation-strip button { border: 1px solid #d9dde5; border-radius: 8px; background: #fff; }
-.logo-maker-page .poly-variation-strip button.is-active { border: 2px solid #5368ee; box-shadow: 0 0 0 2px rgba(83, 104, 238, .1); }
+.logo-maker-page .dot-coral { background: var(--blue); }
+.logo-maker-page .dot-blue { background: var(--acid); }
+.logo-maker-page .poly-variation-strip button { border: 1px solid var(--line); border-radius: 8px; background: #fffefb; }
+.logo-maker-page .poly-variation-strip button.is-active { border: 2px solid var(--blue); box-shadow: 0 0 0 2px rgba(52, 88, 244, .1); }
 .logo-maker-page .poly-result-actions a,
-.logo-maker-page .poly-result-actions > button { border: 0; color: #4650a8; font-size: 11px; font-weight: 620; }
-.logo-maker-page .poly-result-actions small { color: #858b97; font-size: 9px; text-transform: none; letter-spacing: 0; }
+.logo-maker-page .poly-result-actions > button { border: 0; color: var(--blue); font-size: 11px; font-weight: 620; }
+.logo-maker-page .poly-result-actions small { color: var(--muted); font-size: 9px; text-transform: none; letter-spacing: 0; }
 
 @media (max-width: 900px) {
   .logo-maker-page .poly-workbench { border-radius: 16px; }
-  .logo-maker-page .poly-form-panel { border-right: 0; border-bottom: 1px solid #e6e8ed; }
+  .logo-maker-page .poly-form-panel { border-right: 0; border-bottom: 1px solid var(--line); }
+  .logo-maker-page .poly-history-panel { inset: 48px 13px 13px; }
 }

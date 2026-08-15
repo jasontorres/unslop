@@ -68,6 +68,11 @@ test("serves the identity maker only under /logo", async () => {
   assert.match(logo, /Logo \+ name/i);
   assert.match(logo, /Create 3 variations/i);
   assert.match(logo, /Find existing logo/i);
+  assert.match(logo, />Model 1</i);
+  assert.match(logo, />Model 2</i);
+  assert.match(logo, /aria-controls="logo-history"/i);
+  assert.doesNotMatch(logo, />OpenAI Image</i);
+  assert.doesNotMatch(logo, />Ideogram 4</i);
   assert.match(logo, /aria-label="unslop\.site home"/i);
   assert.match(logo, /href="\/">Gallery/i);
   assert.match(logo, /href="\/logo" class="active" aria-current="page">Logo Maker/i);

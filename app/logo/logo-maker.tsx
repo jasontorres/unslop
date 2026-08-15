@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { ChangeEvent, DragEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, DragEvent, FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 
 type ModelId = "openai:gpt-image@2" | "ideogram:4@0";
@@ -17,6 +17,14 @@ type GenerationResult = {
   height: number;
 };
 
+type GenerationHistoryItem = {
+  id: string;
+  createdAt: number;
+  appName: string;
+  context: string;
+  result: GenerationResult;
+};
+
 type SearchResult = {
   title: string;
   imageUrl: string;
@@ -25,6 +33,14 @@ type SearchResult = {
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_HISTORY_ITEMS = 12;
+const HISTORY_STORAGE_KEY = "unslop.logo-history.v1";
+const HISTORY_UPDATE_EVENT = "unslop:logo-history-updated";
+
+const modelLabels: Record<ModelId, string> = {
+  "openai:gpt-image@2": "Model 1",
+  "ideogram:4@0": "Model 2",
+};
 
 const outputOptions: Array<{ id: OutputType; label: string; detail: string; glyph: string }> = [
   { id: "logo", label: "Logo", detail: "A standalone symbol", glyph: "◇" },
@@ -34,6 +50,14 @@ const outputOptions: Array<{ id: OutputType; label: string; detail: string; glyp
   { id: "logo-with-name", label: "Logo + name", detail: "A complete brand lockup", glyph: "◫" },
 ];
 
+function outputLabel(outputType: OutputType) {
+  return outputOptions.find((option) => option.id === outputType)?.label ?? "Logo";
+}
+
+function historyDate(timestamp: number) {
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(timestamp);
+}
+
 function fileToDataUrl(file: File) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -41,6 +65,63 @@ function fileToDataUrl(file: File) {
     reader.onerror = () => reject(new Error("We couldn’t read that image."));
     reader.readAsDataURL(file);
   });
+}
+
+function isHistoryItem(value: unknown): value is GenerationHistoryItem {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Partial<GenerationHistoryItem>;
+  const result = item.result;
+  return typeof item.id === "string"
+    && typeof item.createdAt === "number"
+    && typeof item.appName === "string"
+    && typeof item.context === "string"
+    && Boolean(result)
+    && Array.isArray(result?.images)
+    && result.images.length > 0
+    && result.images.every((image) => typeof image?.imageURL === "string")
+    && (result.model === "openai:gpt-image@2" || result.model === "ideogram:4@0")
+    && outputOptions.some((option) => option.id === result.outputType)
+    && typeof result.width === "number"
+    && typeof result.height === "number";
+}
+
+function persistHistory(items: GenerationHistoryItem[]) {
+  try {
+    window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(items));
+    window.dispatchEvent(new Event(HISTORY_UPDATE_EVENT));
+  } catch {
+    // The current result still works if private browsing or storage quotas block persistence.
+  }
+}
+
+function historySnapshot() {
+  return window.localStorage.getItem(HISTORY_STORAGE_KEY) ?? "";
+}
+
+function serverHistorySnapshot() {
+  return "";
+}
+
+function subscribeToHistory(onStoreChange: () => void) {
+  function handleStorage(event: StorageEvent) {
+    if (event.key === HISTORY_STORAGE_KEY) onStoreChange();
+  }
+  window.addEventListener("storage", handleStorage);
+  window.addEventListener(HISTORY_UPDATE_EVENT, onStoreChange);
+  return () => {
+    window.removeEventListener("storage", handleStorage);
+    window.removeEventListener(HISTORY_UPDATE_EVENT, onStoreChange);
+  };
+}
+
+function parseHistory(value: string) {
+  if (!value) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter(isHistoryItem).slice(0, MAX_HISTORY_ITEMS) : [];
+  } catch {
+    return [];
+  }
 }
 
 export function LogoMaker() {
@@ -59,6 +140,9 @@ export function LogoMaker() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const historyValue = useSyncExternalStore(subscribeToHistory, historySnapshot, serverHistorySnapshot);
+  const history = useMemo(() => parseHistory(historyValue), [historyValue]);
 
   const selectedOutput = outputOptions.find((option) => option.id === outputType) ?? outputOptions[0];
   const googleSearchUrl = useMemo(() => {
@@ -178,6 +262,15 @@ export function LogoMaker() {
       }
       setProgress(100);
       setResult(payload);
+      const historyItem: GenerationHistoryItem = {
+        id: payload.images[0]?.imageUUID || crypto.randomUUID(),
+        createdAt: Date.now(),
+        appName: appName.trim(),
+        context: context.trim(),
+        result: payload,
+      };
+      const nextHistory = [historyItem, ...history.filter((item) => item.id !== historyItem.id)].slice(0, MAX_HISTORY_ITEMS);
+      persistHistory(nextHistory);
     } catch (reason) {
       setProgress(0);
       setError(reason instanceof Error ? reason.message : "Something went wrong while creating your images.");
@@ -191,6 +284,24 @@ export function LogoMaker() {
     setActiveImage(0);
     setProgress(0);
     setError("");
+  }
+
+  function restoreHistoryItem(item: GenerationHistoryItem) {
+    setAppName(item.appName);
+    setContext(item.context);
+    setOutputType(item.result.outputType);
+    setModel(item.result.model);
+    setResult(item.result);
+    setActiveImage(0);
+    setProgress(100);
+    setError("");
+    setIsHistoryOpen(false);
+  }
+
+  function clearHistory() {
+    setIsHistoryOpen(false);
+    window.localStorage.removeItem(HISTORY_STORAGE_KEY);
+    window.dispatchEvent(new Event(HISTORY_UPDATE_EVENT));
   }
 
   const currentImage = result?.images[activeImage] ?? result?.images[0];
@@ -290,14 +401,14 @@ export function LogoMaker() {
                 <div className="poly-model-grid">
                   <label className={model === "openai:gpt-image@2" ? "is-selected" : ""}>
                     <input type="radio" name="model" value="openai:gpt-image@2" checked={model === "openai:gpt-image@2"} onChange={() => setModel("openai:gpt-image@2")} />
-                    <span className="poly-model-radio" /><span><strong>OpenAI Image</strong><small>Best match to a reference</small></span><em>Recommended</em>
+                    <span className="poly-model-radio" /><span><strong>Model 1</strong><small>Best match to a reference</small></span><em>Recommended</em>
                   </label>
                   <label className={model === "ideogram:4@0" ? "is-selected" : ""}>
                     <input type="radio" name="model" value="ideogram:4@0" checked={model === "ideogram:4@0"} onChange={() => setModel("ideogram:4@0")} />
-                    <span className="poly-model-radio" /><span><strong>Ideogram 4</strong><small>Best for names + typography</small></span>
+                    <span className="poly-model-radio" /><span><strong>Model 2</strong><small>Best for names + typography</small></span>
                   </label>
                 </div>
-                {model === "ideogram:4@0" && sourceImage ? <p className="poly-model-note">Ideogram 4 builds from your written brief; choose OpenAI Image to transform the uploaded reference directly.</p> : null}
+                {model === "ideogram:4@0" && sourceImage ? <p className="poly-model-note">Model 2 builds from your written brief; choose Model 1 to transform the uploaded reference directly.</p> : null}
               </fieldset>
 
               {error ? <p className="poly-error" role="alert"><span>!</span>{error}</p> : null}
@@ -309,7 +420,40 @@ export function LogoMaker() {
           </div>
 
           <aside className="poly-preview-panel" aria-live="polite">
-            <div className="poly-preview-head"><span>{result ? selectedOutput.label : "Preview"}</span><span>{dimensions}</span></div>
+            <div className="poly-preview-head">
+              <span>{result ? selectedOutput.label : "Preview"}</span>
+              <span className="poly-preview-tools">
+                <span>{dimensions}</span>
+                <button type="button" onClick={() => setIsHistoryOpen((value) => !value)} aria-expanded={isHistoryOpen} aria-controls="logo-history">
+                  History{history.length ? ` · ${history.length}` : ""}
+                </button>
+              </span>
+            </div>
+            {isHistoryOpen ? (
+              <section className="poly-history-panel" id="logo-history" aria-label="Generation history">
+                <div className="poly-history-head">
+                  <div><strong>Generation history</strong><small>Saved only in this browser</small></div>
+                  {history.length ? <button type="button" onClick={clearHistory}>Clear all</button> : null}
+                </div>
+                {history.length ? (
+                  <div className="poly-history-list">
+                    {history.map((item) => (
+                      <button className="poly-history-item" type="button" key={item.id} onClick={() => restoreHistoryItem(item)}>
+                        <img src={item.result.images[0].imageURL} alt="" />
+                        <span>
+                          <strong>{item.appName}</strong>
+                          <small>{outputLabel(item.result.outputType)} · {modelLabels[item.result.model]} · {historyDate(item.createdAt)}</small>
+                          <em>{item.context}</em>
+                        </span>
+                        <b aria-hidden="true">→</b>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="poly-history-empty"><span>◇</span><strong>No saved generations yet</strong><small>Your next result will be saved here automatically.</small></div>
+                )}
+              </section>
+            ) : null}
             <div className={`poly-preview-canvas${isGenerating ? " is-generating" : ""}${currentImage ? " has-result" : ""}`}>
               {currentImage ? (
                 <><img className="poly-result-image" src={currentImage.imageURL} alt={`${selectedOutput.label} variation ${activeImage + 1} for ${appName}`} /><span className="poly-result-badge">Variation {activeImage + 1} of {result?.images.length}</span></>
@@ -332,7 +476,7 @@ export function LogoMaker() {
                 </div>
                 <a href={currentImage.imageURL} target="_blank" rel="noreferrer">Open full size <span>↗</span></a>
                 <button type="button" onClick={clearResult}>Clear result</button>
-                <small>{result.model === "openai:gpt-image@2" ? "OpenAI Image 2" : "Ideogram 4"} · Three creative directions</small>
+                <small>{modelLabels[result.model]} · Three creative directions</small>
               </div>
             ) : (
               <div className="poly-preview-foot"><span><i className="dot-coral" /> 3 variations</span><span><i className="dot-blue" /> Ready to refine</span></div>
