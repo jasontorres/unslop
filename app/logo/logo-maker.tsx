@@ -255,6 +255,7 @@ export function LogoMaker({ apiAccessKey }: { apiAccessKey: string }) {
         <nav className="site-nav" aria-label="Primary navigation">
           <Link href="/">Gallery</Link>
           <Link href="/logo" className="active" aria-current="page">Logo Maker</Link>
+          <Link href="/logo/history">History</Link>
         </nav>
         <p className="topbar-context">One focused direction</p>
       </header>
@@ -361,6 +362,7 @@ export function LogoMaker({ apiAccessKey }: { apiAccessKey: string }) {
               <span>{result ? selectedOutput.label : "Preview"}</span>
               <span className="poly-preview-tools">
                 <span>{dimensions}</span>
+                <Link href="/logo/history">Browse all</Link>
                 <button type="button" onClick={() => setIsHistoryOpen((value) => !value)} aria-expanded={isHistoryOpen} aria-controls="logo-history">
                   History{history.length ? ` · ${history.length}` : ""}
                 </button>

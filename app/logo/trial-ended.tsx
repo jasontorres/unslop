@@ -11,6 +11,7 @@ export function LogoTrialEnded() {
         <nav className="site-nav" aria-label="Primary navigation">
           <Link href="/">Gallery</Link>
           <Link href="/logo" className="active" aria-current="page">Logo Maker</Link>
+          <Link href="/logo/history">History</Link>
         </nav>
         <p className="topbar-context">We’ll be back</p>
       </header>
@@ -35,9 +36,14 @@ export function LogoTrialEnded() {
             <span aria-hidden="true">↗</span>
             <p><strong>More is on the way.</strong> Watch this space for further announcements.</p>
           </div>
-          <Link className="logo-closed-gallery-link" href="/">
-            Explore the design gallery <span aria-hidden="true">→</span>
-          </Link>
+          <div className="logo-closed-actions">
+            <Link className="logo-closed-history-link" href="/logo/history">
+              Browse your history <span aria-hidden="true">→</span>
+            </Link>
+            <Link className="logo-closed-gallery-link" href="/">
+              Explore the design gallery <span aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
 
         <div className="logo-closed-card" aria-hidden="true">
