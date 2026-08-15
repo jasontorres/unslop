@@ -15,6 +15,7 @@ type SiteActionsProps = {
   brief: string;
   descriptionId?: string;
   viewHref?: string;
+  exitHref?: string;
   showShare?: boolean;
 };
 
@@ -23,6 +24,7 @@ export function SiteActions({
   brief,
   descriptionId,
   viewHref,
+  exitHref,
   showShare = true,
 }: SiteActionsProps) {
   const [copied, setCopied] = useState<CopyKind | null>(null);
@@ -98,6 +100,13 @@ export function SiteActions({
       {viewHref && (
         <Link className="secondary-action fullscreen-action" href={viewHref}>
           Full screen <span aria-hidden="true">↗</span>
+        </Link>
+      )}
+      {exitHref && (
+        <Link className="secondary-action exit-fullscreen-action" href={exitHref} aria-label="Exit full screen">
+          <span className="action-label-full">Exit full screen</span>
+          <span className="action-label-short">Exit</span>
+          <span className="exit-symbol" aria-hidden="true">↙</span>
         </Link>
       )}
       {showShare && (

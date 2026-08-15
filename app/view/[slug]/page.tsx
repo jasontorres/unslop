@@ -33,7 +33,12 @@ export default async function FullscreenReferencePage({ params }: { params: Prom
           <span className="brand-mark">u.</span>
           <span>unslop.site</span>
         </Link>
-        <SiteActions slug={site.slug} brief={getAgentBrief(site)} showShare={false} />
+        <SiteActions
+          slug={site.slug}
+          brief={getAgentBrief(site)}
+          exitHref={`/site/${site.slug}`}
+          showShare={false}
+        />
       </header>
       <section className="fullscreen-reference-stage" aria-label={`${site.name} full-screen design reference`}>
         <iframe

@@ -128,6 +128,7 @@ test("serves a full-screen reference with persistent copy actions", async () => 
   assert.match(html, /Copy agent brief/i);
   assert.match(html, /Copy HTML and CSS/i);
   assert.match(html, /Copy AI guide URL/i);
+  assert.match(html, /href="\/site\/editorial-serif"[^>]*aria-label="Exit full screen"/i);
   assert.match(html, /id="reference-frame"/i);
   assert.match(html, /Editorial Serif full-screen interactive preview/i);
   assert.match(html, /name="robots" content="noindex, nofollow"/i);

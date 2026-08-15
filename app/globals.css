@@ -177,6 +177,8 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 .action-group .html-action { background: var(--acid); border-color: var(--ink); font-weight: 650; }
 .action-group .fullscreen-action { background: #fff; }
 .fullscreen-action span { margin-left: 9px; }
+.action-group .exit-fullscreen-action { background: var(--blue); border-color: var(--blue); color: #fff; }
+.exit-fullscreen-action .exit-symbol { margin-left: 9px; font-size: 13px; }
 .action-group .icon-action { width: 43px; padding: 0; border-radius: 50%; }
 .copy-error { flex-basis: 100%; margin: 2px 0 0; color: #a43d2b; font-family: var(--font-geist-mono); font-size: 8px; text-align: right; }
 .reference-stage { width: 100%; background: #fff; }
@@ -186,7 +188,8 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 .fullscreen-reference-page { width: 100%; height: 100dvh; overflow: hidden; background: #fff; display: grid; grid-template-rows: 64px minmax(0, 1fr); }
 .fullscreen-reference-topbar { position: relative; z-index: 20; padding: 0 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 24px; background: rgba(244, 243, 238, .94); backdrop-filter: blur(16px); }
 .fullscreen-reference-topbar .action-group { flex-wrap: nowrap; padding: 0; }
-.fullscreen-reference-topbar .action-group button { height: 36px; padding: 0 12px; font-size: 9px; }
+.fullscreen-reference-topbar .action-group button,
+.fullscreen-reference-topbar .action-group > a { height: 36px; padding: 0 12px; font-size: 9px; }
 .fullscreen-reference-topbar .action-group .primary-action { min-width: 132px; }
 .fullscreen-reference-topbar .copy-error { position: absolute; top: calc(100% + 8px); right: 18px; margin: 0; padding: 6px 8px; background: var(--paper); border: 1px solid #c7c5bc; box-shadow: 3px 3px 0 rgba(21, 21, 19, .18); }
 .fullscreen-reference-stage { min-height: 0; overflow: hidden; }
@@ -252,7 +255,8 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
   .fullscreen-reference-topbar { padding: 0 10px; gap: 10px; }
   .fullscreen-reference-topbar .brand > span:last-child { display: none; }
   .fullscreen-reference-topbar .action-group { margin: 0; gap: 5px; }
-  .fullscreen-reference-topbar .action-group button { height: 34px; padding: 0 9px; font-size: 9px; }
+  .fullscreen-reference-topbar .action-group button,
+  .fullscreen-reference-topbar .action-group > a { height: 34px; padding: 0 9px; font-size: 9px; }
   .fullscreen-reference-topbar .action-group .primary-action { min-width: 0; }
   .fullscreen-reference-topbar .copy-symbol,
   .fullscreen-reference-topbar .action-label-full { display: none; }
