@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { LogoMaker } from "./logo-maker";
+import { isLogoAccessKey, LOGO_ACCESS_KEY } from "./access";
+import { LogoTrialEnded } from "./trial-ended";
 
 export const metadata: Metadata = {
   title: { absolute: "Facet — Logo & Mascot Maker" },
@@ -17,8 +19,18 @@ export const metadata: Metadata = {
     title: "Facet — Logo & Mascot Maker",
     description: "Turn a reference image into three polished identity directions.",
   },
+  referrer: "no-referrer",
 };
 
-export default function LogoPage() {
-  return <LogoMaker />;
+type LogoPageProps = {
+  searchParams: Promise<{ letmein?: string | string[] }>;
+};
+
+export default async function LogoPage({ searchParams }: LogoPageProps) {
+  const accessValue = (await searchParams).letmein;
+  const key = Array.isArray(accessValue) ? accessValue[0] : accessValue;
+
+  if (!isLogoAccessKey(key)) return <LogoTrialEnded />;
+
+  return <LogoMaker apiAccessKey={LOGO_ACCESS_KEY} />;
 }

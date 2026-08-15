@@ -6,12 +6,15 @@ const workerUrl = new URL("../dist/server/index.js", import.meta.url);
 workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
 const workerPromise = import(workerUrl.href).then(({ default: worker }) => worker);
 
-async function render(pathname = "/") {
+async function render(pathname = "/", init = {}) {
   const worker = await workerPromise;
+  const headers = new Headers(init.headers);
+  if (!headers.has("accept")) headers.set("accept", "text/html");
 
   return worker.fetch(
     new Request(`https://unslop.site${pathname}`, {
-      headers: { accept: "text/html" },
+      ...init,
+      headers,
     }),
     {
       ASSETS: {
@@ -56,30 +59,59 @@ test("server-renders the unslop.site landing page", async () => {
 });
 
 test("serves the identity maker only under /logo", async () => {
-  const [homeResponse, logoResponse] = await Promise.all([render(), render("/logo")]);
+  const [homeResponse, logoResponse, unlockedLogoResponse] = await Promise.all([
+    render(),
+    render("/logo"),
+    render("/logo?letmein=please"),
+  ]);
   assert.equal(logoResponse.status, 200);
+  assert.equal(unlockedLogoResponse.status, 200);
 
-  const [home, logo] = await Promise.all([homeResponse.text(), logoResponse.text()]);
+  const [home, logo, unlockedLogo] = await Promise.all([
+    homeResponse.text(),
+    logoResponse.text(),
+    unlockedLogoResponse.text(),
+  ]);
   assert.doesNotMatch(home, /What would you like to make\?/i);
   assert.match(logo, /<title>Facet — Logo &amp; Mascot Maker<\/title>/i);
-  assert.match(logo, /What would you like to make\?/i);
-  assert.match(logo, /Mobile app logo/i);
-  assert.match(logo, /Poster \+ app name/i);
-  assert.match(logo, /Logo \+ name/i);
-  assert.match(logo, /Create a variation/i);
-  assert.match(logo, /1 variation/i);
-  assert.match(logo, /Find existing logo/i);
-  assert.match(logo, />Model 1</i);
-  assert.match(logo, />Model 2</i);
-  assert.match(logo, /aria-controls="logo-history"/i);
-  assert.doesNotMatch(logo, />OpenAI Image</i);
-  assert.doesNotMatch(logo, />Ideogram 4</i);
+  assert.match(logo, /Logo Maker trial has officially ended/i);
+  assert.match(logo, /We’ll be back/i);
+  assert.match(logo, /Watch this space for further announcements/i);
+  assert.doesNotMatch(logo, /What would you like to make\?/i);
+  assert.match(unlockedLogo, /What would you like to make\?/i);
+  assert.match(unlockedLogo, /Mobile app logo/i);
+  assert.match(unlockedLogo, /Poster \+ app name/i);
+  assert.match(unlockedLogo, /Logo \+ name/i);
+  assert.match(unlockedLogo, /Create a variation/i);
+  assert.match(unlockedLogo, /1 variation/i);
+  assert.match(unlockedLogo, /Find existing logo/i);
+  assert.match(unlockedLogo, />Model 1</i);
+  assert.match(unlockedLogo, />Model 2</i);
+  assert.match(unlockedLogo, /aria-controls="logo-history"/i);
+  assert.doesNotMatch(unlockedLogo, />OpenAI Image</i);
+  assert.doesNotMatch(unlockedLogo, />Ideogram 4</i);
   assert.match(logo, /aria-label="unslop\.site home"/i);
   assert.match(logo, /href="\/">Gallery/i);
   assert.match(logo, /href="\/logo" class="active" aria-current="page">Logo Maker/i);
   assert.match(logo, /name="robots" content="noindex, nofollow"/i);
-  assert.doesNotMatch(logo, /Turn any idea into a/i);
-  assert.doesNotMatch(logo, /polygon|cost/i);
+  assert.doesNotMatch(unlockedLogo, /Turn any idea into a/i);
+  assert.doesNotMatch(unlockedLogo, /polygon|cost/i);
+});
+
+test("gates the logo generator APIs behind the temporary access key", async () => {
+  const [generateDenied, searchDenied] = await Promise.all([
+    render("/api/logo/generate", {
+      method: "POST",
+      headers: { accept: "application/json", "content-type": "application/json" },
+      body: "{}",
+    }),
+    render("/api/logo/search?q=Acorn", { headers: { accept: "application/json" } }),
+  ]);
+
+  assert.equal(generateDenied.status, 403);
+  assert.match((await generateDenied.json()).error, /trial has ended/i);
+  assert.equal(searchDenied.status, 403);
+  assert.match((await searchDenied.json()).error, /trial has ended/i);
 });
 
 test("serves linkable category and featured collection pages", async () => {

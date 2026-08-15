@@ -124,7 +124,7 @@ function parseHistory(value: string) {
   }
 }
 
-export function LogoMaker() {
+export function LogoMaker({ apiAccessKey }: { apiAccessKey: string }) {
   const [appName, setAppName] = useState("");
   const [context, setContext] = useState("");
   const [outputType, setOutputType] = useState<OutputType>("app-icon");
@@ -196,7 +196,8 @@ export function LogoMaker() {
     }
     setIsSearching(true);
     try {
-      const response = await fetch(`/api/logo/search?q=${encodeURIComponent(appName.trim())}`);
+      const searchParams = new URLSearchParams({ letmein: apiAccessKey, q: appName.trim() });
+      const response = await fetch(`/api/logo/search?${searchParams}`);
       const payload = await response.json() as { configured?: boolean; items?: SearchResult[]; error?: string };
       if (!payload.configured) {
         window.open(googleSearchUrl, "_blank", "noopener,noreferrer");
@@ -245,7 +246,8 @@ export function LogoMaker() {
     setResult(null);
     setActiveImage(0);
     try {
-      const response = await fetch("/api/logo/generate", {
+      const generateParams = new URLSearchParams({ letmein: apiAccessKey });
+      const response = await fetch(`/api/logo/generate?${generateParams}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

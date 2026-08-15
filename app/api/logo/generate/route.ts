@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { hasLogoApiAccess, logoAccessDeniedResponse } from "../../../logo/access";
 
 export const runtime = "edge";
 
@@ -66,6 +67,8 @@ function isAllowedSource(value: string) {
 }
 
 export async function POST(request: Request) {
+  if (!hasLogoApiAccess(request)) return logoAccessDeniedResponse();
+
   try {
     const apiKey = process.env.RUNWARE_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "Image generation isn’t configured yet." }, { status: 503 });
