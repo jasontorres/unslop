@@ -6,11 +6,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { PublicGalleryImage } from "../../api/logo/gallery/storage";
 
-const modelLabels: Record<PublicGalleryImage["model"], string> = {
-  "openai:gpt-image@2": "Model 1",
-  "ideogram:4@0": "Model 2",
-};
-
 const outputLabels: Record<PublicGalleryImage["outputType"], string> = {
   logo: "Logo",
   "app-icon": "Mobile app logo",
@@ -24,14 +19,6 @@ type GalleryPage = {
   cursor?: string | null;
   error?: string;
 };
-
-function galleryDate(timestamp: number) {
-  return new Intl.DateTimeFormat(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(timestamp);
-}
 
 async function requestGalleryPage(cursor?: string, signal?: AbortSignal) {
   const url = cursor ? `/api/logo/gallery?cursor=${encodeURIComponent(cursor)}` : "/api/logo/gallery";
@@ -70,13 +57,7 @@ function LogoCard({ image }: { image: PublicGalleryImage }) {
             onError={() => setUnavailable(true)}
           />
         )}
-        <span className="logo-gallery-type">{outputLabels[image.outputType]}</span>
-        <span className="logo-gallery-open" aria-hidden="true">↗</span>
       </a>
-      <div className="logo-gallery-meta">
-        <strong>{image.appName}</strong>
-        <span>{modelLabels[image.model]} · {galleryDate(image.createdAt)}</span>
-      </div>
     </article>
   );
 }
