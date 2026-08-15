@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { allSites, getEmbeddedSourceUrl, sitesBySlug } from "../../data";
+import { allSites, getAgentBrief, getEmbeddedSourceUrl, sitesBySlug } from "../../data";
 import { CopyBrief, SiteActions } from "./actions";
 
 export function generateStaticParams() {
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const canonicalUrl = `https://unslop.site/site/${site.slug}`;
   const description = `${site.name}, a ${site.subcategory.toLowerCase()} interface reference with an AI-ready brief and standalone HTML.`;
   return {
-    title: { absolute: `${site.name} — unslop.site` },
+    title: site.name,
     description,
     keywords: [...site.tags, site.category, site.subcategory, "interface reference", "design inspiration"],
     alternates: { canonical: canonicalUrl },
@@ -26,15 +26,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: "website",
       siteName: "unslop.site",
       images: [{
-        url: `https://unslop.site/previews/${site.slug}.png`,
-        alt: `${site.name} interface preview`,
+        url: "https://unslop.site/og.png",
+        width: 1200,
+        height: 630,
+        type: "image/png",
+        alt: "unslop.site landing page — Find the interface you mean",
       }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${site.name} — unslop.site`,
       description,
-      images: [`https://unslop.site/previews/${site.slug}.png`],
+      images: ["https://unslop.site/og.png"],
     },
   };
 }
@@ -48,7 +51,7 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
     .filter((item) => item.categorySlug === site.categorySlug && item.slug !== site.slug)
     .slice(Math.max(0, allSites.indexOf(site) % 4), Math.max(0, allSites.indexOf(site) % 4) + 4);
 
-  const brief = `Use “${site.name}” as the visual direction for this interface. It belongs to ${site.category} / ${site.subcategory}. Study the reference for its hierarchy, typography, color system, spacing, density, border treatment, and interaction vocabulary. Adapt those principles to my product and content—do not copy the sample brand or wording. If I provide an unslop.site HTML export, inspect its inline computed CSS, embedded fonts, and asset data for exact visual values; treat it as an implementation reference, not production-ready source. Keep the result responsive, accessible, and production-ready.`;
+  const brief = getAgentBrief(site);
   const sourceUrl = getEmbeddedSourceUrl(site);
   const structuredData = {
     "@context": "https://schema.org",
@@ -86,7 +89,12 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
           <h1>{site.name}</h1>
           <p className="detail-summary">Copy the direction as an agent brief—or take the standalone HTML with its styles included.</p>
         </div>
-        <SiteActions slug={site.slug} brief={brief} />
+        <SiteActions
+          slug={site.slug}
+          brief={brief}
+          descriptionId="html-export-note"
+          viewHref={`/view/${site.slug}`}
+        />
       </section>
 
       <section className="reference-stage" aria-label={`${site.name} interactive design reference`}>

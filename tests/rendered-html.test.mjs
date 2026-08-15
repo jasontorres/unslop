@@ -25,24 +25,53 @@ async function render(pathname = "/") {
   );
 }
 
-test("server-renders the Facet mascot-maker landing page", async () => {
+test("server-renders the unslop.site landing page", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>Facet — Turn Any Image Into a Low-Poly Mascot<\/title>/i);
+  assert.match(html, /<title>unslop\.site — Interface References for Better AI Builds<\/title>/i);
   assert.match(html, /<link rel="canonical" href="https:\/\/unslop\.site"\/>/i);
   assert.match(html, /<meta property="og:image" content="https:\/\/unslop\.site\/og\.png"\/>/i);
   assert.match(html, /<meta property="og:image:width" content="1200"\/>/i);
   assert.match(html, /<meta property="og:image:height" content="630"\/>/i);
-  assert.match(html, /aria-label="Facet home"/i);
-  assert.match(html, /Turn any idea into a/i);
-  assert.match(html, /Build your character/i);
-  assert.match(html, /Search Google Images/i);
-  assert.match(html, /OpenAI Image/i);
-  assert.match(html, /Ideogram 4/i);
+  assert.match(html, /<script type="application\/ld\+json">/i);
+  assert.match(html, /aria-label="unslop\.site home"/i);
+  assert.match(html, /143<!-- --> studies/i);
+  assert.match(html, /<h2>Browse<\/h2>/i);
+  assert.match(html, /<img src="\/previews\/editorial-serif\.png"/i);
+  assert.match(html, /href="\/featured"[^>]*>Featured/i);
+  assert.match(html, /href="\/financial-apps"[^>]*>Financial Apps/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
+
+  const agencyCategory = html.indexOf("Software Agency");
+  const financialCategory = html.indexOf("Financial Apps");
+  const mobileCategory = html.indexOf("Mobile Apps");
+  const socialCategory = html.indexOf("Social Media");
+  assert.ok(agencyCategory >= 0 && financialCategory > agencyCategory);
+  assert.ok(mobileCategory > financialCategory);
+  assert.ok(socialCategory > mobileCategory);
+});
+
+test("serves the identity maker only under /logo", async () => {
+  const [homeResponse, logoResponse] = await Promise.all([render(), render("/logo")]);
+  assert.equal(logoResponse.status, 200);
+
+  const [home, logo] = await Promise.all([homeResponse.text(), logoResponse.text()]);
+  assert.doesNotMatch(home, /What would you like to make\?/i);
+  assert.match(logo, /<title>Facet — Logo &amp; Mascot Maker<\/title>/i);
+  assert.match(logo, /What would you like to make\?/i);
+  assert.match(logo, /Mobile app logo/i);
+  assert.match(logo, /Poster \+ app name/i);
+  assert.match(logo, /Logo \+ name/i);
+  assert.match(logo, /Create 3 variations/i);
+  assert.match(logo, /Find existing logo/i);
+  assert.match(logo, /aria-label="unslop\.site home"/i);
+  assert.match(logo, /Back to gallery/i);
+  assert.match(logo, /name="robots" content="noindex, nofollow"/i);
+  assert.doesNotMatch(logo, /Turn any idea into a/i);
+  assert.doesNotMatch(logo, /polygon|cost/i);
 });
 
 test("serves linkable category and featured collection pages", async () => {
@@ -82,11 +111,27 @@ test("server-renders an AI-ready detail page", async () => {
   assert.match(html, /Copy agent brief/i);
   assert.match(html, /Copy HTML \+ CSS/i);
   assert.match(html, /Copy AI guide URL/i);
+  assert.match(html, /href="\/view\/editorial-serif"[^>]*>Full screen/i);
   assert.match(html, /AI-only reference/i);
   assert.match(html, /<link rel="canonical" href="https:\/\/unslop\.site\/site\/editorial-serif"\/>/i);
   assert.match(html, /"@type":"CreativeWork"/i);
-  assert.match(html, /og:image" content="https:\/\/unslop\.site\/previews\/editorial-serif\.png"/i);
-  assert.doesNotMatch(html, /og:image" content="https:\/\/unslop\.site\/og\.png"/i);
+});
+
+test("serves a full-screen reference with persistent copy actions", async () => {
+  const response = await render("/view/editorial-serif");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /class="fullscreen-reference-page"/i);
+  assert.match(html, /class="fullscreen-reference-topbar"/i);
+  assert.match(html, /aria-label="unslop\.site home"/i);
+  assert.match(html, /Copy agent brief/i);
+  assert.match(html, /Copy HTML and CSS/i);
+  assert.match(html, /Copy AI guide URL/i);
+  assert.match(html, /id="reference-frame"/i);
+  assert.match(html, /Editorial Serif full-screen interactive preview/i);
+  assert.match(html, /name="robots" content="noindex, nofollow"/i);
+  assert.doesNotMatch(html, /Reference notes|Related directions|detail-footer/i);
 });
 
 test("keeps the AI guide URL isolated from gallery chrome", async () => {
@@ -144,6 +189,7 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(robots, /Sitemap: https:\/\/unslop\.site\/sitemap\.xml/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/featured<\/loc>/i);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/unslop\.site\/logo<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/financial-apps<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/editorial-serif<\/loc>/i);
   assert.equal((sitemap.match(/<url>/g) ?? []).length, 154);

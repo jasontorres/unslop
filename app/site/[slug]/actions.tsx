@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { writeTextToClipboard } from "../../clipboard";
 
 type CopyKind = "guide" | "brief" | "html" | "share";
@@ -9,7 +10,21 @@ type ReferenceWindow = Window & {
   __UNSLOP_EXPORT_HTML__?: () => Promise<string>;
 };
 
-export function SiteActions({ slug, brief }: { slug: string; brief: string }) {
+type SiteActionsProps = {
+  slug: string;
+  brief: string;
+  descriptionId?: string;
+  viewHref?: string;
+  showShare?: boolean;
+};
+
+export function SiteActions({
+  slug,
+  brief,
+  descriptionId,
+  viewHref,
+  showShare = true,
+}: SiteActionsProps) {
   const [copied, setCopied] = useState<CopyKind | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,19 +72,39 @@ export function SiteActions({ slug, brief }: { slug: string; brief: string }) {
 
   return (
     <div className="action-group">
-      <button className="primary-action" onClick={() => copy("brief")}>
-        <span>{copied === "brief" ? "✓" : "＋"}</span>
-        {copied === "brief" ? "Brief copied" : "Copy agent brief"}
+      <button className="primary-action" onClick={() => copy("brief")} aria-label="Copy agent brief">
+        <span className="copy-symbol">{copied === "brief" ? "✓" : "＋"}</span>
+        <span className="action-label-full">{copied === "brief" ? "Brief copied" : "Copy agent brief"}</span>
+        <span className="action-label-short">{copied === "brief" ? "Copied" : "Brief"}</span>
       </button>
-      <button className="secondary-action html-action" onClick={copyHtml} aria-describedby="html-export-note">
-        {copied === "html" ? "HTML + CSS copied" : "Copy HTML + CSS"}
+      <button
+        className="secondary-action html-action"
+        onClick={copyHtml}
+        aria-label="Copy HTML and CSS"
+        aria-describedby={descriptionId}
+      >
+        <span className="action-label-full">{copied === "html" ? "HTML + CSS copied" : "Copy HTML + CSS"}</span>
+        <span className="action-label-short">{copied === "html" ? "Copied" : "HTML + CSS"}</span>
       </button>
-      <button className="secondary-action" onClick={() => copy("guide")} aria-describedby="html-export-note">
-        {copied === "guide" ? "AI URL copied" : "Copy AI guide URL"}
+      <button
+        className="secondary-action"
+        onClick={() => copy("guide")}
+        aria-label="Copy AI guide URL"
+        aria-describedby={descriptionId}
+      >
+        <span className="action-label-full">{copied === "guide" ? "AI URL copied" : "Copy AI guide URL"}</span>
+        <span className="action-label-short">{copied === "guide" ? "Copied" : "AI URL"}</span>
       </button>
-      <button className="icon-action" onClick={share} aria-label="Share this design reference">
-        {copied === "share" ? "✓" : "↗"}
-      </button>
+      {viewHref && (
+        <Link className="secondary-action fullscreen-action" href={viewHref}>
+          Full screen <span aria-hidden="true">↗</span>
+        </Link>
+      )}
+      {showShare && (
+        <button className="icon-action" onClick={share} aria-label="Share this design reference">
+          {copied === "share" ? "✓" : "↗"}
+        </button>
+      )}
       {error && <p className="copy-error" role="status">{error}</p>}
     </div>
   );

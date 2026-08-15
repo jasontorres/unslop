@@ -494,3 +494,7 @@ export function getEmbeddedSourceUrl(site: GallerySite) {
   const fit = containedCategories.has(site.categorySlug) ? "&fit=contain" : "";
   return `${getSourceUrl(site)}&embed=1${fit}`;
 }
+
+export function getAgentBrief(site: GallerySite) {
+  return `Use “${site.name}” as the visual direction for this interface. It belongs to ${site.category} / ${site.subcategory}. Study the reference for its hierarchy, typography, color system, spacing, density, border treatment, and interaction vocabulary. Adapt those principles to my product and content—do not copy the sample brand or wording. If I provide an unslop.site HTML export, inspect its inline computed CSS, embedded fonts, and asset data for exact visual values; treat it as an implementation reference, not production-ready source. Keep the result responsive, accessible, and production-ready.`;
+}

@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   const title = `${collection.name} Interface References`;
 
   return {
-    title: { absolute: `${title} — unslop.site` },
+    title,
     description: collection.description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
