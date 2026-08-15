@@ -94,8 +94,8 @@ export async function POST(request: Request) {
         ? "Transform the subject in the reference image. Preserve its most recognizable silhouette, proportions, expression, and core colors while simplifying it into a charming graphic identity."
         : "Invent a memorable visual metaphor from the app name and context.",
       "Art direction: friendly modern cartoon style, bold readable silhouette, clean faceted shapes, crisp edges, subtle dimensional shading, restrained color palette, playful but professional.",
-      "Create three genuinely distinct variations, each with a different silhouette, composition, or color direction while staying faithful to the same brief.",
-      "No device mockup, stock presentation board, watermark, tiny decorative clutter, or unrelated objects. Use a clean flat warm-white background with no cast shadow or floor line.",
+      "Create one finished design in each image. The API is already requesting three separate results, so never place multiple variations, a contact sheet, a grid, or repeated versions inside one image.",
+      "No device mockup, stock presentation board, comparison layout, watermark, tiny decorative clutter, or unrelated objects. Use a clean flat warm-white background with no cast shadow or floor line.",
     ].join(" ");
 
     const task: Record<string, unknown> = {

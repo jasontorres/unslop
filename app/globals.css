@@ -914,7 +914,20 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
   overflow: hidden;
   box-shadow: inset 0 1px 2px rgba(21, 21, 19, .025);
 }
-.logo-maker-page .poly-result-image { object-fit: contain; object-position: center; background: #fffefb; }
+.logo-maker-page .poly-preview-canvas.has-result .poly-result-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  background: #fffefb;
+}
+.logo-maker-page .poly-result-badge { z-index: 2; }
 .logo-maker-page .poly-preview-empty {
   width: auto;
   aspect-ratio: auto;
