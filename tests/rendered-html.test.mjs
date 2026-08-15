@@ -66,7 +66,8 @@ test("serves the identity maker only under /logo", async () => {
   assert.match(logo, /Mobile app logo/i);
   assert.match(logo, /Poster \+ app name/i);
   assert.match(logo, /Logo \+ name/i);
-  assert.match(logo, /Create 3 variations/i);
+  assert.match(logo, /Create a variation/i);
+  assert.match(logo, /1 variation/i);
   assert.match(logo, /Find existing logo/i);
   assert.match(logo, />Model 1</i);
   assert.match(logo, />Model 2</i);

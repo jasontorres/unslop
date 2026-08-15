@@ -11,7 +11,7 @@ using the Next.js build system.
   commerce, civic services, software agencies, and financial products.
 - Open each reference as an interactive canvas or a focused AI-ready URL.
 - Copy a design brief or a self-contained HTML reference.
-- Create three logo, app-icon, mascot, poster, or brand-lockup directions from a
+- Create one logo, app-icon, mascot, poster, or brand-lockup direction from a
   short brief and an optional source image.
 - Keep recent logo generations in browser-local history.
 

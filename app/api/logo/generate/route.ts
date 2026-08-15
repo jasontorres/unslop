@@ -94,7 +94,7 @@ export async function POST(request: Request) {
         ? "Transform the subject in the reference image. Preserve its most recognizable silhouette, proportions, expression, and core colors while simplifying it into a charming graphic identity."
         : "Invent a memorable visual metaphor from the app name and context.",
       "Art direction: friendly modern cartoon style, bold readable silhouette, clean faceted shapes, crisp edges, subtle dimensional shading, restrained color palette, playful but professional.",
-      "Create one finished design in each image. The API is already requesting three separate results, so never place multiple variations, a contact sheet, a grid, or repeated versions inside one image.",
+      "Create one finished design. Return a single result, never multiple variations, a contact sheet, a grid, or repeated versions inside the image.",
       "No device mockup, stock presentation board, comparison layout, watermark, tiny decorative clutter, or unrelated objects. Use a clean flat warm-white background with no cast shadow or floor line.",
     ].join(" ");
 
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
       positivePrompt: prompt,
       width: dimensions.width,
       height: dimensions.height,
-      numberResults: 3,
+      numberResults: 1,
       outputFormat: "PNG",
       outputType: "URL",
       deliveryMethod: "sync",

@@ -320,7 +320,7 @@ export function LogoMaker() {
           <Link href="/">Gallery</Link>
           <Link href="/logo" className="active" aria-current="page">Logo Maker</Link>
         </nav>
-        <p className="topbar-context">Three creative directions</p>
+        <p className="topbar-context">One focused direction</p>
       </header>
 
       <section className="poly-studio poly-studio-compact" id="studio" aria-label="Logo and mascot studio">
@@ -413,7 +413,7 @@ export function LogoMaker() {
 
               {error ? <p className="poly-error" role="alert"><span>!</span>{error}</p> : null}
               <button className="poly-create-button" type="submit" disabled={isGenerating || !appName.trim() || !context.trim()}>
-                <span>{isGenerating ? `Creating 3 directions… ${progress}%` : result ? "Create 3 new variations" : "Create 3 variations"}</span>
+                <span>{isGenerating ? `Creating a direction… ${progress}%` : result ? "Create a new variation" : "Create a variation"}</span>
                 <span aria-hidden="true">{isGenerating ? "◌" : "✦"}</span>
               </button>
             </form>
@@ -458,11 +458,11 @@ export function LogoMaker() {
               {currentImage ? (
                 <><img className="poly-result-image" src={currentImage.imageURL} alt={`${selectedOutput.label} variation ${activeImage + 1} for ${appName}`} /><span className="poly-result-badge">Variation {activeImage + 1} of {result?.images.length}</span></>
               ) : isGenerating ? (
-                <div className="poly-generating-state"><div className="poly-loader"><i /><i /><i /></div><strong>Exploring three<br />different directions.</strong><small>{progress}% · This can take a minute</small><div className="poly-progress"><span style={{ width: `${progress}%` }} /></div></div>
+                <div className="poly-generating-state"><div className="poly-loader"><i /><i /><i /></div><strong>Creating one<br />focused direction.</strong><small>{progress}% · This can take a minute</small><div className="poly-progress"><span style={{ width: `${progress}%` }} /></div></div>
               ) : sourceImage ? (
                 <div className="poly-source-preview"><img src={sourceImage} alt="Source image preview" /><span>Source ready</span></div>
               ) : (
-                <div className="poly-preview-empty"><span className="poly-empty-mark">◇</span><strong>Your three ideas<br />will appear here.</strong><small>Clean background. Strong personality.</small></div>
+                <div className="poly-preview-empty"><span className="poly-empty-mark">◇</span><strong>Your idea<br />will appear here.</strong><small>Clean background. Strong personality.</small></div>
               )}
             </div>
             {result && currentImage ? (
@@ -476,10 +476,10 @@ export function LogoMaker() {
                 </div>
                 <a href={currentImage.imageURL} target="_blank" rel="noreferrer">Open full size <span>↗</span></a>
                 <button type="button" onClick={clearResult}>Clear result</button>
-                <small>{modelLabels[result.model]} · Three creative directions</small>
+                <small>{modelLabels[result.model]} · One focused direction</small>
               </div>
             ) : (
-              <div className="poly-preview-foot"><span><i className="dot-coral" /> 3 variations</span><span><i className="dot-blue" /> Ready to refine</span></div>
+              <div className="poly-preview-foot"><span><i className="dot-coral" /> 1 variation</span><span><i className="dot-blue" /> Ready to refine</span></div>
             )}
           </aside>
         </div>
