@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: site.name,
     description,
-    keywords: [...site.tags, site.category, site.subcategory, "interface reference", "design inspiration"],
+    keywords: [...site.tags, site.model, site.category, site.subcategory, "interface reference", "design inspiration"],
     alternates: { canonical: canonicalUrl },
     openGraph: {
       title: `${site.name} — unslop.site`,
@@ -64,7 +64,7 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
     url: `https://unslop.site/site/${site.slug}`,
     image: `https://unslop.site/previews/${site.slug}.png`,
     genre: [site.category, site.subcategory],
-    keywords: site.tags.join(", "),
+    keywords: [site.model, site.tags.join(", ")].filter(Boolean).join(", "),
     isPartOf: {
       "@type": "WebSite",
       "@id": "https://unslop.site/#website",
@@ -88,7 +88,10 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
 
       <section className="detail-intro">
         <div>
-          <p className="eyebrow"><span>{String(site.index + 1).padStart(3, "0")}</span> {site.category} / {site.subcategory}</p>
+          <p className="eyebrow">
+            <span>{String(site.index + 1).padStart(3, "0")}</span> {site.category} / {site.subcategory}
+            <span className="model-chip" data-model={site.model} aria-label={`Generated with ${site.model}`}>{site.model}</span>
+          </p>
           <h1>{site.name}</h1>
           <p className="detail-summary">Copy the direction as an agent brief—or take the standalone HTML with its styles included.</p>
         </div>
@@ -119,6 +122,7 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
             the standalone HTML when the agent also needs exact type, spacing, color, and layout values.
           </p>
           <div className="tag-list">
+            <span className="model-chip" data-model={site.model} aria-label={`Generated with ${site.model}`}>{site.model}</span>
             {site.tags.map((tag) => <span key={tag}>{tag}</span>)}
           </div>
         </div>
@@ -142,7 +146,7 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
                 <span>{String(item.index + 1).padStart(3, "0")}</span>
               </div>
               <h3>{item.name}</h3>
-              <p>{item.subcategory}</p>
+              <p>{item.subcategory} · {item.model}</p>
             </Link>
           ))}
         </div>

@@ -38,6 +38,7 @@ export const metadata: Metadata = {
       "UI design library",
       "AI coding agent briefs",
       "landing page inspiration",
+      "dashboard design inspiration",
       "product design references",
     ],
     authors: [{ name: "unslop.site", url: canonicalOrigin }],

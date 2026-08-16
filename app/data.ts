@@ -1,3 +1,6 @@
+export const generatorModels = ["Claude 4.7", "GPT 5.6 Sol", "Grok 4.6"] as const;
+export type GeneratorModel = (typeof generatorModels)[number];
+
 export type GallerySite = {
   slug: string;
   name: string;
@@ -7,6 +10,7 @@ export type GallerySite = {
   sectionId: string;
   artboardId: string;
   sourceFile: string;
+  model: GeneratorModel;
   tags: string[];
   index: number;
 };
@@ -22,6 +26,7 @@ type CategoryDefinition = {
   name: string;
   sourceFile: string;
   description: string;
+  model: GeneratorModel;
   groups: Group[];
 };
 
@@ -31,6 +36,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     name: "Landing",
     sourceFile: "Themes and Typography.html",
     description: "Landing pages, typographic systems, saturated color studies, and dashboards.",
+    model: "Claude 4.7",
     groups: [
       {
         title: "Hero / Landing",
@@ -93,6 +99,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     name: "Mobile Apps",
     sourceFile: "Mobile Apps.html",
     description: "Sixteen iOS product directions, from finance and navigation to media and wellbeing.",
+    model: "Claude 4.7",
     groups: [
       {
         title: "Core Apps",
@@ -129,6 +136,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     name: "Social Media",
     sourceFile: "Social Media Posts.html",
     description: "Posts, stories, reels, and platform-native layouts for visual and text-led channels.",
+    model: "Claude 4.7",
     groups: [
       {
         title: "Instagram Posts",
@@ -171,6 +179,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     name: "Grids & Marketplace",
     sourceFile: "Grids and Marketplace.html",
     description: "Commerce grids, listings, catalogs, job boards, delivery, and cart patterns.",
+    model: "Claude 4.7",
     groups: [
       {
         title: "Marketplace & Listings",
@@ -209,6 +218,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     name: "Profiles & Products",
     sourceFile: "Profiles and Product Pages.html",
     description: "Personal profiles, customer accounts, product detail pages, and premium listings.",
+    model: "Claude 4.7",
     groups: [
       {
         title: "Profile Pages",
@@ -247,6 +257,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     name: "Articles & Editorial",
     sourceFile: "Articles and Editorial.html",
     description: "Long-form readers, publishing indexes, documentation, recipes, reviews, and podcasts.",
+    model: "Claude 4.7",
     groups: [
       {
         title: "Long-form Reading",
@@ -285,6 +296,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     name: "Civic & Public Service",
     sourceFile: "Civic and Public Service.html",
     description: "Accessible service landings, open records, public data, applications, budgets, and hearings.",
+    model: "Claude 4.7",
     groups: [
       {
         title: "Service Landings",
@@ -317,6 +329,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     name: "Software Agency",
     sourceFile: "Software Agency.html",
     description: "A complete studio site system spanning home, services, work, about, pricing, journal, and careers.",
+    model: "Claude 4.7",
     groups: [
       {
         title: "Home / Landing",
@@ -382,6 +395,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     name: "Financial Apps",
     sourceFile: "Financial Apps.html",
     description: "Twelve mobile-first money products spanning budgeting, planning, payoff, treasury, tax, investing, and subscription management.",
+    model: "GPT 5.6 Sol",
     groups: [
       {
         title: "Everyday Money",
@@ -411,6 +425,45 @@ export const categoryDefinitions: CategoryDefinition[] = [
           ["fin-solo-tax", "10 · Solo/Tax · Freelancer Vault"],
           ["fin-signal", "11 · Signal · Ethical Portfolio"],
           ["fin-subscape", "12 · Subscape · Subscription Garden"],
+        ],
+      },
+    ],
+  },
+  {
+    slug: "dashboards",
+    name: "Dashboards",
+    sourceFile: "Dashboards.html",
+    description: "Twelve industry operations desks—hospital, fleet, factory, airside, hospitality, kitchen, farm, grid, legal, insurance, people, and studio—each with its own density, palette, and information architecture.",
+    model: "Grok 4.6",
+    groups: [
+      {
+        title: "Operations & Infrastructure",
+        sectionId: "dash-ops",
+        entries: [
+          ["d-meridian", "01 · Meridian · Hospital Command"],
+          ["d-yardline", "02 · Yardline · Fleet Control"],
+          ["d-kiln", "03 · Kiln · Factory Floor"],
+          ["d-gate14", "04 · Gate 14 · Airside Ops"],
+        ],
+      },
+      {
+        title: "Places & Resources",
+        sectionId: "dash-places",
+        entries: [
+          ["d-ledger", "05 · House Ledger · Night Desk"],
+          ["d-pass", "06 · Pass · Service Floor"],
+          ["d-acre", "07 · Acre · Growing Season"],
+          ["d-circuit", "08 · Circuit · Grid Desk"],
+        ],
+      },
+      {
+        title: "Knowledge & Culture",
+        sectionId: "dash-knowledge",
+        entries: [
+          ["d-docket", "09 · Docket · Matter Board"],
+          ["d-claimwell", "10 · Claimwell · Adjuster Desk"],
+          ["d-roster", "11 · Roster · People Ops"],
+          ["d-cutroom", "12 · Cut Room · Studio Pipeline"],
         ],
       },
     ],
@@ -458,6 +511,7 @@ export const allSites: GallerySite[] = categoryDefinitions.flatMap((category) =>
         sectionId: group.sectionId,
         artboardId,
         sourceFile: category.sourceFile,
+        model: category.model,
         tags,
         index: itemIndex++,
       };
@@ -476,6 +530,8 @@ export const featuredSlugs = [
   "athlete-pace-form",
   "health-rings",
   "job-board",
+  "meridian-hospital-command",
+  "circuit-grid-desk",
 ] as const;
 
 export const featuredSlugSet = new Set<string>(featuredSlugs);
