@@ -119,14 +119,18 @@ test("server-renders the unslop.site landing page", async () => {
   assert.match(html, /<img src="\/previews\/editorial-serif\.png"/i);
   assert.match(html, /href="\/featured"[^>]*>Featured/i);
   assert.match(html, /href="\/financial-apps"[^>]*>Financial Apps/i);
+  assert.match(html, /href="\/dashboards"[^>]*>Dashboards/i);
+  assert.match(html, /Claude 4\.7/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 
   const agencyCategory = html.indexOf("Software Agency");
   const financialCategory = html.indexOf("Financial Apps");
+  const dashboardsCategory = html.indexOf('href="/dashboards"');
   const mobileCategory = html.indexOf("Mobile Apps");
   const socialCategory = html.indexOf("Social Media");
   assert.ok(agencyCategory >= 0 && financialCategory > agencyCategory);
-  assert.ok(mobileCategory > financialCategory);
+  assert.ok(dashboardsCategory > financialCategory);
+  assert.ok(mobileCategory > dashboardsCategory);
   assert.ok(socialCategory > mobileCategory);
 });
 
@@ -243,16 +247,19 @@ test("serves the shared paginated logo gallery from R2", async () => {
 });
 
 test("serves linkable category and featured collection pages", async () => {
-  const [financialResponse, featuredResponse] = await Promise.all([
+  const [financialResponse, dashboardsResponse, featuredResponse] = await Promise.all([
     render("/financial-apps"),
+    render("/dashboards"),
     render("/featured"),
   ]);
 
   assert.equal(financialResponse.status, 200);
+  assert.equal(dashboardsResponse.status, 200);
   assert.equal(featuredResponse.status, 200);
 
-  const [financial, featured] = await Promise.all([
+  const [financial, dashboards, featured] = await Promise.all([
     financialResponse.text(),
+    dashboardsResponse.text(),
     featuredResponse.text(),
   ]);
 
@@ -260,13 +267,22 @@ test("serves linkable category and featured collection pages", async () => {
   assert.match(financial, /<link rel="canonical" href="https:\/\/unslop\.site\/financial-apps"\/>/i);
   assert.match(financial, /12(?:<!-- -->|\s)+references/i);
   assert.match(financial, /Centsible · Envelope Budget/i);
+  assert.match(financial, /GPT 5\.6 Sol/i);
   assert.doesNotMatch(financial, /Editorial Serif design preview/i);
   assert.match(financial, /"@type":"CollectionPage"/i);
 
+  assert.match(dashboards, /<title>Dashboards Interface References — unslop\.site<\/title>/i);
+  assert.match(dashboards, /<link rel="canonical" href="https:\/\/unslop\.site\/dashboards"\/>/i);
+  assert.match(dashboards, /12(?:<!-- -->|\s)+references/i);
+  assert.match(dashboards, /Meridian · Hospital Command/i);
+  assert.match(dashboards, /Grok 4\.6/i);
+  assert.doesNotMatch(dashboards, /Editorial Serif design preview/i);
+
   assert.match(featured, /<title>Featured Interface References — unslop\.site<\/title>/i);
   assert.match(featured, /<link rel="canonical" href="https:\/\/unslop\.site\/featured"\/>/i);
-  assert.match(featured, /8(?:<!-- -->|\s)+references/i);
+  assert.match(featured, /10(?:<!-- -->|\s)+references/i);
   assert.match(featured, /Display \/ Anti-design/i);
+  assert.match(featured, /Meridian · Hospital Command/i);
 });
 
 test("server-renders an AI-ready detail page", async () => {
@@ -281,6 +297,7 @@ test("server-renders an AI-ready detail page", async () => {
   assert.match(html, /Copy AI guide URL/i);
   assert.match(html, /href="\/view\/editorial-serif"[^>]*>Full screen/i);
   assert.match(html, /AI-only reference/i);
+  assert.match(html, /Claude 4\.7/i);
   assert.match(html, /<link rel="canonical" href="https:\/\/unslop\.site\/site\/editorial-serif"\/>/i);
   assert.match(html, /"@type":"CreativeWork"/i);
 });
@@ -315,24 +332,30 @@ test("keeps the AI guide URL isolated from gallery chrome", async () => {
 });
 
 test("contains mobile and social embeds without shrinking desktop references", async () => {
-  const [mobileResponse, socialResponse, financialResponse, desktopResponse] = await Promise.all([
+  const [mobileResponse, socialResponse, financialResponse, desktopResponse, dashboardResponse] = await Promise.all([
     render("/site/food-delivery"),
     render("/site/spotify-share-card"),
     render("/site/centsible-envelope-budget"),
     render("/site/editorial-serif"),
+    render("/site/meridian-hospital-command"),
   ]);
 
-  const [mobile, social, financial, desktop] = await Promise.all([
+  const [mobile, social, financial, desktop, dashboard] = await Promise.all([
     mobileResponse.text(),
     socialResponse.text(),
     financialResponse.text(),
     desktopResponse.text(),
+    dashboardResponse.text(),
   ]);
 
   assert.match(mobile, /fit=contain/i);
   assert.match(social, /fit=contain/i);
   assert.match(financial, /fit=contain/i);
+  assert.match(financial, /GPT 5\.6 Sol/i);
   assert.doesNotMatch(desktop, /fit=contain/i);
+  assert.match(desktop, /Claude 4\.7/i);
+  assert.doesNotMatch(dashboard, /fit=contain/i);
+  assert.match(dashboard, /Grok 4\.6/i);
 
   const canvasSource = await readFile(
     new URL("../public/source/design-canvas.jsx", import.meta.url),
@@ -362,6 +385,8 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.doesNotMatch(sitemap, /<loc>https:\/\/unslop\.site\/logo\/browse<\/loc>/i);
   assert.doesNotMatch(sitemap, /<loc>https:\/\/unslop\.site\/logo\/gallery<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/financial-apps<\/loc>/i);
+  assert.match(sitemap, /<loc>https:\/\/unslop\.site\/dashboards<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/editorial-serif<\/loc>/i);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 154);
+  assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/meridian-hospital-command<\/loc>/i);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 167);
 });

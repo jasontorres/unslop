@@ -60,7 +60,7 @@ export function Gallery({ initialCategory = "all" }: { initialCategory?: string 
       .filter((site) => {
         const inCategory = category === "all"
           || (category === "featured" ? featuredSlugSet.has(site.slug) : site.categorySlug === category);
-        const haystack = [site.name, site.category, site.subcategory, ...site.tags]
+        const haystack = [site.name, site.category, site.subcategory, site.model, ...site.tags]
           .join(" ")
           .toLowerCase();
         return inCategory && (!normalizedQuery || haystack.includes(normalizedQuery));
@@ -118,7 +118,7 @@ export function Gallery({ initialCategory = "all" }: { initialCategory?: string 
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search styles, formats, products…"
+              placeholder="Search styles, formats, models…"
               aria-label="Search the design library"
             />
             {query && <button onClick={() => setQuery("")} aria-label="Clear search">×</button>}
@@ -165,6 +165,7 @@ export function Gallery({ initialCategory = "all" }: { initialCategory?: string 
                   <Link href={`/site/${site.slug}`}>
                     <h3>{site.name}</h3>
                     <p>{site.category} <span>·</span> {site.subcategory}</p>
+                    <span className="model-chip" data-model={site.model} aria-label={`Generated with ${site.model}`}>{site.model}</span>
                   </Link>
                   <button className="copy-mini" onClick={() => copySite(site.slug)} aria-label={`Copy link to ${site.name}`}>
                     {copied === site.slug ? "Copied" : "Copy link"}
