@@ -10,6 +10,31 @@ const archiveImageId = "3f8d1825-f9a3-40ef-9d35-90e0c9d7f00b";
 const archiveImageKey = `logo-gallery/images/${archiveImageId}.png`;
 const liveImageId = "e8013692-008b-49a9-9a52-e7872ea6eef6";
 const liveImageKey = `logo_8213182300000_${liveImageId}.png`;
+const archiveImages = [
+  {
+    id: archiveImageId,
+    imageKey: archiveImageKey,
+    appName: "Archive Logo",
+    model: "ideogram:4@0",
+    outputType: "app-icon",
+    width: 2048,
+    height: 2048,
+    createdAt: 1786817600000,
+  },
+  ...Array.from({ length: 200 }, (_, index) => {
+    const id = `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`;
+    return {
+      id,
+      imageKey: `logo-gallery/images/${id}.png`,
+      appName: `Archive Logo ${index + 2}`,
+      model: "ideogram:4@0",
+      outputType: "app-icon",
+      width: 1024,
+      height: 1024,
+      createdAt: 1786817599000 - index,
+    };
+  }),
+];
 const mockGalleryBucket = {
   async list() {
     return {
@@ -31,21 +56,13 @@ const mockGalleryBucket = {
   },
   async get(key) {
     if (key === "logo-gallery/manifest.json") {
-      return { body: new Blob([JSON.stringify({ total: 1, pageSize: 200, pageCount: 1 })]).stream() };
+      return { body: new Blob([JSON.stringify({ total: 201, pageSize: 200, pageCount: 2 })]).stream() };
     }
     if (key === "logo-gallery/pages/page-0001.json") {
-      return {
-        body: new Blob([JSON.stringify([{
-          id: archiveImageId,
-          imageKey: archiveImageKey,
-          appName: "Archive Logo",
-          model: "ideogram:4@0",
-          outputType: "app-icon",
-          width: 2048,
-          height: 2048,
-          createdAt: 1786817600000,
-        }])]).stream(),
-      };
+      return { body: new Blob([JSON.stringify(archiveImages.slice(0, 200))]).stream() };
+    }
+    if (key === "logo-gallery/pages/page-0002.json") {
+      return { body: new Blob([JSON.stringify(archiveImages.slice(200))]).stream() };
     }
     if (key === archiveImageKey || key === liveImageKey) {
       return {
@@ -198,9 +215,11 @@ test("serves the shared paginated logo gallery from R2", async () => {
   const response = await render("/api/logo/gallery");
   assert.equal(response.status, 200);
   const payload = await response.json();
-  assert.equal(payload.images.length, 2);
-  assert.deepEqual(payload.images.map((image) => image.appName), ["Live Logo", "Archive Logo"]);
-  assert.equal(payload.cursor, null);
+  assert.equal(payload.images.length, 200);
+  assert.deepEqual(payload.images.slice(0, 2).map((image) => image.appName), ["Live Logo", "Archive Logo"]);
+  assert.equal(payload.page, 1);
+  assert.equal(payload.pageCount, 2);
+  assert.equal(payload.total, 202);
 
   const archiveImage = payload.images.find((image) => image.id === archiveImageId);
   assert.equal(
@@ -212,8 +231,15 @@ test("serves the shared paginated logo gallery from R2", async () => {
     `https://assets.unslop.site/cdn-cgi/image/width=512,fit=scale-down,format=auto,quality=80/logo-gallery/images/${archiveImageId}.png`,
   );
 
-  const invalidCursorResponse = await render("/api/logo/gallery?cursor=not-a-valid-cursor");
-  assert.equal(invalidCursorResponse.status, 400);
+  const secondPageResponse = await render("/api/logo/gallery?page=2");
+  assert.equal(secondPageResponse.status, 200);
+  const secondPage = await secondPageResponse.json();
+  assert.equal(secondPage.page, 2);
+  assert.equal(secondPage.images.length, 2);
+  assert.deepEqual(secondPage.images.map((image) => image.appName), ["Archive Logo 200", "Archive Logo 201"]);
+
+  const invalidPageResponse = await render("/api/logo/gallery?page=not-a-page");
+  assert.equal(invalidPageResponse.status, 400);
 });
 
 test("serves linkable category and featured collection pages", async () => {

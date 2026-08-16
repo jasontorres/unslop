@@ -7,6 +7,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function LogoGalleryPage() {
-  return <LogoGallery />;
+type LogoGalleryPageProps = {
+  searchParams: Promise<{ page?: string | string[] }>;
+};
+
+export default async function LogoGalleryPage({ searchParams }: LogoGalleryPageProps) {
+  const value = (await searchParams).page;
+  const rawPage = Array.isArray(value) ? value[0] : value;
+  const page = rawPage && /^[1-9]\d{0,5}$/.test(rawPage) ? Number(rawPage) : 1;
+  return <LogoGallery key={page} initialPage={page} />;
 }

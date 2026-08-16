@@ -3,6 +3,7 @@ const ARCHIVE_PREFIX = "logo-gallery";
 const ARCHIVE_MANIFEST_KEY = `${ARCHIVE_PREFIX}/manifest.json`;
 const GALLERY_ASSET_ORIGIN = "https://assets.unslop.site";
 const GALLERY_THUMBNAIL_OPTIONS = "width=512,fit=scale-down,format=auto,quality=80";
+const GALLERY_PAGE_SIZE = 200;
 const MAX_IMAGE_BYTES = 25 * 1024 * 1024;
 const REVERSE_TIME_CEILING = 9_999_999_999_999;
 
@@ -216,6 +217,24 @@ export async function listLiveGalleryImages(cursor?: string) {
   };
 }
 
+async function listAllLiveGalleryImages() {
+  const images: PublicGalleryImage[] = [];
+  const seenCursors = new Set<string>();
+  let cursor: string | undefined;
+
+  do {
+    const page = await listLiveGalleryImages(cursor);
+    images.push(...page.images);
+    cursor = page.cursor || undefined;
+    if (cursor) {
+      if (seenCursors.has(cursor)) throw new Error("R2 returned a repeated gallery cursor.");
+      seenCursors.add(cursor);
+    }
+  } while (cursor);
+
+  return images;
+}
+
 export async function listArchiveGalleryPage(pageNumber: number) {
   const bucket = await getGalleryBucket();
   const manifest = await readJsonObject<ArchiveManifest>(bucket, ARCHIVE_MANIFEST_KEY);
@@ -252,6 +271,60 @@ export async function listArchiveGalleryPage(pageNumber: number) {
   return {
     images,
     nextPage: pageNumber < manifest.pageCount ? pageNumber + 1 : null,
+  };
+}
+
+export async function listNumberedGalleryPage(pageNumber: number) {
+  const bucket = await getGalleryBucket();
+  const [liveImages, manifest] = await Promise.all([
+    listAllLiveGalleryImages(),
+    readJsonObject<ArchiveManifest>(bucket, ARCHIVE_MANIFEST_KEY),
+  ]);
+
+  if (!manifest
+    || !Number.isInteger(manifest.total)
+    || manifest.total < 0
+    || !Number.isInteger(manifest.pageSize)
+    || manifest.pageSize < 1
+    || !Number.isInteger(manifest.pageCount)
+    || manifest.pageCount < 1) {
+    throw new Error("The gallery archive manifest is invalid.");
+  }
+
+  const total = liveImages.length + manifest.total;
+  const pageCount = Math.max(1, Math.ceil(total / GALLERY_PAGE_SIZE));
+  if (!Number.isInteger(pageNumber) || pageNumber < 1 || pageNumber > pageCount) return null;
+
+  const start = (pageNumber - 1) * GALLERY_PAGE_SIZE;
+  const end = Math.min(start + GALLERY_PAGE_SIZE, total);
+  const pageLiveImages = liveImages.slice(start, end);
+  const archiveLimit = GALLERY_PAGE_SIZE - pageLiveImages.length;
+  const archiveOffset = Math.max(0, start - liveImages.length);
+  const archivePageImages: PublicGalleryImage[] = [];
+
+  if (archiveLimit > 0 && archiveOffset < manifest.total) {
+    const firstArchivePage = Math.floor(archiveOffset / manifest.pageSize) + 1;
+    const offsetInFirstPage = archiveOffset % manifest.pageSize;
+    for (let archivePageNumber = firstArchivePage;
+      archivePageNumber <= manifest.pageCount && archivePageImages.length < archiveLimit + offsetInFirstPage;
+      archivePageNumber += 1) {
+      const archivePage = await listArchiveGalleryPage(archivePageNumber);
+      archivePageImages.push(...archivePage.images);
+    }
+  }
+
+  const offsetInFirstArchivePage = archiveOffset % manifest.pageSize;
+  const pageArchiveImages = archivePageImages.slice(
+    offsetInFirstArchivePage,
+    offsetInFirstArchivePage + archiveLimit,
+  );
+
+  return {
+    images: [...pageLiveImages, ...pageArchiveImages],
+    page: pageNumber,
+    pageCount,
+    pageSize: GALLERY_PAGE_SIZE,
+    total,
   };
 }
 
