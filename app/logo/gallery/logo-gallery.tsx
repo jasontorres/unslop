@@ -36,6 +36,7 @@ function mergeImages(current: PublicGalleryImage[], incoming: PublicGalleryImage
 
 function LogoCard({ image }: { image: PublicGalleryImage }) {
   const [unavailable, setUnavailable] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(image.thumbnailUrl);
 
   return (
     <article className="logo-gallery-card">
@@ -50,11 +51,17 @@ function LogoCard({ image }: { image: PublicGalleryImage }) {
           <span className="logo-gallery-unavailable"><b>◇</b>Preview unavailable</span>
         ) : (
           <img
-            src={image.imageUrl}
+            src={previewUrl}
             alt={`${image.appName} ${outputLabels[image.outputType]}`}
             loading="lazy"
             decoding="async"
-            onError={() => setUnavailable(true)}
+            onError={() => {
+              if (previewUrl !== image.imageUrl) {
+                setPreviewUrl(image.imageUrl);
+                return;
+              }
+              setUnavailable(true);
+            }}
           />
         )}
       </a>

@@ -207,6 +207,10 @@ test("serves the shared paginated logo gallery from R2", async () => {
     archiveImage?.imageUrl,
     `https://assets.unslop.site/logo-gallery/images/${archiveImageId}.png`,
   );
+  assert.equal(
+    archiveImage?.thumbnailUrl,
+    `https://assets.unslop.site/cdn-cgi/image/width=512,fit=scale-down,format=auto,quality=80/logo-gallery/images/${archiveImageId}.png`,
+  );
 
   const invalidCursorResponse = await render("/api/logo/gallery?cursor=not-a-valid-cursor");
   assert.equal(invalidCursorResponse.status, 400);

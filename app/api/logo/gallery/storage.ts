@@ -2,6 +2,7 @@ const GALLERY_PREFIX = "logo_";
 const ARCHIVE_PREFIX = "logo-gallery";
 const ARCHIVE_MANIFEST_KEY = `${ARCHIVE_PREFIX}/manifest.json`;
 const GALLERY_ASSET_ORIGIN = "https://assets.unslop.site";
+const GALLERY_THUMBNAIL_OPTIONS = "width=512,fit=scale-down,format=auto,quality=80";
 const MAX_IMAGE_BYTES = 25 * 1024 * 1024;
 const REVERSE_TIME_CEILING = 9_999_999_999_999;
 
@@ -53,6 +54,7 @@ type WorkerGlobal = typeof globalThis & {
 export type PublicGalleryImage = {
   id: string;
   imageUrl: string;
+  thumbnailUrl: string;
   appName: string;
   model: "openai:gpt-image@2" | "ideogram:4@0";
   outputType: "logo" | "app-icon" | "mascot" | "poster" | "logo-with-name";
@@ -67,7 +69,7 @@ type ArchiveManifest = {
   pageCount: number;
 };
 
-type ArchiveGalleryImage = Omit<PublicGalleryImage, "imageUrl"> & {
+type ArchiveGalleryImage = Omit<PublicGalleryImage, "imageUrl" | "thumbnailUrl"> & {
   imageKey: string;
 };
 
@@ -89,9 +91,16 @@ function galleryKey(createdAt: number, imageUUID: string) {
   return `${GALLERY_PREFIX}${reverseTime}_${imageUUID}.png`;
 }
 
+function publicAssetPath(key: string) {
+  return key.split("/").map(encodeURIComponent).join("/");
+}
+
 function publicImageUrl(key: string) {
-  const encodedKey = key.split("/").map(encodeURIComponent).join("/");
-  return `${GALLERY_ASSET_ORIGIN}/${encodedKey}`;
+  return `${GALLERY_ASSET_ORIGIN}/${publicAssetPath(key)}`;
+}
+
+function publicThumbnailUrl(key: string) {
+  return `${GALLERY_ASSET_ORIGIN}/cdn-cgi/image/${GALLERY_THUMBNAIL_OPTIONS}/${publicAssetPath(key)}`;
 }
 
 async function readJsonObject<T>(bucket: GalleryR2Bucket, key: string) {
@@ -191,6 +200,7 @@ export async function listLiveGalleryImages(cursor?: string) {
     return [{
       id: object.key,
       imageUrl: publicImageUrl(object.key),
+      thumbnailUrl: publicThumbnailUrl(object.key),
       appName,
       model,
       outputType: outputType as PublicGalleryImage["outputType"],
@@ -235,6 +245,7 @@ export async function listArchiveGalleryPage(pageNumber: number) {
     return [{
       ...image,
       imageUrl: publicImageUrl(image.imageKey),
+      thumbnailUrl: publicThumbnailUrl(image.imageKey),
     }];
   });
 
