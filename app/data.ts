@@ -517,6 +517,35 @@ export const categoryDefinitions: CategoryDefinition[] = [
       },
     ],
   },
+  {
+    slug: "industry-heroes",
+    name: "Industry Heroes",
+    sourceFile: "Industry Heroes.html",
+    description: "Eight industry landing pages whose heroes are built around a single unmissable animation—DNA spin, warp-speed HUD, surgical path-trace, radar sweep, stacking floors, coffee steam, alpine snow, and projector flicker.",
+    model: "Grok 4.6",
+    groups: [
+      {
+        title: "Science & Motion",
+        sectionId: "ih-science",
+        entries: [
+          ["ih-helix", "01 · Helix · DNA Spin"],
+          ["ih-slipstream", "02 · Slipstream · Racing HUD"],
+          ["ih-suture", "03 · Suture · Path Trace"],
+          ["ih-harborline", "04 · Harborline · Radar Sweep"],
+        ],
+      },
+      {
+        title: "Place & Craft",
+        sectionId: "ih-place",
+        entries: [
+          ["ih-plinth", "05 · Plinth · Stacking Floors"],
+          ["ih-nectar", "06 · Nectar · Steam Rise"],
+          ["ih-ridge", "07 · Ridge · Falling Snow"],
+          ["ih-ampersand", "08 · Ampersand · Projector Flicker"],
+        ],
+      },
+    ],
+  },
 ];
 
 function cleanName(label: string) {
@@ -582,6 +611,7 @@ export const featuredSlugs = [
   "meridian-hospital-command",
   "circuit-grid-desk",
   "nock-activation",
+  "helix-dna-spin",
 ] as const;
 
 export const featuredSlugSet = new Set<string>(featuredSlugs);
