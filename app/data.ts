@@ -433,7 +433,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     slug: "dashboards",
     name: "Dashboards",
     sourceFile: "Dashboards.html",
-    description: "Twelve industry operations desks—hospital, fleet, factory, airside, hospitality, kitchen, farm, grid, legal, insurance, people, and studio—each with its own density, palette, and information architecture.",
+    description: "Industry operations desks plus SaaS product consoles—activation, customer health, usage billing, support, attribution, identity, trust, and model spend—each with its own information architecture.",
     model: "Grok 4.6",
     groups: [
       {
@@ -464,6 +464,26 @@ export const categoryDefinitions: CategoryDefinition[] = [
           ["d-claimwell", "10 · Claimwell · Adjuster Desk"],
           ["d-roster", "11 · Roster · People Ops"],
           ["d-cutroom", "12 · Cut Room · Studio Pipeline"],
+        ],
+      },
+      {
+        title: "SaaS Product",
+        sectionId: "dash-saas-product",
+        entries: [
+          ["s-nock", "13 · Nock · Activation"],
+          ["s-quorum", "14 · Quorum · Account Health"],
+          ["s-metered", "15 · Metered · Usage Billing"],
+          ["s-deskline", "16 · Deskline · Support Queue"],
+        ],
+      },
+      {
+        title: "SaaS Platform",
+        sectionId: "dash-saas-platform",
+        entries: [
+          ["s-catchment", "17 · Catchment · Attribution"],
+          ["s-keystone", "18 · Keystone · Access Admin"],
+          ["s-thresh", "19 · Thresh · Trust Queue"],
+          ["s-lumen", "20 · Lumen · Model Spend"],
         ],
       },
     ],
@@ -532,6 +552,7 @@ export const featuredSlugs = [
   "job-board",
   "meridian-hospital-command",
   "circuit-grid-desk",
+  "nock-activation",
 ] as const;
 
 export const featuredSlugSet = new Set<string>(featuredSlugs);
