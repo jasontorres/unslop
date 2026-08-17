@@ -60,16 +60,21 @@ function PSearch({ placeholder, w = 260, dark }) {
   );
 }
 
-function PSpark({ values, color }) {
+function PlatTrend({ pts, color }) {
+  const series = Array.isArray(pts) ? pts : [];
+  if (series.length < 2) return null;
   const w = 92, h = 34;
-  const max = Math.max(...values);
-  const min = Math.min(...values);
+  const max = Math.max(...series);
+  const min = Math.min(...series);
   const span = max - min || 1;
-  const d = values.map((v, i) => `${i ? 'L' : 'M'} ${(i / (values.length - 1)) * w},${h - 3 - ((v - min) / span) * (h - 6)}`).join(' ');
+  const d = series.map((v, i) => `${i ? 'L' : 'M'} ${(i / (series.length - 1)) * w},${h - 3 - ((v - min) / span) * (h - 6)}`).join(' ');
   return <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}><path d={d} fill="none" stroke={color} strokeWidth="1.8" /></svg>;
 }
 
-function PArea({ a, b, color, colorB, gid, grid = '#ececec', h = 168 }) {
+function PArea({ series, compare, color, colorB, gid, grid = '#ececec', h = 168 }) {
+  const a = Array.isArray(series) ? series : [];
+  const b = Array.isArray(compare) ? compare : null;
+  if (a.length < 2) return null;
   const w = 560;
   const max = Math.max(...a, ...(b || []), 1);
   const x = (i, n) => (i / (n - 1)) * w;
@@ -100,7 +105,7 @@ function PKpi({ label, value, delta, up, spark, color, bg = '#fff', bd = '#e5e5e
           <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.05em', margin: '2px 0' }}>{value}</div>
           {delta && <div style={{ fontSize: 11, fontWeight: 650, color: up ? '#4d7c0f' : '#b45309' }}>{delta}</div>}
         </div>
-        {spark && <PSpark values={spark} color={color} />}
+        {spark && <PlatTrend pts={spark} color={color} />}
       </div>
     </div>
   );
@@ -165,7 +170,7 @@ function SaasCatchment() {
           <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1.5fr .95fr', gap: 10, minHeight: 0 }}>
             <PCard title="Sourced pipeline" right="Weekly · $m">
               <div style={{ flex: 1, minHeight: 0 }}>
-                <PArea a={pipe} color="#65a30d" gid="catchFill" />
+                <PArea series={pipe} color="#65a30d" gid="catchFill" />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#a3a3a3', marginTop: 4 }}>
                 <span>1 Jul</span><span>1 Aug</span><span>16 Aug</span>
@@ -253,7 +258,7 @@ function SaasKeystone() {
           <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1.5fr .95fr', gap: 10, minHeight: 0 }}>
             <PCard title="Authentications · 24h" right="Dashed = failures ×20" style={{ borderColor: '#e8e8ed' }}>
               <div style={{ flex: 1, minHeight: 0 }}>
-                <PArea a={auths} b={fails.map((n) => n * 20)} color="#0071e3" colorB="#c41e3a" gid="keyFill" grid="#ececf1" />
+                <PArea series={auths} compare={fails.map((n) => n * 20)} color="#0071e3" colorB="#c41e3a" gid="keyFill" grid="#ececf1" />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#86868b', marginTop: 4 }}>
                 <span>00:00</span><span>08:00</span><span>16:00</span><span>now</span>
@@ -460,7 +465,7 @@ function SaasLumen() {
                   <span style={{ fontSize: 11, color: '#9a958c' }}>dashed = $1.6k</span>
                 </div>
                 <div style={{ flex: 1, minHeight: 0, marginTop: 8 }}>
-                  <PArea a={spend} b={budget} color="#e8b86d" colorB="#7a9bb8" gid="lumenFill" grid="#2a2a30" />
+                  <PArea series={spend} compare={budget} color="#e8b86d" colorB="#7a9bb8" gid="lumenFill" grid="#2a2a30" />
                 </div>
               </section>
               <section style={{ background: '#18181c', border: '1px solid #2a2a30', borderRadius: 10, padding: 14 }}>
