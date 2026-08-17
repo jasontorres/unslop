@@ -81,7 +81,7 @@ function SaasCatchment() {
       <PNav
         dark brand="Catchment" mark="C" markBg="#65a30d" ink="#171717" muted="#a3a3a3" line="#262626"
         activeBg="#365314" activeInk="#ecfccb"
-        workspace="Linear · USD"
+        workspace="Q3 sourced"
         groups={[
           { label: 'Acquire', items: ['Attribution', 'Campaigns', 'Channels'] },
           { label: 'Prove', items: ['Payback', 'Models', 'Exports'] },
