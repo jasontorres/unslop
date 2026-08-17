@@ -1,4 +1,4 @@
-// SaaS platform consoles — persistent left nav + main workspace.
+// SaaS platform consoles — sidebar shell with stats + charts.
 // Attribution, identity, trust, model spend.
 
 const PW = 1280;
@@ -60,21 +60,78 @@ function PSearch({ placeholder, w = 260, dark }) {
   );
 }
 
-// 17 — CATCHMENT. Attribution with dark sidebar + pipeline workspace.
+function PSpark({ values, color }) {
+  const w = 92, h = 34;
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  const span = max - min || 1;
+  const d = values.map((v, i) => `${i ? 'L' : 'M'} ${(i / (values.length - 1)) * w},${h - 3 - ((v - min) / span) * (h - 6)}`).join(' ');
+  return <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}><path d={d} fill="none" stroke={color} strokeWidth="1.8" /></svg>;
+}
+
+function PArea({ a, b, color, colorB, gid, grid = '#ececec', h = 168 }) {
+  const w = 560;
+  const max = Math.max(...a, ...(b || []), 1);
+  const x = (i, n) => (i / (n - 1)) * w;
+  const y = (v) => h - 8 - (v / max) * (h - 18);
+  const path = (vals) => vals.map((v, i) => `${i ? 'L' : 'M'} ${x(i, vals.length)} ${y(v)}`).join(' ');
+  return (
+    <svg width="100%" height="100%" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={gid} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor={color} stopOpacity="0.28" />
+          <stop offset="1" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {[0.25, 0.5, 0.75].map((p) => <line key={p} x1="0" y1={h * p} x2={w} y2={h * p} stroke={grid} />)}
+      <path d={`${path(a)} L ${w} ${h} L 0 ${h} Z`} fill={`url(#${gid})`} />
+      <path d={path(a)} fill="none" stroke={color} strokeWidth="2.3" />
+      {b && <path d={path(b)} fill="none" stroke={colorB || '#a3a3a3'} strokeWidth="1.6" strokeDasharray="5 4" />}
+    </svg>
+  );
+}
+
+function PKpi({ label, value, delta, up, spark, color, bg = '#fff', bd = '#e5e5e5', muted = '#737373' }) {
+  return (
+    <div style={{ background: bg, border: `1px solid ${bd}`, borderRadius: 12, padding: '12px 14px', minWidth: 0 }}>
+      <div style={{ fontSize: 11, color: muted }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 }}>
+        <div>
+          <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.05em', margin: '2px 0' }}>{value}</div>
+          {delta && <div style={{ fontSize: 11, fontWeight: 650, color: up ? '#4d7c0f' : '#b45309' }}>{delta}</div>}
+        </div>
+        {spark && <PSpark values={spark} color={color} />}
+      </div>
+    </div>
+  );
+}
+
+function PCard({ title, right, children, style }) {
+  return (
+    <section style={{ background: '#fff', border: '1px solid #e5e5e5', borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', minHeight: 0, ...style }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+        <b style={{ fontSize: 13 }}>{title}</b>
+        {right && <span style={{ fontSize: 11, color: '#737373' }}>{right}</span>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+// 17 — CATCHMENT. Attribution: pipeline trend, channel bars, campaigns.
 function SaasCatchment() {
+  const pipe = [1.12, 1.18, 1.24, 1.31, 1.48, 1.62, 1.71, 1.88, 1.96, 2.08, 2.21, 2.42];
+  const sqls = [18, 21, 19, 24, 28, 22, 17, 31, 26, 29, 33, 36];
   const campaigns = [
-    ['Q3 Partner webinar', 'Partner', '$18.4k', 42, '$610k', '$438', '4.1 mo'],
-    ['Search · warehouse sync', 'Paid', '$41.2k', 67, '$890k', '$615', '6.8 mo'],
-    ['Lifecycle · expansion', 'Owned', '$6.1k', 19, '$240k', '$321', '2.9 mo'],
-    ['Review sites · summer', 'Paid', '$22.0k', 28, '$310k', '$786', '9.4 mo'],
-    ['Founder newsletter', 'Owned', '$1.4k', 11, '$164k', '$127', '1.8 mo'],
-    ['Cloud marketplace', 'Partner', '$9.8k', 15, '$205k', '$653', '7.2 mo'],
+    ['Search · warehouse sync', 'Paid', '$41.2k', '$890k', '6.8 mo'],
+    ['Q3 Partner webinar', 'Partner', '$18.4k', '$610k', '4.1 mo'],
+    ['Review sites · summer', 'Paid', '$22.0k', '$310k', '9.4 mo'],
+    ['Lifecycle · expansion', 'Owned', '$6.1k', '$240k', '2.9 mo'],
   ];
-  const stages = [
-    { name: 'Paid', label: '$1.20m', w: 34, bg: '#e5e5e5' },
-    { name: 'Partner', label: '$815k', w: 24, bg: '#d4d4d4' },
-    { name: 'Owned', label: '$404k', w: 16, bg: '#525252', ink: '#fafafa' },
-    { name: 'Won', label: '$2.42m', w: 26, bg: '#a3e635' },
+  const channels = [
+    { name: 'Paid', v: 1.2, c: '#d4d4d4' },
+    { name: 'Partner', v: 0.82, c: '#a3a3a3' },
+    { name: 'Owned', v: 0.4, c: '#525252' },
   ];
   return (
     <div style={{ width: PW, height: PH, display: 'flex', overflow: 'hidden', background: '#fafafa', color: '#171717', fontFamily: '"Outfit", system-ui, sans-serif' }}>
@@ -94,71 +151,76 @@ function SaasCatchment() {
           <PSearch placeholder="Search campaigns…" />
           <span style={{ marginLeft: 'auto', fontSize: 12, padding: '6px 10px', border: '1px solid #e5e5e5', borderRadius: 8 }}>1 Jul – 16 Aug ▾</span>
         </div>
-        <div style={{ flex: 1, padding: 18, display: 'flex', flexDirection: 'column', gap: 14, minHeight: 0 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr .7fr .7fr', gap: 10 }}>
-            <section style={{ background: '#fff', border: '1px solid #e5e5e5', borderRadius: 12, padding: 14 }}>
-              <div style={{ fontSize: 11, color: '#737373', marginBottom: 10 }}>CHANNEL MIX → CLOSED-WON</div>
-              <div style={{ display: 'flex', height: 56, overflow: 'hidden', borderRadius: 8 }}>
-                {stages.map((st) => (
-                  <div key={st.name} style={{ width: `${st.w}%`, background: st.bg, color: st.ink || '#171717', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 8px' }}>
-                    <div style={{ fontSize: 10, opacity: 0.75 }}>{st.name}</div>
-                    <div style={{ fontSize: 13, fontWeight: 750 }}>{st.label}</div>
+        <div style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, letterSpacing: '-0.04em' }}>Attribution</h1>
+            <div style={{ fontSize: 12, color: '#737373', marginTop: 2 }}>Sourced pipeline · linear model · USD</div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+            <PKpi label="Sourced pipeline" value="$2.42m" delta="↑ $310k vs Q2 run-rate" up color="#65a30d" spark={pipe} />
+            <PKpi label="Blended CAC" value="$482" delta="↓ $41 vs Q2" up color="#65a30d" spark={[560, 540, 530, 510, 498, 490, 482]} />
+            <PKpi label="SQLs · Q3" value="304" delta="↑ 18% vs run-rate" up color="#171717" spark={sqls} />
+            <PKpi label="Payback" value="5.4 mo" delta="Owned channel 1.8 mo" up color="#65a30d" spark={[6.8, 6.4, 6.1, 5.9, 5.7, 5.5, 5.4]} />
+          </div>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1.5fr .95fr', gap: 10, minHeight: 0 }}>
+            <PCard title="Sourced pipeline" right="Weekly · $m">
+              <div style={{ flex: 1, minHeight: 0 }}>
+                <PArea a={pipe} color="#65a30d" gid="catchFill" />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#a3a3a3', marginTop: 4 }}>
+                <span>1 Jul</span><span>1 Aug</span><span>16 Aug</span>
+              </div>
+            </PCard>
+            <PCard title="Channel → closed-won" right="$m">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1, justifyContent: 'center' }}>
+                {channels.map((ch) => (
+                  <div key={ch.name}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                      <span>{ch.name}</span><b>${ch.v.toFixed(2)}m</b>
+                    </div>
+                    <div style={{ height: 14, background: '#f5f5f5', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ width: `${(ch.v / 1.2) * 100}%`, height: '100%', background: ch.name === 'Owned' ? '#a3e635' : ch.c }} />
+                    </div>
                   </div>
                 ))}
+                <div style={{ padding: '8px 10px', background: '#ecfccb', borderRadius: 8, fontSize: 12, fontWeight: 650 }}>Won $2.42m · remaining $1.31m</div>
               </div>
-              <div style={{ fontSize: 11, color: '#737373', marginTop: 8 }}>Remaining pipeline $1.31m · win rate 19%</div>
-            </section>
-            <section style={{ background: '#fff', border: '1px solid #e5e5e5', borderRadius: 12, padding: 14 }}>
-              <div style={{ fontSize: 11, color: '#737373' }}>Sourced pipeline</div>
-              <div style={{ fontSize: 28, fontWeight: 750, letterSpacing: '-0.05em' }}>$2.42m</div>
-              <div style={{ fontSize: 12, color: '#4d7c0f' }}>↑ $310k vs Q2 run-rate</div>
-            </section>
-            <section style={{ background: '#fff', border: '1px solid #e5e5e5', borderRadius: 12, padding: 14 }}>
-              <div style={{ fontSize: 11, color: '#737373' }}>Blended CAC</div>
-              <div style={{ fontSize: 28, fontWeight: 750, letterSpacing: '-0.05em' }}>$482</div>
-              <div style={{ fontSize: 12, color: '#737373' }}>Payback 5.4 months</div>
-            </section>
+            </PCard>
           </div>
-          <section style={{ flex: 1, background: '#fff', border: '1px solid #e5e5e5', borderRadius: 12, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 80px 72px 52px 80px 72px 72px', gap: 8, padding: '10px 16px', fontSize: 10, letterSpacing: '0.08em', color: '#737373', borderBottom: '1px solid #e5e5e5' }}>
-              <span>CAMPAIGN</span><span>CHANNEL</span><span style={{ textAlign: 'right' }}>SPEND</span><span style={{ textAlign: 'right' }}>SQLS</span><span style={{ textAlign: 'right' }}>PIPELINE</span><span style={{ textAlign: 'right' }}>CAC</span><span style={{ textAlign: 'right' }}>PAYBACK</span>
-            </div>
+          <PCard title="Campaigns" right="Payback in orange if &gt; 8 mo" style={{ flex: 'none' }}>
             {campaigns.map((r) => (
-              <div key={r[0]} style={{ display: 'grid', gridTemplateColumns: '1.6fr 80px 72px 52px 80px 72px 72px', gap: 8, padding: '9px 16px', fontSize: 13, borderBottom: '1px solid #f5f5f5', alignItems: 'center' }}>
+              <div key={r[0]} style={{ display: 'grid', gridTemplateColumns: '1.8fr 70px 64px 72px 72px', gap: 8, fontSize: 12, padding: '6px 0', borderBottom: '1px solid #f5f5f5', alignItems: 'center' }}>
                 <b>{r[0]}</b><span style={{ color: '#737373' }}>{r[1]}</span>
-                <span style={{ textAlign: 'right' }}>{r[2]}</span>
-                <span style={{ textAlign: 'right' }}>{r[3]}</span>
-                <span style={{ textAlign: 'right', fontWeight: 650 }}>{r[4]}</span>
-                <span style={{ textAlign: 'right' }}>{r[5]}</span>
-                <span style={{ textAlign: 'right', color: r[6].startsWith('9') ? '#b45309' : '#171717' }}>{r[6]}</span>
+                <span>{r[2]}</span><span style={{ fontWeight: 650 }}>{r[3]}</span>
+                <span style={{ textAlign: 'right', color: r[4].startsWith('9') ? '#b45309' : '#171717' }}>{r[4]}</span>
               </div>
             ))}
-          </section>
+          </PCard>
         </div>
       </main>
     </div>
   );
 }
 
-// 18 — KEYSTONE. Identity admin with dark sidebar + auth log.
+// 18 — KEYSTONE. Access overview: auth volume, method mix, log.
 function SaasKeystone() {
-  const apps = [
-    ['Nock', 'SAML', 142, true],
-    ['Quorum', 'OIDC', 86, true],
-    ['GitHub', 'OIDC', 64, true],
-    ['Greenhouse', 'SAML', 18, false],
-    ['Looker', 'SAML', 31, true],
+  const auths = [42, 28, 18, 12, 9, 8, 14, 38, 86, 124, 118, 96, 88, 92, 101, 84, 76, 68, 54, 48, 44, 51, 62, 71];
+  const fails = [0, 0, 0, 1, 0, 0, 0, 1, 2, 4, 3, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0];
+  const methods = [
+    { n: 72, c: '#0071e3', label: 'SSO' },
+    { n: 19, c: '#34c759', label: 'WebAuthn' },
+    { n: 9, c: '#86868b', label: 'Password' },
   ];
   const logs = [
-    ['maya.chen', 'Nock', 'SSO', 'Lisbon', 'OK', '14:21:08'],
-    ['eli.vora', 'GitHub', 'WebAuthn', 'London', 'OK', '14:20:44'],
-    ['amira.q', 'Nock', 'SSO', 'Boston', 'Fail', '14:19:02'],
-    ['noa.b', 'Looker', 'SSO', 'Austin', 'OK', '14:18:51'],
-    ['priya.shah', 'Quorum', 'SSO', 'Toronto', 'OK', '14:18:12'],
-    ['amira.q', 'Nock', 'SSO', 'Boston', 'Fail', '14:17:40'],
-    ['j.lang', 'GitHub', 'Password', 'Remote', 'OK', '14:16:03'],
-    ['v.lev', 'Greenhouse', 'SSO', 'Berlin', 'OK', '14:15:22'],
+    ['maya.chen', 'Nock', 'SSO', 'OK'],
+    ['amira.q', 'Nock', 'SSO', 'Fail'],
+    ['eli.vora', 'GitHub', 'WebAuthn', 'OK'],
+    ['amira.q', 'Nock', 'SSO', 'Fail'],
+    ['priya.shah', 'Quorum', 'SSO', 'OK'],
   ];
+  const total = methods.reduce((s, p) => s + p.n, 0);
+  const circ = 2 * Math.PI * 34;
+  let off = 0;
   return (
     <div style={{ width: PW, height: PH, display: 'flex', overflow: 'hidden', background: '#f5f5f7', color: '#1d1d1f', fontFamily: '"IBM Plex Sans", system-ui, sans-serif' }}>
       <PNav
@@ -178,51 +240,94 @@ function SaasKeystone() {
           <span style={{ marginLeft: 'auto' }}>14 failed attempts · 12 from one user</span>
         </div>
         <div style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-            {[['Auth success · 24h', '99.96%'], ['Failed attempts', '14'], ['New devices', '3']].map((k) => (
-              <div key={k[0]} style={{ background: '#fff', border: '1px solid #e8e8ed', borderRadius: 12, padding: 12 }}>
-                <div style={{ fontSize: 11, color: '#6e6e73' }}>{k[0]}</div>
-                <div style={{ fontSize: 26, fontWeight: 700 }}>{k[1]}</div>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Access overview</h1>
+            <div style={{ fontSize: 12, color: '#6e6e73', marginTop: 2 }}>Last 24 hours · Palisade Health</div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+            <PKpi label="Auth success" value="99.96%" delta="14 fails of 31.2k" up color="#0071e3" spark={[99.9, 99.91, 99.94, 99.95, 99.93, 99.96]} bd="#e8e8ed" muted="#6e6e73" />
+            <PKpi label="Failed attempts" value="14" delta="12 from amira.q" color="#c41e3a" spark={fails.map((n) => n + 1)} bd="#e8e8ed" muted="#6e6e73" />
+            <PKpi label="New devices" value="3" delta="2 pending review" color="#0071e3" spark={[0, 0, 1, 1, 2, 2, 3]} bd="#e8e8ed" muted="#6e6e73" />
+            <PKpi label="Active sessions" value="214" delta="↑ 18 vs yesterday" up color="#0071e3" spark={[180, 188, 192, 198, 204, 210, 214]} bd="#e8e8ed" muted="#6e6e73" />
+          </div>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1.5fr .95fr', gap: 10, minHeight: 0 }}>
+            <PCard title="Authentications · 24h" right="Dashed = failures ×20" style={{ borderColor: '#e8e8ed' }}>
+              <div style={{ flex: 1, minHeight: 0 }}>
+                <PArea a={auths} b={fails.map((n) => n * 20)} color="#0071e3" colorB="#c41e3a" gid="keyFill" grid="#ececf1" />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#86868b', marginTop: 4 }}>
+                <span>00:00</span><span>08:00</span><span>16:00</span><span>now</span>
+              </div>
+            </PCard>
+            <PCard title="Method mix" style={{ borderColor: '#e8e8ed' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1 }}>
+                <svg width="132" height="132" viewBox="0 0 100 100">
+                  {methods.map((p) => {
+                    const len = (p.n / total) * circ;
+                    const el = <circle key={p.label} cx="50" cy="50" r="34" fill="none" stroke={p.c} strokeWidth="14" strokeDasharray={`${len} ${circ - len}`} strokeDashoffset={-off} transform="rotate(-90 50 50)" />;
+                    off += len;
+                    return el;
+                  })}
+                  <text x="50" y="48" textAnchor="middle" fontSize="13" fontWeight="700" fill="#1d1d1f">31.2k</text>
+                  <text x="50" y="60" textAnchor="middle" fontSize="7" fill="#6e6e73">auths</text>
+                </svg>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {methods.map((p) => (
+                    <div key={p.label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: 2, background: p.c }} />
+                      <span style={{ width: 72 }}>{p.label}</span>
+                      <b>{p.n}%</b>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </PCard>
+          </div>
+          <PCard title="Recent events" right="Live" style={{ flex: 'none', borderColor: '#e8e8ed' }}>
+            {logs.map((r, i) => (
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '120px 80px 80px 48px', gap: 8, fontSize: 12, fontFamily: '"IBM Plex Mono", monospace', padding: '6px 0', borderBottom: '1px solid #f0f0f3' }}>
+                <span>{r[0]}</span><span>{r[1]}</span><span>{r[2]}</span>
+                <span style={{ color: r[3] === 'Fail' ? '#c41e3a' : '#248a3d', fontWeight: 700 }}>{r[3]}</span>
               </div>
             ))}
-          </div>
-          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '200px 1fr', gap: 12, minHeight: 0 }}>
-            <section style={{ background: '#fff', border: '1px solid #e8e8ed', borderRadius: 12, padding: 12 }}>
-              <div style={{ fontSize: 11, color: '#6e6e73', marginBottom: 8 }}>APPLICATIONS</div>
-              {apps.map((a) => (
-                <div key={a[0]} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 4px' }}>
-                  <div><b style={{ fontSize: 13 }}>{a[0]}</b><div style={{ fontSize: 11, color: '#6e6e73' }}>{a[1]} · {a[2]}</div></div>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: a[3] ? '#34c759' : '#ff9f0a', marginTop: 6 }} />
-                </div>
-              ))}
-            </section>
-            <section style={{ background: '#fff', border: '1px solid #e8e8ed', borderRadius: 12, overflow: 'hidden' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '100px 80px 78px 70px 48px 70px', gap: 8, padding: '8px 12px', fontSize: 10, color: '#6e6e73', borderBottom: '1px solid #e8e8ed' }}>
-                <span>USER</span><span>APP</span><span>METHOD</span><span>LOCATION</span><span>RESULT</span><span>TIME</span>
-              </div>
-              {logs.map((r, i) => (
-                <div key={i} style={{ display: 'grid', gridTemplateColumns: '100px 80px 78px 70px 48px 70px', gap: 8, padding: '7px 12px', fontSize: 12, fontFamily: '"IBM Plex Mono", monospace', borderBottom: '1px solid #f0f0f3' }}>
-                  <span>{r[0]}</span><span>{r[1]}</span><span>{r[2]}</span><span>{r[3]}</span>
-                  <span style={{ color: r[4] === 'Fail' ? '#c41e3a' : '#248a3d', fontWeight: 700 }}>{r[4]}</span>
-                  <span style={{ color: '#6e6e73' }}>{r[5]}</span>
-                </div>
-              ))}
-            </section>
-          </div>
+          </PCard>
         </div>
       </main>
     </div>
   );
 }
 
-// 19 — THRESH. Trust queue: dark sidebar + report workspace.
+function PStack({ rows, colors, h = 168 }) {
+  const w = 520;
+  const max = Math.max(...rows.map((r) => r.reduce((a, b) => a + b, 0)), 1);
+  const gap = 5;
+  const bw = (w - gap * rows.length) / rows.length;
+  return (
+    <svg width="100%" height="100%" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
+      {rows.map((r, i) => {
+        let y = h;
+        return r.map((v, k) => {
+          const bh = (v / max) * (h - 4);
+          y -= bh;
+          return <rect key={`${i}-${k}`} x={i * (bw + gap)} y={y} width={bw} height={Math.max(bh, 0)} fill={colors[k]} />;
+        });
+      })}
+    </svg>
+  );
+}
+
+// 19 — THRESH. Trust overview: volume, categories, queue snapshot.
 function SaasThresh() {
+  const volume = [
+    [18, 6], [22, 8], [19, 7], [31, 12], [28, 9], [14, 4], [11, 3],
+    [24, 10], [27, 11], [41, 18], [33, 14], [26, 9], [29, 11], [34, 13],
+  ];
+  const cats = [['Phishing', 34], ['Harassment', 22], ['Impersonation', 18], ['Malware', 14], ['Other', 12]];
   const queue = [
-    ['R-2041', 'Spam / phishing', 0.92, 'User report', true],
-    ['R-2038', 'Harassment', 0.71, 'User report', false],
-    ['R-2033', 'Impersonation', 0.84, 'Auto-hold', false],
-    ['R-2029', 'Malware link', 0.96, 'Auto-hold', false],
-    ['R-2022', 'Off-policy promo', 0.44, 'User report', false],
+    ['R-2041', 'Spam / phishing', 0.92],
+    ['R-2029', 'Malware link', 0.96],
+    ['R-2033', 'Impersonation', 0.84],
+    ['R-2038', 'Harassment', 0.71],
   ];
   return (
     <div style={{ width: PW, height: PH, display: 'flex', overflow: 'hidden', background: '#f7f6f3', color: '#292524', fontFamily: '"IBM Plex Sans", system-ui, sans-serif' }}>
@@ -231,53 +336,64 @@ function SaasThresh() {
         activeBg="#4c0519" activeInk="#fecdd3"
         workspace="Policy v4.2"
         groups={[
-          { label: 'Queues', items: ['User reports', 'Auto-holds', 'Appeals'] },
+          { label: 'Queues', items: ['Overview', 'User reports', 'Auto-holds'] },
           { label: 'Policy', items: ['Rules', 'Audit log'] },
         ]}
-        active="User reports"
+        active="Overview"
         footer={<div><b>128 open</b><div style={{ opacity: 0.7, marginTop: 2 }}>SLA 15 minutes</div></div>}
       />
       <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <div style={{ height: 56, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 12, background: '#292524', color: '#f7f6f3', fontSize: 13 }}>
-          User reports
-          <span style={{ marginLeft: 'auto', opacity: 0.7 }}>41 auto-holds · 4 similar in 24h on selected</span>
+          Trust overview
+          <span style={{ marginLeft: 'auto', opacity: 0.7 }}>41 auto-holds · SLA 15m</span>
         </div>
-        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '280px 1fr 240px', minHeight: 0 }}>
-          <div style={{ background: '#fff', borderRight: '1px solid #e7e5e4' }}>
-            {queue.map((r) => (
-              <div key={r[0]} style={{ padding: '10px 12px', borderBottom: '1px solid #f0eeeb', background: r[4] ? '#fff7ed' : '#fff' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#78716c' }}>
-                  <span>{r[0]} · {r[3]}</span><span>{Math.round(r[2] * 100)}</span>
+        <div style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Trust overview</h1>
+            <div style={{ fontSize: 12, color: '#78716c', marginTop: 2 }}>User reports and auto-holds · last 14 days</div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+            <PKpi label="Open reports" value="128" delta="↑ 22 vs prior 14d" color="#9f1239" spark={[88, 92, 98, 104, 110, 118, 128]} bd="#e7e5e4" muted="#78716c" />
+            <PKpi label="Auto-holds" value="41" delta="32% of inbound" color="#9f1239" spark={[22, 24, 28, 30, 34, 38, 41]} bd="#e7e5e4" muted="#78716c" />
+            <PKpi label="Median handle" value="11m" delta="↓ 2m vs SLA 15m" up color="#9f1239" spark={[16, 15, 14, 13, 12, 12, 11]} bd="#e7e5e4" muted="#78716c" />
+            <PKpi label="Removed" value="18%" delta="↑ 3pp after v4.2" up color="#9f1239" spark={[12, 13, 14, 15, 16, 17, 18]} bd="#e7e5e4" muted="#78716c" />
+          </div>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1.5fr .95fr', gap: 10, minHeight: 0 }}>
+            <PCard title="Inbound volume" right="Reports · auto-holds" style={{ borderColor: '#e7e5e4' }}>
+              <div style={{ flex: 1, minHeight: 0 }}>
+                <PStack rows={volume} colors={['#9f1239', '#fda4af']} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#a8a29e', marginTop: 4 }}>
+                <span>3 Aug</span><span>9 Aug</span><span>16 Aug</span>
+              </div>
+            </PCard>
+            <PCard title="Categories" style={{ borderColor: '#e7e5e4' }}>
+              {cats.map((t) => (
+                <div key={t[0]} style={{ marginBottom: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>{t[0]}</span><b>{t[1]}%</b></div>
+                  <div style={{ height: 8, background: '#f0eeeb', borderRadius: 99 }}>
+                    <div style={{ width: `${t[1]}%`, height: '100%', background: t[0] === 'Phishing' ? '#9f1239' : '#fda4af', borderRadius: 99 }} />
+                  </div>
                 </div>
-                <div style={{ fontWeight: 700, marginTop: 4 }}>{r[1]}</div>
+              ))}
+            </PCard>
+          </div>
+          <PCard title="Highest confidence in queue" right="Score from classifier" style={{ flex: 'none', borderColor: '#e7e5e4' }}>
+            {queue.map((r) => (
+              <div key={r[0]} style={{ display: 'grid', gridTemplateColumns: '72px 1fr 40px', gap: 8, fontSize: 12, padding: '6px 0', borderBottom: '1px solid #f0eeeb', alignItems: 'center' }}>
+                <span style={{ color: '#78716c' }}>{r[0]}</span>
+                <b>{r[1]}</b>
+                <span style={{ textAlign: 'right', fontWeight: 700, color: r[2] > 0.9 ? '#9f1239' : '#292524' }}>{Math.round(r[2] * 100)}</span>
               </div>
             ))}
-          </div>
-          <section style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ fontSize: 12, color: '#78716c' }}>R-2041 · reported 6m ago by @lea</div>
-            <article style={{ flex: 1, background: '#fff', border: '1px solid #e7e5e4', borderRadius: 10, padding: 16 }}>
-              <div style={{ fontSize: 11, color: '#78716c', marginBottom: 8 }}>MESSAGE · #jobs</div>
-              <p style={{ fontSize: 15, lineHeight: 1.5, margin: 0 }}>
-                Urgent: payroll for August is delayed. Verify your account at palisade-sso-reset.help before 17:00 or access will be locked.
-              </p>
-              <div style={{ marginTop: 14, padding: 10, background: '#fff7ed', borderRadius: 8, fontSize: 12 }}>
-                Classifier: phishing 0.92 · brand impersonation 0.81 · domain registered 14h ago
-              </div>
-            </article>
-          </section>
-          <aside style={{ background: '#fff', borderLeft: '1px solid #e7e5e4', padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 11, letterSpacing: '0.08em', color: '#78716c' }}>DECISION</div>
-            <div style={{ padding: 10, borderRadius: 8, background: '#ecfdf3', border: '1px solid #e7e5e4', fontWeight: 700, fontSize: 13 }}>Keep visible</div>
-            <div style={{ padding: 10, borderRadius: 8, background: '#f5f0eb', border: '1px solid #e7e5e4', fontWeight: 700, fontSize: 13 }}>Limit distribution</div>
-            <div style={{ padding: 10, borderRadius: 8, background: '#9f1239', color: '#fff', fontWeight: 700, fontSize: 13 }}>Remove + warn</div>
-          </aside>
+          </PCard>
         </div>
       </main>
     </div>
   );
 }
 
-// 20 — LUMEN. Model spend with dark sidebar + treemap workspace.
+// 20 — LUMEN. Model spend: KPIs, treemap, tokens, mix.
 function SaasLumen() {
   const cells = [
     { n: 'acme-prod', x: 0, y: 0, w: 58, h: 62, v: '$18.4k' },
@@ -290,6 +406,8 @@ function SaasLumen() {
     { n: 'others', x: 62, y: 62, w: 38, h: 38, v: '$2.0k' },
   ];
   const tokens = [12, 14, 13, 18, 22, 28, 41, 55, 62, 58, 44, 31, 22, 19, 18, 24, 38, 64, 72, 70, 48, 29, 18, 14];
+  const spend = [1.1, 1.2, 1.15, 1.4, 1.6, 1.3, 0.9, 1.8, 2.0, 2.1, 2.4, 2.2, 1.1, 0.9, 1.9, 2.1];
+  const budget = Array(16).fill(1.6);
   return (
     <div style={{ width: PW, height: PH, display: 'flex', overflow: 'hidden', background: '#101114', color: '#ece8df', fontFamily: '"IBM Plex Sans", system-ui, sans-serif' }}>
       <PNav
@@ -308,43 +426,53 @@ function SaasLumen() {
           <PSearch placeholder="Filter workspaces…" dark />
           <span style={{ marginLeft: 'auto', color: '#e8b86d' }}>acme-prod is 142% of monthly commit</span>
         </div>
-        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1.15fr .95fr', gap: 12, padding: 14, minHeight: 0 }}>
-          <section style={{ background: '#18181c', border: '1px solid #2a2a30', borderRadius: 10, padding: 14, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-              <b style={{ fontSize: 13 }}>Spend by workspace</b>
-              <span style={{ fontSize: 11, color: '#9a958c' }}>$40.1k MTD</span>
-            </div>
-            <svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="none">
-              {cells.map((c, i) => (
-                <g key={c.n}>
-                  <rect x={c.x} y={c.y} width={c.w} height={c.h} fill={c.n === 'acme-prod' ? '#e8b86d' : i % 2 ? '#2a2a32' : '#22222a'} stroke="#101114" strokeWidth="0.6" />
-                  <text x={c.x + 1.6} y={c.y + 6} fill={c.n === 'acme-prod' ? '#1a1408' : '#ece8df'} fontSize="4.2">{c.n}</text>
-                  <text x={c.x + 1.6} y={c.y + 11} fill={c.n === 'acme-prod' ? '#1a1408' : '#9a958c'} fontSize="3.6">{c.v}</text>
-                </g>
-              ))}
-            </svg>
-          </section>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
-            <section style={{ flex: 1, background: '#18181c', border: '1px solid #2a2a30', borderRadius: 10, padding: 14 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <b style={{ fontSize: 13 }}>Tokens · last 24h</b>
-                <span style={{ fontFamily: '"IBM Plex Mono", monospace', color: '#e8b86d' }}>1.84B</span>
+        <div style={{ flex: 1, padding: 14, display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Model spend</h1>
+            <div style={{ fontSize: 12, color: '#9a958c', marginTop: 2 }}>August month to date</div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+            <PKpi label="Spend MTD" value="$40.1k" delta="↑ 18% vs July run-rate" color="#e8b86d" spark={spend} bg="#18181c" bd="#2a2a30" muted="#9a958c" />
+            <PKpi label="Vs commit" value="142%" delta="acme-prod over by $5.4k" color="#e8b86d" spark={[98, 104, 112, 118, 126, 134, 142]} bg="#18181c" bd="#2a2a30" muted="#9a958c" />
+            <PKpi label="Tokens · 24h" value="1.84B" delta="Peak 72M at 18:00" color="#e8b86d" spark={tokens} bg="#18181c" bd="#2a2a30" muted="#9a958c" />
+            <PKpi label="Burn / day" value="$2.1k" delta="Band is $1.6k" color="#e8b86d" spark={[1.4, 1.5, 1.6, 1.8, 1.9, 2.0, 2.1]} bg="#18181c" bd="#2a2a30" muted="#9a958c" />
+          </div>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1.15fr .95fr', gap: 10, minHeight: 0 }}>
+            <section style={{ background: '#18181c', border: '1px solid #2a2a30', borderRadius: 10, padding: 14, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <b style={{ fontSize: 13 }}>Spend by workspace</b>
+                <span style={{ fontSize: 11, color: '#9a958c' }}>$40.1k MTD</span>
               </div>
-              <div style={{ fontSize: 11, color: '#9a958c', margin: '6px 0 8px' }}>Budget band $1.6k / day · currently $2.1k</div>
-              <svg width="100%" height="120" viewBox="0 0 240 80" preserveAspectRatio="none">
-                <rect x="0" y="28" width="240" height="18" fill="rgba(232,184,109,.12)" />
-                <path d={`M ${tokens.map((v, i) => `${(i / 23) * 240},${80 - (v / 80) * 72}`).join(' L ')}`} fill="none" stroke="#e8b86d" strokeWidth="1.6" />
+              <svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="none">
+                {cells.map((c, i) => (
+                  <g key={c.n}>
+                    <rect x={c.x} y={c.y} width={c.w} height={c.h} fill={c.n === 'acme-prod' ? '#e8b86d' : i % 2 ? '#2a2a32' : '#22222a'} stroke="#101114" strokeWidth="0.6" />
+                    <text x={c.x + 1.6} y={c.y + 6} fill={c.n === 'acme-prod' ? '#1a1408' : '#ece8df'} fontSize="4.2">{c.n}</text>
+                    <text x={c.x + 1.6} y={c.y + 11} fill={c.n === 'acme-prod' ? '#1a1408' : '#9a958c'} fontSize="3.6">{c.v}</text>
+                  </g>
+                ))}
               </svg>
             </section>
-            <section style={{ background: '#18181c', border: '1px solid #2a2a30', borderRadius: 10, padding: 14 }}>
-              <b style={{ fontSize: 13, display: 'block', marginBottom: 8 }}>Model mix</b>
-              {[['Composer 2', 46, '#e8b86d'], ['Sonnet batch', 31, '#7a9bb8'], ['Embeddings', 15, '#6b7280'], ['Rerank', 8, '#3f3f46']].map((r) => (
-                <div key={r[0]} style={{ marginBottom: 7 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}><span>{r[0]}</span><span>{r[1]}%</span></div>
-                  <div style={{ height: 6, background: '#2a2a30', borderRadius: 99 }}><div style={{ width: `${r[1]}%`, height: '100%', background: r[2], borderRadius: 99 }} /></div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0 }}>
+              <section style={{ flex: 1, background: '#18181c', border: '1px solid #2a2a30', borderRadius: 10, padding: 14, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <b style={{ fontSize: 13 }}>Daily burn vs band</b>
+                  <span style={{ fontSize: 11, color: '#9a958c' }}>dashed = $1.6k</span>
                 </div>
-              ))}
-            </section>
+                <div style={{ flex: 1, minHeight: 0, marginTop: 8 }}>
+                  <PArea a={spend} b={budget} color="#e8b86d" colorB="#7a9bb8" gid="lumenFill" grid="#2a2a30" />
+                </div>
+              </section>
+              <section style={{ background: '#18181c', border: '1px solid #2a2a30', borderRadius: 10, padding: 14 }}>
+                <b style={{ fontSize: 13, display: 'block', marginBottom: 8 }}>Model mix</b>
+                {[['Composer 2', 46, '#e8b86d'], ['Sonnet batch', 31, '#7a9bb8'], ['Embeddings', 15, '#6b7280'], ['Rerank', 8, '#3f3f46']].map((r) => (
+                  <div key={r[0]} style={{ marginBottom: 7 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}><span>{r[0]}</span><span>{r[1]}%</span></div>
+                    <div style={{ height: 6, background: '#2a2a30', borderRadius: 99 }}><div style={{ width: `${r[1]}%`, height: '100%', background: r[2], borderRadius: 99 }} /></div>
+                  </div>
+                ))}
+              </section>
+            </div>
           </div>
         </div>
       </main>
@@ -355,7 +483,7 @@ function SaasLumen() {
 function DashSaasPlatformSection() {
   return (
     <DCSection id="dash-saas-platform" title="Dashboards — SaaS Platform"
-      subtitle="Four platform consoles with a persistent sidebar and a main workspace: attribution, identity, trust, and model spend.">
+      subtitle="Four platform consoles with a persistent sidebar, KPI stats, and charts: attribution, identity, trust, and model spend.">
       <DCArtboard id="s-catchment" label="17 · Catchment · Attribution" width={PW} height={PH}><SaasCatchment /></DCArtboard>
       <DCArtboard id="s-keystone" label="18 · Keystone · Access Admin" width={PW} height={PH}><SaasKeystone /></DCArtboard>
       <DCArtboard id="s-thresh" label="19 · Thresh · Trust Queue" width={PW} height={PH}><SaasThresh /></DCArtboard>
