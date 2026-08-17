@@ -423,6 +423,8 @@ function IndustryDashboards() {
       </DCSection>
       {window.DashPlacesSection ? <window.DashPlacesSection /> : null}
       {window.DashKnowledgeSection ? <window.DashKnowledgeSection /> : null}
+      {window.DashSaasProductSection ? <window.DashSaasProductSection /> : null}
+      {window.DashSaasPlatformSection ? <window.DashSaasPlatformSection /> : null}
     </DesignCanvas>
   );
 }

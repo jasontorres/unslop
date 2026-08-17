@@ -273,16 +273,17 @@ test("serves linkable category and featured collection pages", async () => {
 
   assert.match(dashboards, /<title>Dashboards Interface References — unslop\.site<\/title>/i);
   assert.match(dashboards, /<link rel="canonical" href="https:\/\/unslop\.site\/dashboards"\/>/i);
-  assert.match(dashboards, /12(?:<!-- -->|\s)+references/i);
+  assert.match(dashboards, /20(?:<!-- -->|\s)+references/i);
   assert.match(dashboards, /Meridian · Hospital Command/i);
+  assert.match(dashboards, /Nock · Activation/i);
   assert.match(dashboards, /Grok 4\.6/i);
   assert.doesNotMatch(dashboards, /Editorial Serif design preview/i);
 
   assert.match(featured, /<title>Featured Interface References — unslop\.site<\/title>/i);
   assert.match(featured, /<link rel="canonical" href="https:\/\/unslop\.site\/featured"\/>/i);
-  assert.match(featured, /10(?:<!-- -->|\s)+references/i);
+  assert.match(featured, /11(?:<!-- -->|\s)+references/i);
   assert.match(featured, /Display \/ Anti-design/i);
-  assert.match(featured, /Meridian · Hospital Command/i);
+  assert.match(featured, /Nock · Activation/i);
 });
 
 test("server-renders an AI-ready detail page", async () => {
@@ -387,6 +388,6 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/financial-apps<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/dashboards<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/editorial-serif<\/loc>/i);
-  assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/meridian-hospital-command<\/loc>/i);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 167);
+  assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/nock-activation<\/loc>/i);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 175);
 });
