@@ -492,7 +492,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     slug: "animation",
     name: "Animation",
     sourceFile: "Animation.html",
-    description: "Eight landing pages with animated hero sections—ambient backdrops and kinetic foreground motion—across AI tooling, aerospace, audio, outdoors, documentation, fashion, fintech, and esports.",
+    description: "Sixteen landing pages with animated hero sections—ambient backdrops, kinetic foreground motion, and industry-specific set pieces across biotech, racing, surgery, maritime, architecture, coffee, alpine sport, and cinema.",
     model: "Fable 5",
     groups: [
       {
@@ -515,33 +515,24 @@ export const categoryDefinitions: CategoryDefinition[] = [
           ["an-voltlane", "08 · Voltlane · Glitch Neon"],
         ],
       },
-    ],
-  },
-  {
-    slug: "industry-heroes",
-    name: "Industry Heroes",
-    sourceFile: "Industry Heroes.html",
-    description: "Eight industry landing pages whose heroes are built around a single unmissable animation—DNA spin, warp-speed HUD, surgical path-trace, radar sweep, stacking floors, coffee steam, alpine snow, and projector flicker.",
-    model: "Grok 4.6",
-    groups: [
       {
         title: "Science & Motion",
         sectionId: "ih-science",
         entries: [
-          ["ih-helix", "01 · Helix · DNA Spin"],
-          ["ih-slipstream", "02 · Slipstream · Racing HUD"],
-          ["ih-suture", "03 · Suture · Path Trace"],
-          ["ih-harborline", "04 · Harborline · Radar Sweep"],
+          ["ih-helix", "09 · Helix · DNA Spin"],
+          ["ih-slipstream", "10 · Slipstream · Racing HUD"],
+          ["ih-suture", "11 · Suture · Path Trace"],
+          ["ih-harborline", "12 · Harborline · Radar Sweep"],
         ],
       },
       {
         title: "Place & Craft",
         sectionId: "ih-place",
         entries: [
-          ["ih-plinth", "05 · Plinth · Stacking Floors"],
-          ["ih-nectar", "06 · Nectar · Steam Rise"],
-          ["ih-ridge", "07 · Ridge · Falling Snow"],
-          ["ih-ampersand", "08 · Ampersand · Projector Flicker"],
+          ["ih-plinth", "13 · Plinth · Stacking Floors"],
+          ["ih-nectar", "14 · Nectar · Steam Rise"],
+          ["ih-ridge", "15 · Ridge · Falling Snow"],
+          ["ih-ampersand", "16 · Ampersand · Projector Flicker"],
         ],
       },
     ],

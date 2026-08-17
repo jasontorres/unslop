@@ -559,20 +559,16 @@ function HeroHarborline() {
   );
 }
 
-function IndustryHeroes() {
+function IhScienceSection() {
   return (
-    <DesignCanvas>
-      <DCSection id="ih-science" title="Industry Heroes — Science & Motion"
-        subtitle="Landing heroes built around a single unmissable animation: a rotating double helix, warp-speed racing streaks, a surgical path tracer, and a phosphor radar sweep.">
-        <DCArtboard id="ih-helix" label="01 · Helix · DNA Spin" width={IhW} height={IhH}><HeroHelix /></DCArtboard>
-        <DCArtboard id="ih-slipstream" label="02 · Slipstream · Racing HUD" width={IhW} height={IhH}><HeroSlipstream /></DCArtboard>
-        <DCArtboard id="ih-suture" label="03 · Suture · Path Trace" width={IhW} height={IhH}><HeroSuture /></DCArtboard>
-        <DCArtboard id="ih-harborline" label="04 · Harborline · Radar Sweep" width={IhW} height={IhH}><HeroHarborline /></DCArtboard>
-      </DCSection>
-      {window.IhPlaceSection ? <window.IhPlaceSection /> : null}
-    </DesignCanvas>
+    <DCSection id="ih-science" title="Animation — Science & Motion"
+      subtitle="Industry landing heroes built around a single unmissable animation: a rotating double helix, warp-speed racing streaks, a surgical path tracer, and a phosphor radar sweep.">
+      <DCArtboard id="ih-helix" label="09 · Helix · DNA Spin" width={IhW} height={IhH}><HeroHelix /></DCArtboard>
+      <DCArtboard id="ih-slipstream" label="10 · Slipstream · Racing HUD" width={IhW} height={IhH}><HeroSlipstream /></DCArtboard>
+      <DCArtboard id="ih-suture" label="11 · Suture · Path Trace" width={IhW} height={IhH}><HeroSuture /></DCArtboard>
+      <DCArtboard id="ih-harborline" label="12 · Harborline · Radar Sweep" width={IhW} height={IhH}><HeroHarborline /></DCArtboard>
+    </DCSection>
   );
 }
 
-const industryHeroesRoot = ReactDOM.createRoot(document.getElementById('root'));
-industryHeroesRoot.render(<IndustryHeroes />);
+window.IhScienceSection = IhScienceSection;

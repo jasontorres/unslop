@@ -362,12 +362,12 @@ function HeroAmpersand() {
 
 function IhPlaceSection() {
   return (
-    <DCSection id="ih-place" title="Industry Heroes — Place & Craft"
-      subtitle="Landing heroes for architecture, coffee, alpine sport, and independent cinema: stacking isometric floors, rising steam, falling snow with a gondola, and a flickering projector.">
-      <DCArtboard id="ih-plinth" label="05 · Plinth · Stacking Floors" width={Ih2W} height={Ih2H}><HeroPlinth /></DCArtboard>
-      <DCArtboard id="ih-nectar" label="06 · Nectar · Steam Rise" width={Ih2W} height={Ih2H}><HeroNectar /></DCArtboard>
-      <DCArtboard id="ih-ridge" label="07 · Ridge · Falling Snow" width={Ih2W} height={Ih2H}><HeroRidge /></DCArtboard>
-      <DCArtboard id="ih-ampersand" label="08 · Ampersand · Projector Flicker" width={Ih2W} height={Ih2H}><HeroAmpersand /></DCArtboard>
+    <DCSection id="ih-place" title="Animation — Place & Craft"
+      subtitle="Industry landing heroes for architecture, coffee, alpine sport, and independent cinema: stacking isometric floors, rising steam, falling snow with a gondola, and a flickering projector.">
+      <DCArtboard id="ih-plinth" label="13 · Plinth · Stacking Floors" width={Ih2W} height={Ih2H}><HeroPlinth /></DCArtboard>
+      <DCArtboard id="ih-nectar" label="14 · Nectar · Steam Rise" width={Ih2W} height={Ih2H}><HeroNectar /></DCArtboard>
+      <DCArtboard id="ih-ridge" label="15 · Ridge · Falling Snow" width={Ih2W} height={Ih2H}><HeroRidge /></DCArtboard>
+      <DCArtboard id="ih-ampersand" label="16 · Ampersand · Projector Flicker" width={Ih2W} height={Ih2H}><HeroAmpersand /></DCArtboard>
     </DCSection>
   );
 }

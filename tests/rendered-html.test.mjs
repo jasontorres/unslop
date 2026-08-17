@@ -121,7 +121,6 @@ test("server-renders the unslop.site landing page", async () => {
   assert.match(html, /href="\/financial-apps"[^>]*>Financial Apps/i);
   assert.match(html, /href="\/dashboards"[^>]*>Dashboards/i);
   assert.match(html, /href="\/animation"[^>]*>Animation/i);
-  assert.match(html, /href="\/industry-heroes"[^>]*>Industry Heroes/i);
   assert.match(html, /Claude 4\.7/i);
   assert.match(html, /Fable 5/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
@@ -250,25 +249,22 @@ test("serves the shared paginated logo gallery from R2", async () => {
 });
 
 test("serves linkable category and featured collection pages", async () => {
-  const [financialResponse, dashboardsResponse, animationResponse, industryHeroesResponse, featuredResponse] = await Promise.all([
+  const [financialResponse, dashboardsResponse, animationResponse, featuredResponse] = await Promise.all([
     render("/financial-apps"),
     render("/dashboards"),
     render("/animation"),
-    render("/industry-heroes"),
     render("/featured"),
   ]);
 
   assert.equal(financialResponse.status, 200);
   assert.equal(dashboardsResponse.status, 200);
   assert.equal(animationResponse.status, 200);
-  assert.equal(industryHeroesResponse.status, 200);
   assert.equal(featuredResponse.status, 200);
 
-  const [financial, dashboards, animation, industryHeroes, featured] = await Promise.all([
+  const [financial, dashboards, animation, featured] = await Promise.all([
     financialResponse.text(),
     dashboardsResponse.text(),
     animationResponse.text(),
-    industryHeroesResponse.text(),
     featuredResponse.text(),
   ]);
 
@@ -290,19 +286,13 @@ test("serves linkable category and featured collection pages", async () => {
 
   assert.match(animation, /<title>Animation Interface References — unslop\.site<\/title>/i);
   assert.match(animation, /<link rel="canonical" href="https:\/\/unslop\.site\/animation"\/>/i);
-  assert.match(animation, /8(?:<!-- -->|\s)+references/i);
+  assert.match(animation, /16(?:<!-- -->|\s)+references/i);
   assert.match(animation, /Solstice · Aurora Drift/i);
   assert.match(animation, /Voltlane · Glitch Neon/i);
+  assert.match(animation, /Helix · DNA Spin/i);
+  assert.match(animation, /Ampersand · Projector Flicker/i);
   assert.match(animation, /Fable 5/i);
   assert.doesNotMatch(animation, /Editorial Serif design preview/i);
-
-  assert.match(industryHeroes, /<title>Industry Heroes Interface References — unslop\.site<\/title>/i);
-  assert.match(industryHeroes, /<link rel="canonical" href="https:\/\/unslop\.site\/industry-heroes"\/>/i);
-  assert.match(industryHeroes, /8(?:<!-- -->|\s)+references/i);
-  assert.match(industryHeroes, /Helix · DNA Spin/i);
-  assert.match(industryHeroes, /Ampersand · Projector Flicker/i);
-  assert.match(industryHeroes, /Grok 4\.6/i);
-  assert.doesNotMatch(industryHeroes, /Editorial Serif design preview/i);
 
   assert.match(featured, /<title>Featured Interface References — unslop\.site<\/title>/i);
   assert.match(featured, /<link rel="canonical" href="https:\/\/unslop\.site\/featured"\/>/i);
@@ -415,9 +405,9 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/dashboards<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/editorial-serif<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/animation<\/loc>/i);
-  assert.match(sitemap, /<loc>https:\/\/unslop\.site\/industry-heroes<\/loc>/i);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/unslop\.site\/industry-heroes<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/nock-activation<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/solstice-aurora-drift<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/helix-dna-spin<\/loc>/i);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 193);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 192);
 });

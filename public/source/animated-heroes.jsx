@@ -308,6 +308,8 @@ function AnimatedHeroes() {
         <DCArtboard id="an-cairn" label="04 · Cairn · Contour Lines" width={AW} height={AH}><HeroCairn /></DCArtboard>
       </DCSection>
       {window.AnimationKineticSection ? <window.AnimationKineticSection /> : null}
+      {window.IhScienceSection ? <window.IhScienceSection /> : null}
+      {window.IhPlaceSection ? <window.IhPlaceSection /> : null}
     </DesignCanvas>
   );
 }
