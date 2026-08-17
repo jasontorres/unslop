@@ -7,8 +7,9 @@ using the Next.js build system.
 
 ## Features
 
-- Browse 163 interface references across landing pages, dashboards, mobile apps,
-  editorial, commerce, civic services, software agencies, and financial products.
+- Browse 171 interface references across landing pages, animated heroes,
+  dashboards, mobile apps, editorial, commerce, civic services, software
+  agencies, and financial products.
   Each reference is tagged with the model that generated it.
 - Open each reference as an interactive canvas or a focused AI-ready URL.
 - Copy a design brief or a self-contained HTML reference.

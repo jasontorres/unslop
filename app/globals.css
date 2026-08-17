@@ -160,6 +160,7 @@ button { color: inherit; }
 .model-chip[data-model="Claude 4.7"] { background: #fff; border-color: #c9c8c1; color: #5c5b56; }
 .model-chip[data-model="GPT 5.6 Sol"] { background: #e8edff; border-color: #9aaee8; color: #243a8a; }
 .model-chip[data-model="Grok 4.6"] { background: var(--acid); border-color: var(--ink); color: var(--ink); }
+.model-chip[data-model="Fable 5"] { background: #fbe7dc; border-color: #d98d66; color: #8a3d17; }
 .copy-mini { border: 0; border-bottom: 1px solid #aaa9a2; padding: 0 0 3px; background: transparent; white-space: nowrap; font-size: 9px; cursor: pointer; color: #62615c; }
 .empty-state { min-height: 360px; display: grid; place-items: center; align-content: center; text-align: center; border: 1px solid var(--line); }
 .empty-state > span { font-size: 42px; }

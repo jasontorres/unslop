@@ -1,4 +1,4 @@
-export const generatorModels = ["Claude 4.7", "GPT 5.6 Sol", "Grok 4.6"] as const;
+export const generatorModels = ["Claude 4.7", "GPT 5.6 Sol", "Grok 4.6", "Fable 5"] as const;
 export type GeneratorModel = (typeof generatorModels)[number];
 
 export type GallerySite = {
@@ -484,6 +484,35 @@ export const categoryDefinitions: CategoryDefinition[] = [
           ["s-keystone", "18 · Keystone · Access Admin"],
           ["s-thresh", "19 · Thresh · Trust Queue"],
           ["s-lumen", "20 · Lumen · Model Spend"],
+        ],
+      },
+    ],
+  },
+  {
+    slug: "animation",
+    name: "Animation",
+    sourceFile: "Animation.html",
+    description: "Eight landing pages with animated hero sections—ambient backdrops and kinetic foreground motion—across AI tooling, aerospace, audio, outdoors, documentation, fashion, fintech, and esports.",
+    model: "Fable 5",
+    groups: [
+      {
+        title: "Ambient Backdrops",
+        sectionId: "anim-ambient",
+        entries: [
+          ["an-solstice", "01 · Solstice · Aurora Drift"],
+          ["an-perigee", "02 · Perigee · Starfield"],
+          ["an-undertow", "03 · Undertow · Waveform"],
+          ["an-cairn", "04 · Cairn · Contour Lines"],
+        ],
+      },
+      {
+        title: "Kinetic Elements",
+        sectionId: "anim-kinetic",
+        entries: [
+          ["an-vellum", "05 · Vellum · Kinetic Type"],
+          ["an-rueneuf", "06 · Rue Neuf · Marquee"],
+          ["an-kepler", "07 · Kepler · Orbit"],
+          ["an-voltlane", "08 · Voltlane · Glitch Neon"],
         ],
       },
     ],
