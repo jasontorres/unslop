@@ -550,5 +550,5 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/nock-activation<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/solstice-aurora-drift<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/helix-dna-spin<\/loc>/i);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 194);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 210);
 });
