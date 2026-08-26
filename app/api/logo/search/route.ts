@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { hasLogoApiAccess, logoAccessDeniedResponse } from "../../../logo/access";
 
 export const runtime = "edge";
 
@@ -13,8 +12,6 @@ type GoogleSearchResponse = {
 };
 
 export async function GET(request: Request) {
-  if (!hasLogoApiAccess(request)) return logoAccessDeniedResponse();
-
   const query = new URL(request.url).searchParams.get("q")?.trim().slice(0, 60) ?? "";
   if (!query) return NextResponse.json({ error: "An app name is required." }, { status: 400 });
 

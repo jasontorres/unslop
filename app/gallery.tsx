@@ -89,6 +89,7 @@ export function Gallery({ initialCategory = "all" }: { initialCategory?: string 
         <nav className="site-nav" aria-label="Primary navigation">
           <Link href="/" className="active" aria-current="page">Gallery</Link>
           <Link href="/logo">Logo Maker</Link>
+          <Link href="/logo/gallery">Logo Gallery</Link>
         </nav>
         <a className="topbar-link" href="#library">Browse library <span>↓</span></a>
       </header>

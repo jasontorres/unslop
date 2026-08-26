@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoWaitlistForm } from "./waitlist-form";
 
 export function LogoTrialEnded() {
   return (
@@ -11,6 +12,7 @@ export function LogoTrialEnded() {
         <nav className="site-nav" aria-label="Primary navigation">
           <Link href="/">Gallery</Link>
           <Link href="/logo" className="active" aria-current="page">Logo Maker</Link>
+          <Link href="/logo/gallery">Logo Gallery</Link>
           <Link href="/logo/history">History</Link>
         </nav>
         <p className="topbar-context">We’ll be back</p>
@@ -32,10 +34,7 @@ export function LogoTrialEnded() {
             We’re sharpening what comes next and turning up the creative power.
             The Logo Maker will return—bolder, brighter, and ready for another round.
           </p>
-          <div className="logo-closed-next">
-            <span aria-hidden="true">↗</span>
-            <p><strong>More is on the way.</strong> Watch this space for further announcements.</p>
-          </div>
+          <LogoWaitlistForm />
           <div className="logo-closed-actions">
             <Link className="logo-closed-history-link" href="/logo/history">
               Browse your history <span aria-hidden="true">→</span>

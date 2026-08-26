@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
-import { hasLogoApiAccess, logoAccessDeniedResponse } from "../../../logo/access";
 import { storeGalleryImage } from "../gallery/storage";
+import {
+  browserGenerationLimit,
+  browserIdentity,
+  overallGenerationAllowed,
+  releaseBrowserGeneration,
+  reserveBrowserGeneration,
+  type BrowserIdentity,
+  workerBinding,
+} from "./rate-limit";
 
 export const runtime = "edge";
 
@@ -67,9 +75,16 @@ function isAllowedSource(value: string) {
   }
 }
 
-export async function POST(request: Request) {
-  if (!hasLogoApiAccess(request)) return logoAccessDeniedResponse();
+function json(payload: Record<string, unknown>, status = 200, identity?: BrowserIdentity, retryAfter?: number) {
+  const headers = new Headers({ "Cache-Control": "no-store" });
+  if (identity?.setCookie) headers.set("Set-Cookie", identity.setCookie);
+  if (retryAfter) headers.set("Retry-After", String(retryAfter));
+  return NextResponse.json(payload, { status, headers });
+}
 
+export async function POST(request: Request) {
+  let reservedBrowserId = "";
+  let generationCompleted = false;
   try {
     const body = (await request.json()) as GenerateBody;
     const appName = cleanText(body.appName, 60);
@@ -81,14 +96,27 @@ export async function POST(request: Request) {
     const dimensions = model === "ideogram:4@0" ? ideogramDimensions[outputType] : spec;
 
     if (!appName || !context) {
-      return NextResponse.json({ error: "An app name and short context are required." }, { status: 400 });
+      return json({ error: "An app name and short context are required." }, 400);
     }
     if (!isAllowedSource(sourceImage)) {
-      return NextResponse.json({ error: "The source must be a small image upload or public HTTPS image URL." }, { status: 400 });
+      return json({ error: "The source must be a small image upload or public HTTPS image URL." }, 400);
     }
 
-    const apiKey = process.env.RUNWARE_API_KEY;
-    if (!apiKey) return NextResponse.json({ error: "Image generation isn’t configured yet." }, { status: 503 });
+    const apiKey = await workerBinding<string>("RUNWARE_API_KEY") || process.env.RUNWARE_API_KEY;
+    if (!apiKey) return json({ error: "Image generation isn’t configured yet." }, 503);
+
+    const identity = browserIdentity(request);
+    const browserAllowed = await reserveBrowserGeneration(identity.id);
+    if (!browserAllowed) {
+      return json({ error: `This browser has reached its limit of ${browserGenerationLimit} generations.` }, 429, identity);
+    }
+    reservedBrowserId = identity.id;
+
+    if (!await overallGenerationAllowed()) {
+      await releaseBrowserGeneration(identity.id);
+      reservedBrowserId = "";
+      return json({ error: "Logo creation is busy right now. Try again in a minute." }, 429, identity, 60);
+    }
 
     const prompt = [
       `Design a polished visual identity direction for an app named “${appName}”.`,
@@ -110,7 +138,8 @@ export async function POST(request: Request) {
       width: dimensions.width,
       height: dimensions.height,
       numberResults: 1,
-      outputFormat: "PNG",
+      outputFormat: "JPG",
+      outputQuality: 85,
       outputType: "URL",
       deliveryMethod: "sync",
     };
@@ -146,7 +175,7 @@ export async function POST(request: Request) {
     if (!runwareResponse.ok || !images.length) {
       const providerMessage = payload.errors?.[0]?.message || payload.error;
       console.error("Runware generation failed", runwareResponse.status, providerMessage || "No image returned");
-      return NextResponse.json({ error: providerMessage || "The image model couldn’t complete that request." }, { status: 502 });
+      return json({ error: providerMessage || "The image model couldn’t complete that request." }, 502, identity);
     }
 
     const galleryWrites = await Promise.allSettled(images.map((image) => storeGalleryImage({
@@ -163,12 +192,21 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ images, model, outputType, width: dimensions.width, height: dimensions.height });
+    generationCompleted = true;
+    return json({ images, model, outputType, width: dimensions.width, height: dimensions.height }, 200, identity);
   } catch (error) {
     const message = error instanceof Error && error.name === "AbortError"
       ? "The image model took too long to respond. Please try again."
       : "The image model couldn’t complete that request.";
     console.error("Generation route error", error instanceof Error ? error.message : error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return json({ error: message }, 500);
+  } finally {
+    if (reservedBrowserId && !generationCompleted) {
+      try {
+        await releaseBrowserGeneration(reservedBrowserId);
+      } catch (error) {
+        console.error("Browser generation reservation release failed", error instanceof Error ? error.message : error);
+      }
+    }
   }
 }

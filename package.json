@@ -9,7 +9,7 @@
     "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev --hostname 0.0.0.0 --port 5100",
     "build": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
-    "deploy": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext deploy",
+    "deploy": "npm run db:migrate:remote && WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext deploy",
     "deploy:dry-run": "npm run build && WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler deploy --dry-run",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern public/source",
@@ -17,7 +17,9 @@
     "gallery:prepare": "node scripts/import-logo-gallery.mjs",
     "gallery:download": "node scripts/import-logo-gallery.mjs --download",
     "gallery:upload": "node scripts/import-logo-gallery.mjs --upload",
-    "gallery:verify": "node scripts/import-logo-gallery.mjs --verify"
+    "gallery:verify": "node scripts/import-logo-gallery.mjs --verify",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote"
   },
   "dependencies": {
     "next": "16.3.1",

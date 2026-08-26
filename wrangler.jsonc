@@ -23,6 +23,23 @@
       "bucket_name": "unslop"
     }
   ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "unslop-site",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "LOGO_GENERATION_RATE_LIMITER",
+      "namespace_id": "2026082601",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ],
   "observability": {
     "enabled": true
   }

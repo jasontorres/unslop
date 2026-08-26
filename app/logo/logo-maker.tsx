@@ -58,7 +58,7 @@ function fileToDataUrl(file: File) {
   });
 }
 
-export function LogoMaker({ apiAccessKey }: { apiAccessKey: string }) {
+export function LogoMaker() {
   const [appName, setAppName] = useState("");
   const [context, setContext] = useState("");
   const [outputType, setOutputType] = useState<OutputType>("app-icon");
@@ -130,7 +130,7 @@ export function LogoMaker({ apiAccessKey }: { apiAccessKey: string }) {
     }
     setIsSearching(true);
     try {
-      const searchParams = new URLSearchParams({ letmein: apiAccessKey, q: appName.trim() });
+      const searchParams = new URLSearchParams({ q: appName.trim() });
       const response = await fetch(`/api/logo/search?${searchParams}`);
       const payload = await response.json() as { configured?: boolean; items?: SearchResult[]; error?: string };
       if (!payload.configured) {
@@ -180,8 +180,7 @@ export function LogoMaker({ apiAccessKey }: { apiAccessKey: string }) {
     setResult(null);
     setActiveImage(0);
     try {
-      const generateParams = new URLSearchParams({ letmein: apiAccessKey });
-      const response = await fetch(`/api/logo/generate?${generateParams}`, {
+      const response = await fetch("/api/logo/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -246,7 +245,7 @@ export function LogoMaker({ apiAccessKey }: { apiAccessKey: string }) {
     : outputType === "poster" ? "Portrait" : outputType === "logo-with-name" ? "Landscape" : "Square";
 
   return (
-    <main className="poly-page logo-maker-page">
+    <main className="poly-page logo-maker-page logo-creator-page">
       <header className="topbar logo-topbar">
         <Link href="/" className="brand" aria-label="unslop.site home">
           <span className="brand-mark">u.</span>
@@ -255,6 +254,7 @@ export function LogoMaker({ apiAccessKey }: { apiAccessKey: string }) {
         <nav className="site-nav" aria-label="Primary navigation">
           <Link href="/">Gallery</Link>
           <Link href="/logo" className="active" aria-current="page">Logo Maker</Link>
+          <Link href="/logo/gallery">Logo Gallery</Link>
           <Link href="/logo/history">History</Link>
         </nav>
         <p className="topbar-context">One focused direction</p>
@@ -353,7 +353,7 @@ export function LogoMaker({ apiAccessKey }: { apiAccessKey: string }) {
                 <span>{isGenerating ? `Creating a direction… ${progress}%` : result ? "Create a new variation" : "Create a variation"}</span>
                 <span aria-hidden="true">{isGenerating ? "◌" : "✦"}</span>
               </button>
-              <p className="poly-showcase-note">Generated images may appear in the community showcase.</p>
+              <p className="poly-showcase-note">Up to 10 generations per browser. Generated images may appear in the community showcase.</p>
             </form>
           </div>
 

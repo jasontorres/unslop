@@ -9,7 +9,7 @@ const workerPromise = import(workerUrl.href).then(({ default: worker }) => worke
 const archiveImageId = "3f8d1825-f9a3-40ef-9d35-90e0c9d7f00b";
 const archiveImageKey = `logo-gallery/images/${archiveImageId}.png`;
 const liveImageId = "e8013692-008b-49a9-9a52-e7872ea6eef6";
-const liveImageKey = `logo_8213182300000_${liveImageId}.png`;
+const liveImageKey = `logo_8213182300000_${liveImageId}.jpg`;
 const archiveImages = [
   {
     id: archiveImageId,
@@ -65,15 +65,61 @@ const mockGalleryBucket = {
       return { body: new Blob([JSON.stringify(archiveImages.slice(200))]).stream() };
     }
     if (key === archiveImageKey || key === liveImageKey) {
+      const isJpeg = key.endsWith(".jpg");
       return {
-        body: new Blob(["PNG"]).stream(),
+        body: new Blob([isJpeg ? "JPG" : "PNG"]).stream(),
         etag: "gallery-test-etag",
-        httpMetadata: { contentType: "image/png", cacheControl: "public, max-age=31536000, immutable" },
+        httpMetadata: { contentType: isJpeg ? "image/jpeg" : "image/png", cacheControl: "public, max-age=31536000, immutable" },
       };
     }
     return null;
   },
   async put() {},
+};
+
+const waitlistRows = new Map();
+const logoGenerationCounts = new Map();
+const mockWaitlistDatabase = {
+  prepare(query) {
+    let values = [];
+    return {
+      bind(...boundValues) {
+        values = boundValues;
+        return this;
+      },
+      async run() {
+        if (/INSERT INTO waitlist_entries/i.test(query)) {
+          const [email, source] = values;
+          const exists = waitlistRows.has(email);
+          if (!exists) waitlistRows.set(email, { email, source });
+          return { success: true, meta: { changes: exists ? 0 : 1 } };
+        }
+
+        if (/INSERT INTO logo_browser_generation_limits/i.test(query)) {
+          const [browserId, maximum] = values;
+          const current = logoGenerationCounts.get(browserId) ?? 0;
+          if (current >= maximum) return { success: true, meta: { changes: 0 } };
+          logoGenerationCounts.set(browserId, current + 1);
+          return { success: true, meta: { changes: 1 } };
+        }
+
+        if (/UPDATE logo_browser_generation_limits/i.test(query)) {
+          const [browserId] = values;
+          const current = logoGenerationCounts.get(browserId) ?? 0;
+          if (current > 0) logoGenerationCounts.set(browserId, current - 1);
+          return { success: true, meta: { changes: current > 0 ? 1 : 0 } };
+        }
+
+        assert.fail(`Unexpected D1 query: ${query}`);
+      },
+    };
+  },
+};
+
+const mockLogoRateLimiter = {
+  async limit() {
+    return { success: true };
+  },
 };
 
 async function render(pathname = "/", environment = {}, init = {}) {
@@ -91,6 +137,8 @@ async function render(pathname = "/", environment = {}, init = {}) {
         fetch: async () => new Response("Not found", { status: 404 }),
       },
       LOGO_GALLERY: mockGalleryBucket,
+      DB: mockWaitlistDatabase,
+      LOGO_GENERATION_RATE_LIMITER: mockLogoRateLimiter,
       ...environment,
     },
     {
@@ -115,6 +163,7 @@ test("server-renders the unslop.site landing page", async () => {
   assert.match(html, /aria-label="unslop\.site home"/i);
   assert.match(html, /href="\/" class="active" aria-current="page">Gallery/i);
   assert.match(html, /href="\/logo">Logo Maker/i);
+  assert.match(html, /href="\/logo\/gallery">Logo Gallery/i);
   assert.match(html, /<h2>Browse<\/h2>/i);
   assert.match(html, /<img src="\/previews\/editorial-serif\.png"/i);
   assert.match(html, /href="\/featured"[^>]*>Featured/i);
@@ -137,84 +186,173 @@ test("server-renders the unslop.site landing page", async () => {
 });
 
 test("serves the identity maker only under /logo", async () => {
-  const [homeResponse, logoResponse, unlockedLogoResponse, galleryResponse, historyResponse] = await Promise.all([
+  const [homeResponse, logoResponse, galleryResponse, historyResponse] = await Promise.all([
     render(),
     render("/logo"),
-    render("/logo?letmein=please"),
     render("/logo/gallery"),
     render("/logo/history"),
   ]);
   assert.equal(logoResponse.status, 200);
-  assert.equal(unlockedLogoResponse.status, 200);
   assert.equal(galleryResponse.status, 200);
   assert.equal(historyResponse.status, 200);
 
-  const [home, logo, unlockedLogo, gallery, history] = await Promise.all([
+  const [home, logo, gallery, history] = await Promise.all([
     homeResponse.text(),
     logoResponse.text(),
-    unlockedLogoResponse.text(),
     galleryResponse.text(),
     historyResponse.text(),
   ]);
   assert.doesNotMatch(home, /What would you like to make\?/i);
   assert.match(logo, /<title>Facet — Logo &amp; Mascot Maker<\/title>/i);
-  assert.match(logo, /Logo Maker trial has officially ended/i);
-  assert.match(logo, /We’ll be back/i);
-  assert.match(logo, /Watch this space for further announcements/i);
-  assert.match(logo, /href="\/logo\/history"[^>]*>Browse your history/i);
-  assert.doesNotMatch(logo, /What would you like to make\?/i);
-  assert.match(unlockedLogo, /What would you like to make\?/i);
-  assert.match(unlockedLogo, /Mobile app logo/i);
-  assert.match(unlockedLogo, /Poster \+ app name/i);
-  assert.match(unlockedLogo, /Logo \+ name/i);
-  assert.match(unlockedLogo, /Create a variation/i);
-  assert.match(unlockedLogo, /1 variation/i);
-  assert.match(unlockedLogo, /Find existing logo/i);
-  assert.match(unlockedLogo, />Model 1</i);
-  assert.match(unlockedLogo, />Model 2</i);
-  assert.match(unlockedLogo, /aria-controls="logo-history"/i);
-  assert.match(unlockedLogo, /href="\/logo\/history"[^>]*>Browse all/i);
-  assert.doesNotMatch(unlockedLogo, />OpenAI Image</i);
-  assert.doesNotMatch(unlockedLogo, />Ideogram 4</i);
+  assert.match(logo, /class="poly-page logo-maker-page logo-creator-page"/i);
+  assert.match(logo, /What would you like to make\?/i);
+  assert.match(logo, /Mobile app logo/i);
+  assert.match(logo, /Poster \+ app name/i);
+  assert.match(logo, /Logo \+ name/i);
+  assert.match(logo, /Create a variation/i);
+  assert.match(logo, /1 variation/i);
+  assert.match(logo, /Find existing logo/i);
+  assert.match(logo, />Model 1</i);
+  assert.match(logo, />Model 2</i);
+  assert.match(logo, /aria-controls="logo-history"/i);
+  assert.match(logo, /href="\/logo\/history"[^>]*>Browse all/i);
+  assert.doesNotMatch(logo, />OpenAI Image</i);
+  assert.doesNotMatch(logo, />Ideogram 4</i);
+  assert.doesNotMatch(logo, /Logo Maker trial has officially ended|Join waitlist/i);
   assert.match(logo, /aria-label="unslop\.site home"/i);
   assert.match(logo, /href="\/">Gallery/i);
   assert.match(logo, /href="\/logo" class="active" aria-current="page">Logo Maker/i);
-  assert.match(logo, /name="robots" content="noindex, nofollow"/i);
-  assert.doesNotMatch(home, /href="\/logo\/gallery"/i);
-  assert.doesNotMatch(logo, /href="\/logo\/gallery"/i);
-  assert.doesNotMatch(unlockedLogo, /Turn any idea into a/i);
-  assert.doesNotMatch(unlockedLogo, /polygon|cost/i);
+  assert.match(logo, /href="\/logo\/gallery">Logo Gallery/i);
+  assert.doesNotMatch(logo, /name="robots" content="noindex, nofollow"/i);
+  assert.match(home, /href="\/logo\/gallery">Logo Gallery/i);
+  assert.doesNotMatch(logo, /Turn any idea into a/i);
+  assert.doesNotMatch(logo, /polygon|cost/i);
   assert.match(gallery, /<title>Generated Logo Showcase — unslop\.site<\/title>/i);
   assert.match(gallery, /Logo showcase/i);
   assert.match(gallery, /generated by users/i);
-  assert.match(gallery, /name="robots" content="noindex, nofollow"/i);
+  assert.match(gallery, /href="\/logo\/gallery" class="active" aria-current="page">Logo Gallery/i);
+  assert.doesNotMatch(gallery, /name="robots" content="noindex, nofollow"/i);
   assert.match(history, /<title>Your Logo History — unslop\.site<\/title>/i);
   assert.match(history, /Your history\./i);
   assert.match(history, /Private to this browser/i);
   assert.match(history, /Your saved work will live here/i);
+  assert.match(history, /href="\/logo\/gallery">Logo Gallery/i);
   assert.match(history, /name="robots" content="noindex, nofollow"/i);
 });
 
-test("gates the logo generator APIs behind the temporary access key", async () => {
+test("stores valid waitlist signups in D1 without duplicate rows", async () => {
+  waitlistRows.clear();
+  const signup = (body) => render("/api/waitlist", {}, {
+    method: "POST",
+    headers: { accept: "application/json", "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  const firstResponse = await signup({ email: "  HELLO@example.com  ", website: "" });
+  assert.equal(firstResponse.status, 200);
+  assert.equal(firstResponse.headers.get("cache-control"), "no-store");
+  assert.deepEqual(await firstResponse.json(), { ok: true });
+  assert.deepEqual(waitlistRows.get("hello@example.com"), {
+    email: "hello@example.com",
+    source: "logo-maker",
+  });
+
+  const duplicateResponse = await signup({ email: "hello@example.com" });
+  assert.equal(duplicateResponse.status, 200);
+  assert.equal(waitlistRows.size, 1);
+
+  const invalidResponse = await signup({ email: "not-an-email" });
+  assert.equal(invalidResponse.status, 400);
+  assert.match((await invalidResponse.json()).error, /valid email/i);
+  assert.equal(waitlistRows.size, 1);
+
+  const honeypotResponse = await signup({ email: "bot@example.com", website: "https://spam.example" });
+  assert.equal(honeypotResponse.status, 200);
+  assert.equal(waitlistRows.size, 1);
+});
+
+test("serves the public logo generator APIs", async () => {
   const generateInit = {
     method: "POST",
     headers: { accept: "application/json", "content-type": "application/json" },
     body: "{}",
   };
-  const [generateDenied, generateAllowed, searchDenied, searchAllowed] = await Promise.all([
+  const [generateResponse, searchResponse] = await Promise.all([
     render("/api/logo/generate", {}, generateInit),
-    render("/api/logo/generate?letmein=please", {}, generateInit),
     render("/api/logo/search?q=Acorn"),
-    render("/api/logo/search?letmein=please&q=Acorn"),
   ]);
 
-  assert.equal(generateDenied.status, 403);
-  assert.match((await generateDenied.json()).error, /trial has ended/i);
-  assert.equal(generateAllowed.status, 400);
-  assert.equal(searchDenied.status, 403);
-  assert.match((await searchDenied.json()).error, /trial has ended/i);
-  assert.equal(searchAllowed.status, 200);
-  assert.deepEqual(await searchAllowed.json(), { configured: false, items: [] });
+  assert.equal(generateResponse.status, 400);
+  assert.match((await generateResponse.json()).error, /app name and short context/i);
+  assert.equal(searchResponse.status, 200);
+  assert.deepEqual(await searchResponse.json(), { configured: false, items: [] });
+});
+
+test("limits logo generation overall and to 10 successful generations per browser", async () => {
+  logoGenerationCounts.clear();
+  const originalFetch = globalThis.fetch;
+  let runwareCalls = 0;
+  globalThis.fetch = async (input) => {
+    const url = String(input);
+    if (url === "https://api.runware.ai/v1") {
+      runwareCalls += 1;
+      return Response.json({
+        data: [{
+          imageURL: "https://im.runware.ai/test-logo.jpg",
+          imageUUID: `00000000-0000-4000-8000-${String(runwareCalls).padStart(12, "0")}`,
+        }],
+      });
+    }
+    if (url === "https://im.runware.ai/test-logo.jpg") {
+      return new Response("JPG", { headers: { "Content-Type": "image/jpeg" } });
+    }
+    return originalFetch(input);
+  };
+
+  const generate = (cookie = "", environment = {}) => render("/api/logo/generate", {
+    RUNWARE_API_KEY: "test-runware-key",
+    ...environment,
+  }, {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      ...(cookie ? { cookie } : {}),
+    },
+    body: JSON.stringify({ appName: "Acorn", context: "A calm savings app" }),
+  });
+
+  try {
+    let cookie = "";
+    for (let index = 0; index < 10; index += 1) {
+      const response = await generate(cookie);
+      assert.equal(response.status, 200);
+      if (!cookie) {
+        const setCookie = response.headers.get("set-cookie") ?? "";
+        assert.match(setCookie, /^unslop_logo_browser=[^;]+;/i);
+        assert.match(setCookie, /HttpOnly/i);
+        assert.match(setCookie, /Secure/i);
+        cookie = setCookie.split(";", 1)[0];
+      }
+    }
+
+    const browserLimited = await generate(cookie);
+    assert.equal(browserLimited.status, 429);
+    assert.match((await browserLimited.json()).error, /limit of 10 generations/i);
+    assert.equal(runwareCalls, 10);
+
+    logoGenerationCounts.clear();
+    const overallLimited = await generate("", {
+      LOGO_GENERATION_RATE_LIMITER: { async limit() { return { success: false }; } },
+    });
+    assert.equal(overallLimited.status, 429);
+    assert.equal(overallLimited.headers.get("retry-after"), "60");
+    assert.match((await overallLimited.json()).error, /try again in a minute/i);
+    assert.deepEqual([...logoGenerationCounts.values()], [0]);
+    assert.equal(runwareCalls, 10);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
 
 test("serves the shared paginated logo gallery from R2", async () => {
@@ -226,6 +364,9 @@ test("serves the shared paginated logo gallery from R2", async () => {
   assert.equal(payload.page, 1);
   assert.equal(payload.pageCount, 2);
   assert.equal(payload.total, 202);
+
+  const liveImage = payload.images.find((image) => image.id === liveImageKey);
+  assert.equal(liveImage?.imageUrl, `https://assets.unslop.site/${liveImageKey}`);
 
   const archiveImage = payload.images.find((image) => image.id === archiveImageId);
   assert.equal(
@@ -398,9 +539,9 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(robots, /Sitemap: https:\/\/unslop\.site\/sitemap\.xml/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/featured<\/loc>/i);
-  assert.doesNotMatch(sitemap, /<loc>https:\/\/unslop\.site\/logo<\/loc>/i);
+  assert.match(sitemap, /<loc>https:\/\/unslop\.site\/logo<\/loc>/i);
   assert.doesNotMatch(sitemap, /<loc>https:\/\/unslop\.site\/logo\/browse<\/loc>/i);
-  assert.doesNotMatch(sitemap, /<loc>https:\/\/unslop\.site\/logo\/gallery<\/loc>/i);
+  assert.match(sitemap, /<loc>https:\/\/unslop\.site\/logo\/gallery<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/financial-apps<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/dashboards<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/editorial-serif<\/loc>/i);
@@ -409,5 +550,5 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/nock-activation<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/solstice-aurora-drift<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/helix-dna-spin<\/loc>/i);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 192);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 194);
 });

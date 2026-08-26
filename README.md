@@ -16,7 +16,10 @@ using the Next.js build system.
 - Create one logo, app-icon, mascot, poster, or brand-lockup direction from a
   short brief and an optional source image.
 - Keep recent logo generations in browser-local history.
-- Publish generated images to a shared, cursor-paginated R2 showcase.
+- Publish generated images to a public, numbered and linkable R2 showcase.
+- Protect generation credits with an overall burst limit and a D1-backed limit
+  of 10 successful generations per browser.
+- Collect Logo Maker return notifications in a D1-backed email waitlist.
 
 ## Requirements
 
@@ -24,12 +27,14 @@ using the Next.js build system.
 - A Runware API key to use image generation
 - Optional Google Programmable Search credentials for in-app image search
 - An R2 bucket for the shared generated-logo showcase
+- A D1 database for site data
 
 ## Local development
 
 ```bash
 npm install
 cp .env.example .env.local
+npm run db:migrate:local
 npm run dev
 ```
 
@@ -59,15 +64,18 @@ a new tab. Environment files are ignored by Git.
 - `npm run gallery:download` — cache the exported generated images locally
 - `npm run gallery:upload` — upload cached images and index pages to R2
 - `npm run gallery:verify` — verify the imported R2 image and page counts
+- `npm run db:migrate:local` — apply pending migrations to the local D1 database
+- `npm run db:migrate:remote` — apply pending migrations to the production D1 database
 - `npm run deploy:dry-run` — validate the Cloudflare deployment bundle
-- `npm run deploy` — build and deploy the Worker
+- `npm run deploy` — apply production D1 migrations, then build and deploy the Worker
 
 ## Project structure
 
 ```text
 app/                    vinext App Router routes, gallery UI, and logo maker
 app/api/logo/           Server-side image search and generation endpoints
-app/logo/gallery/       Hidden shared generated-logo showcase
+app/logo/gallery/       Public shared generated-logo showcase
+migrations/             Ordered D1 database migrations
 public/previews/        Gallery thumbnail images
 public/source/          Interactive reference canvases and their dependencies
 scripts/                Reference-thumbnail capture tooling
@@ -102,6 +110,24 @@ directly from R2 through `https://assets.unslop.site`; they do not pass through
 the application Worker. Forks should create their own bucket, configure a
 public R2 custom domain, and update both `wrangler.jsonc` and the gallery asset
 origin in `app/api/logo/gallery/storage.ts` before deploying.
+
+Site data uses a shared D1 binding named `DB`; the Logo Maker waitlist is its
+first consumer. Before the first production deployment, create the database
+and copy the returned `database_id` into the `d1_databases` entry in
+`wrangler.jsonc`:
+
+```bash
+npx wrangler d1 create unslop-site
+npm run db:migrate:remote
+```
+
+The migrations create `waitlist_entries` and the browser generation-limit
+table. Email addresses are normalized to lowercase and duplicate submissions
+are ignored. The Logo Maker allows 10 successful generations per persistent
+browser ID, while a Cloudflare Rate Limiting binding protects the Runware route
+from bursts above 10 generation starts per minute. Local development uses the
+same migrations through `npm run db:migrate:local` and stores its database
+state under Wrangler’s ignored local state directory.
 
 ### Importing a Runware usage export
 
@@ -139,9 +165,14 @@ npm run deploy:dry-run
 - Never commit `.env.local`, `.dev.vars`, API keys, or Cloudflare tokens.
 - Image-provider credentials are read only by server routes and are not exposed
   to browser bundles.
+- A random, HttpOnly browser ID enforces the 10-generation allowance. It does
+  not contain personal information; clearing browser data creates a new ID.
 - Personal logo history remains in the visitor's browser. Generated images are
-  also copied to the public R2 bucket and exposed through the hidden, `noindex`
-  community showcase; source images and full prompts are not stored.
+  also copied to the public R2 bucket and exposed through the public community
+  showcase; source images and full prompts are not stored.
+- Waitlist signups store only the normalized email address, signup source, and
+  database-generated creation time. A honeypot prevents basic automated form
+  submissions from reaching D1.
 - Raw Runware usage exports and local gallery-import caches are ignored by Git.
 
 ## Contributing

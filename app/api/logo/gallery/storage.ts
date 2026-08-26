@@ -87,9 +87,24 @@ function decodeMetadata(value?: string) {
   }
 }
 
-function galleryKey(createdAt: number, imageUUID: string) {
+function galleryKey(createdAt: number, imageUUID: string, extension: string) {
   const reverseTime = String(REVERSE_TIME_CEILING - createdAt).padStart(13, "0");
-  return `${GALLERY_PREFIX}${reverseTime}_${imageUUID}.png`;
+  return `${GALLERY_PREFIX}${reverseTime}_${imageUUID}.${extension}`;
+}
+
+function storedImageFormat(contentTypeHeader: string | null, pathname: string) {
+  const contentType = contentTypeHeader?.split(";")[0].trim().toLowerCase();
+  if (contentType === "image/jpeg" || contentType === "image/jpg") {
+    return { contentType: "image/jpeg", extension: "jpg" };
+  }
+  if (contentType === "image/png") return { contentType, extension: "png" };
+  if (contentType === "image/webp") return { contentType, extension: "webp" };
+
+  const extension = pathname.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1];
+  if (extension === "jpg" || extension === "jpeg") return { contentType: "image/jpeg", extension: "jpg" };
+  if (extension === "png") return { contentType: "image/png", extension };
+  if (extension === "webp") return { contentType: "image/webp", extension };
+  throw new Error("Generated asset returned an unsupported image format.");
 }
 
 function publicAssetPath(key: string) {
@@ -142,8 +157,7 @@ export async function storeGalleryImage(input: {
   const response = await fetch(sourceUrl, { headers: { Accept: "image/*" } });
   if (!response.ok) throw new Error(`Generated image download failed with ${response.status}.`);
 
-  const contentType = response.headers.get("content-type")?.split(";")[0].trim() || "image/png";
-  if (!contentType.startsWith("image/")) throw new Error("Generated asset did not return an image.");
+  const format = storedImageFormat(response.headers.get("content-type"), sourceUrl.pathname);
 
   const declaredSize = Number(response.headers.get("content-length") || 0);
   if (declaredSize > MAX_IMAGE_BYTES) throw new Error("Generated image is too large for the gallery.");
@@ -153,11 +167,11 @@ export async function storeGalleryImage(input: {
 
   const createdAt = Date.now();
   const imageUUID = input.imageUUID || crypto.randomUUID();
-  const key = galleryKey(createdAt, imageUUID);
+  const key = galleryKey(createdAt, imageUUID, format.extension);
   const bucket = await getGalleryBucket();
   await bucket.put(key, imageData, {
     httpMetadata: {
-      contentType,
+      contentType: format.contentType,
       cacheControl: "public, max-age=31536000, immutable",
     },
     customMetadata: {
@@ -329,6 +343,6 @@ export async function listNumberedGalleryPage(pageNumber: number) {
 }
 
 export function isGalleryImageKey(value: string) {
-  return /^logo_\d{13}_[0-9a-f-]{36}\.png$/i.test(value)
-    || /^logo-gallery\/images\/[0-9a-f-]{36}\.png$/i.test(value);
+  return /^logo_\d{13}_[0-9a-f-]{36}\.(?:jpe?g|png|webp)$/i.test(value)
+    || /^logo-gallery\/images\/[0-9a-f-]{36}\.(?:jpe?g|png|webp)$/i.test(value);
 }

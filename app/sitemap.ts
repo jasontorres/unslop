@@ -13,6 +13,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    {
+      url: "https://unslop.site/logo",
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: "https://unslop.site/logo/gallery",
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
     ...categoryDefinitions.map((category) => ({
       url: `https://unslop.site/${category.slug}`,
       changeFrequency: "weekly" as const,

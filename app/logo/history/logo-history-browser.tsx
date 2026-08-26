@@ -111,6 +111,7 @@ export function LogoHistoryBrowser() {
         <nav className="site-nav" aria-label="Primary navigation">
           <Link href="/">Gallery</Link>
           <Link href="/logo">Logo Maker</Link>
+          <Link href="/logo/gallery">Logo Gallery</Link>
           <Link href="/logo/history" className="active" aria-current="page">History</Link>
         </nav>
         <p className="topbar-context">Private to this browser</p>

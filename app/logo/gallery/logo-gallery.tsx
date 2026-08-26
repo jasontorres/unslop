@@ -126,7 +126,8 @@ export function LogoGallery({ initialPage }: { initialPage: number }) {
         </Link>
         <nav className="site-nav" aria-label="Primary navigation">
           <Link href="/">Gallery</Link>
-          <Link href="/logo" className="active">Logo Maker</Link>
+          <Link href="/logo">Logo Maker</Link>
+          <Link href="/logo/gallery" className="active" aria-current="page">Logo Gallery</Link>
         </nav>
         <p className="topbar-context">Community showcase</p>
       </header>

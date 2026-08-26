@@ -52,6 +52,18 @@ function createdAtFromRow(row) {
   return Number.isFinite(seconds) ? seconds * 1000 : 0;
 }
 
+function imageFormatFromUrl(value) {
+  try {
+    const extension = new URL(value).pathname.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1];
+    if (extension === "jpg" || extension === "jpeg") return { extension: "jpg", contentType: "image/jpeg" };
+    if (extension === "png") return { extension, contentType: "image/png" };
+    if (extension === "webp") return { extension, contentType: "image/webp" };
+  } catch {
+    // Invalid source URLs are rejected by galleryRecord.
+  }
+  return null;
+}
+
 function galleryRecord(row) {
   if (row?.status !== "success" || !allowedModels.has(row.modelId)) return null;
   const request = parseJson(row.requestObjectString)?.[0];
@@ -59,10 +71,11 @@ function galleryRecord(row) {
   const prompt = typeof request?.positivePrompt === "string" ? request.positivePrompt : "";
   const appName = appNameFromPrompt(prompt) || (!request ? "Untitled" : "");
   const outputType = outputTypeFromPrompt(prompt) || (!request ? "app-icon" : null);
+  const sourceUrl = response?.imageURL || row.assetURL || row.imageURL;
   const imageUUID = typeof response?.imageUUID === "string"
     ? response.imageUUID
-    : String(row.imageURL || row.assetURL || "").match(/([0-9a-f-]{36})\.png(?:$|\?)/i)?.[1];
-  const sourceUrl = response?.imageURL || row.assetURL || row.imageURL;
+    : String(sourceUrl || "").match(/([0-9a-f-]{36})\.(?:jpe?g|png|webp)(?:$|\?)/i)?.[1];
+  const imageFormat = imageFormatFromUrl(sourceUrl);
   const width = Number(request?.width || 1024);
   const height = Number(request?.height || 1024);
   const createdAt = createdAtFromRow(row);
@@ -70,6 +83,7 @@ function galleryRecord(row) {
   if (!appName
     || !outputType
     || !imageUUID
+    || !imageFormat
     || !/^https:\/\/im\.runware\.ai\//i.test(sourceUrl || "")
     || !Number.isFinite(width)
     || !Number.isFinite(height)
@@ -79,7 +93,9 @@ function galleryRecord(row) {
 
   return {
     id: imageUUID,
-    imageKey: `logo-gallery/images/${imageUUID}.png`,
+    imageKey: `logo-gallery/images/${imageUUID}.${imageFormat.extension}`,
+    imageExtension: imageFormat.extension,
+    contentType: imageFormat.contentType,
     sourceUrl,
     appName,
     model: row.modelId,
@@ -210,7 +226,7 @@ async function putR2Object(key, body, contentType, cacheControl) {
 }
 
 function cachedImagePath(record) {
-  return resolve(imagesDirectory, `${record.id}.png`);
+  return resolve(imagesDirectory, `${record.id}.${record.imageExtension}`);
 }
 
 async function hasCachedImage(record) {
@@ -271,7 +287,7 @@ async function uploadImages(records) {
     while (nextIndex < pending.length) {
       const record = pending[nextIndex++];
       const image = await readFile(cachedImagePath(record));
-      await putR2Object(record.imageKey, image, "image/png", "public, max-age=31536000, immutable");
+      await putR2Object(record.imageKey, image, record.contentType, "public, max-age=31536000, immutable");
       completed.add(record.id);
       uploadedThisRun += 1;
       await writeFile(checkpointPath, `${JSON.stringify([...completed])}\n`);
