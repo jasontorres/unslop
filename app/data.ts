@@ -1,4 +1,4 @@
-export const generatorModels = ["Claude 4.7", "GPT 5.6 Sol", "Grok 4.6", "Fable 5"] as const;
+export const generatorModels = ["Claude 4.7", "GPT 5.6 Sol", "Grok 4.6", "Fable 5", "GLM 5.3 Flash"] as const;
 export type GeneratorModel = (typeof generatorModels)[number];
 
 export type GallerySite = {
@@ -19,6 +19,7 @@ type Group = {
   title: string;
   sectionId: string;
   entries: [artboardId: string, label: string][];
+  model?: GeneratorModel;
 };
 
 type CategoryDefinition = {
@@ -35,7 +36,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     slug: "landing",
     name: "Landing",
     sourceFile: "Themes and Typography.html",
-    description: "Landing pages, typographic systems, saturated color studies, and dashboards.",
+    description: "Landing pages, typographic systems, brutalist and minimalist studies, agency and SaaS variations, saturated color studies, and dashboards.",
     model: "Claude 4.7",
     groups: [
       {
@@ -78,6 +79,50 @@ export const categoryDefinitions: CategoryDefinition[] = [
           ["mustard", "22 · Mustard / Guild"],
           ["teal", "23 · Deep Teal / Fintech"],
           ["oxblood", "24 · Oxblood / Wine bar"],
+        ],
+      },
+      {
+        title: "Brutalist Systems",
+        sectionId: "brutal-sys",
+        model: "GLM 5.3 Flash",
+        entries: [
+          ["b-rawweb", "25 · Raw Web Casual"],
+          ["b-sticker", "26 · Sticker Slap"],
+          ["b-manifesto", "27 · Data Manifesto"],
+          ["b-concrete", "28 · Concrete Poster"],
+        ],
+      },
+      {
+        title: "Minimalist Studies",
+        sectionId: "minimal-lab",
+        model: "GLM 5.3 Flash",
+        entries: [
+          ["n-object", "29 · Object White"],
+          ["n-gallery", "30 · Museum Quiet"],
+          ["n-darkquiet", "31 · Dark Quiet"],
+          ["n-specimen", "32 · Type Specimen"],
+        ],
+      },
+      {
+        title: "Agency Landings",
+        sectionId: "agency-land",
+        model: "GLM 5.3 Flash",
+        entries: [
+          ["a-granserif", "33 · Grand Serif Studio"],
+          ["a-marquee", "34 · Marquee Motion"],
+          ["a-ledger", "35 · Ledger Consultancy"],
+          ["a-popstudio", "36 · Pop Polygon"],
+        ],
+      },
+      {
+        title: "SaaS Landings",
+        sectionId: "saas-land",
+        model: "GLM 5.3 Flash",
+        entries: [
+          ["s-bento", "37 · Bento Wall"],
+          ["s-cloudsoft", "38 · Soft Cloud Gradient"],
+          ["s-clitool", "39 · Terminal Dev Tool"],
+          ["s-signupfirst", "40 · Signup First"],
         ],
       },
       {
@@ -580,7 +625,7 @@ export const allSites: GallerySite[] = categoryDefinitions.flatMap((category) =>
         sectionId: group.sectionId,
         artboardId,
         sourceFile: category.sourceFile,
-        model: category.model,
+        model: group.model ?? category.model,
         tags,
         index: itemIndex++,
       };
