@@ -25,6 +25,22 @@ type WorkerGlobal = typeof globalThis & {
   __UNSLOP_WORKER_ENV__?: Record<string, unknown>;
 };
 
+const createGenerationLimitsTable = `
+  CREATE TABLE IF NOT EXISTS logo_browser_generation_limits (
+    browser_id TEXT PRIMARY KEY
+      CHECK (length(browser_id) = 36),
+    generation_count INTEGER NOT NULL DEFAULT 0
+      CHECK (generation_count BETWEEN 0 AND 10),
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )
+`;
+
+const createGenerationLimitsIndex = `
+  CREATE INDEX IF NOT EXISTS logo_browser_generation_limits_updated_at_idx
+    ON logo_browser_generation_limits (updated_at)
+`;
+
 export type BrowserIdentity = {
   id: string;
   setCookie?: string;
@@ -43,6 +59,41 @@ async function generationDatabase() {
   const database = await workerBinding<D1Database>("DB");
   if (!database) throw new Error("DB D1 binding is not configured.");
   return database;
+}
+
+function databaseErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  return typeof error === "string" ? error : "";
+}
+
+function isMissingGenerationLimitsTable(error: unknown) {
+  return /no such table:\s*logo_browser_generation_limits/i.test(databaseErrorMessage(error));
+}
+
+async function ensureGenerationLimitsSchema(database: D1Database) {
+  const tableResult = await database.prepare(createGenerationLimitsTable).run();
+  if (!tableResult.success) {
+    throw new Error(tableResult.error || "D1 could not create the logo generation limit table.");
+  }
+
+  const indexResult = await database.prepare(createGenerationLimitsIndex).run();
+  if (!indexResult.success) {
+    throw new Error(indexResult.error || "D1 could not create the logo generation limit index.");
+  }
+}
+
+async function insertGenerationReservation(database: D1Database, browserId: string) {
+  return database
+    .prepare(`
+      INSERT INTO logo_browser_generation_limits (browser_id, generation_count)
+      VALUES (?, 1)
+      ON CONFLICT(browser_id) DO UPDATE SET
+        generation_count = logo_browser_generation_limits.generation_count + 1,
+        updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+      WHERE logo_browser_generation_limits.generation_count < ?
+    `)
+    .bind(browserId, BROWSER_GENERATION_LIMIT)
+    .run();
 }
 
 function cookieValue(request: Request, name: string) {
@@ -74,17 +125,20 @@ export function browserIdentity(request: Request): BrowserIdentity {
 
 export async function reserveBrowserGeneration(browserId: string) {
   const database = await generationDatabase();
-  const result = await database
-    .prepare(`
-      INSERT INTO logo_browser_generation_limits (browser_id, generation_count)
-      VALUES (?, 1)
-      ON CONFLICT(browser_id) DO UPDATE SET
-        generation_count = logo_browser_generation_limits.generation_count + 1,
-        updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
-      WHERE logo_browser_generation_limits.generation_count < ?
-    `)
-    .bind(browserId, BROWSER_GENERATION_LIMIT)
-    .run();
+  let result: D1Result;
+
+  try {
+    result = await insertGenerationReservation(database, browserId);
+  } catch (error) {
+    if (!isMissingGenerationLimitsTable(error)) throw error;
+    await ensureGenerationLimitsSchema(database);
+    result = await insertGenerationReservation(database, browserId);
+  }
+
+  if (!result.success && isMissingGenerationLimitsTable(result.error)) {
+    await ensureGenerationLimitsSchema(database);
+    result = await insertGenerationReservation(database, browserId);
+  }
 
   if (!result.success) {
     throw new Error(result.error || "D1 could not reserve a logo generation.");

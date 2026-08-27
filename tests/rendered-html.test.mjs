@@ -292,14 +292,17 @@ test("limits logo generation overall and to 10 successful generations per browse
   logoGenerationCounts.clear();
   const originalFetch = globalThis.fetch;
   let runwareCalls = 0;
-  globalThis.fetch = async (input) => {
+  let runwareTask;
+  globalThis.fetch = async (input, init) => {
     const url = String(input);
     if (url === "https://api.runware.ai/v1") {
       runwareCalls += 1;
+      runwareTask = JSON.parse(String(init?.body))[0];
       return Response.json({
         data: [{
           imageURL: "https://im.runware.ai/test-logo.jpg",
           imageUUID: `00000000-0000-4000-8000-${String(runwareCalls).padStart(12, "0")}`,
+          cost: 0.006,
         }],
       });
     }
@@ -334,12 +337,20 @@ test("limits logo generation overall and to 10 successful generations per browse
         assert.match(setCookie, /Secure/i);
         cookie = setCookie.split(";", 1)[0];
       }
+      if (index === 0) {
+        const payload = await response.json();
+        assert.equal(payload.images[0].cost, 0.006);
+      }
     }
 
     const browserLimited = await generate(cookie);
     assert.equal(browserLimited.status, 429);
     assert.match((await browserLimited.json()).error, /limit of 10 generations/i);
     assert.equal(runwareCalls, 10);
+    assert.equal(runwareTask.providerSettings.openai.quality, "low");
+    assert.equal(runwareTask.includeCost, true);
+    assert.equal(runwareTask.outputQuality, 95);
+    assert.equal(runwareTask.deliveryMethod, "sync");
 
     logoGenerationCounts.clear();
     const overallLimited = await generate("", {
@@ -350,6 +361,78 @@ test("limits logo generation overall and to 10 successful generations per browse
     assert.match((await overallLimited.json()).error, /try again in a minute/i);
     assert.deepEqual([...logoGenerationCounts.values()], [0]);
     assert.equal(runwareCalls, 10);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("creates the browser generation limit schema when a deployment skipped migrations", async () => {
+  let schemaReady = false;
+  let tableCreates = 0;
+  let indexCreates = 0;
+  let generationCount = 0;
+  const databaseWithoutMigrations = {
+    prepare(query) {
+      let values = [];
+      return {
+        bind(...boundValues) {
+          values = boundValues;
+          return this;
+        },
+        async run() {
+          if (/CREATE TABLE IF NOT EXISTS logo_browser_generation_limits/i.test(query)) {
+            tableCreates += 1;
+            schemaReady = true;
+            return { success: true, meta: { changes: 0 } };
+          }
+          if (/CREATE INDEX IF NOT EXISTS logo_browser_generation_limits_updated_at_idx/i.test(query)) {
+            indexCreates += 1;
+            return { success: true, meta: { changes: 0 } };
+          }
+          if (/INSERT INTO logo_browser_generation_limits/i.test(query)) {
+            if (!schemaReady) throw new Error("D1_ERROR: no such table: logo_browser_generation_limits");
+            assert.equal(values[1], 10);
+            generationCount += 1;
+            return { success: true, meta: { changes: 1 } };
+          }
+          assert.fail(`Unexpected D1 query: ${query}`);
+        },
+      };
+    },
+  };
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = String(input);
+    if (url === "https://api.runware.ai/v1") {
+      return Response.json({
+        data: [{
+          imageURL: "https://im.runware.ai/self-healed-logo.jpg",
+          imageUUID: "00000000-0000-4000-8000-000000000099",
+        }],
+      });
+    }
+    if (url === "https://im.runware.ai/self-healed-logo.jpg") {
+      return new Response("JPG", { headers: { "Content-Type": "image/jpeg" } });
+    }
+    return originalFetch(input);
+  };
+
+  try {
+    const response = await render("/api/logo/generate", {
+      DB: databaseWithoutMigrations,
+      RUNWARE_API_KEY: "test-runware-key",
+    }, {
+      method: "POST",
+      headers: { accept: "application/json", "content-type": "application/json" },
+      body: JSON.stringify({ appName: "Acorn", context: "A calm savings app" }),
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).images.length, 1);
+    assert.equal(tableCreates, 1);
+    assert.equal(indexCreates, 1);
+    assert.equal(generationCount, 1);
   } finally {
     globalThis.fetch = originalFetch;
   }

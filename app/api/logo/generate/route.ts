@@ -139,13 +139,14 @@ export async function POST(request: Request) {
       height: dimensions.height,
       numberResults: 1,
       outputFormat: "JPG",
-      outputQuality: 85,
+      outputQuality: 95,
       outputType: "URL",
+      includeCost: true,
       deliveryMethod: "sync",
     };
 
     if (model === "openai:gpt-image@2") {
-      task.providerSettings = { openai: { quality: "medium", background: "opaque", moderation: "auto" } };
+      task.providerSettings = { openai: { quality: "low", background: "opaque", moderation: "auto" } };
       if (sourceImage) task.inputs = { referenceImages: [sourceImage] };
     }
 
@@ -164,13 +165,13 @@ export async function POST(request: Request) {
     }
 
     const payload = await runwareResponse.json() as {
-      data?: Array<{ imageURL?: string; imageUUID?: string }>;
+      data?: Array<{ imageURL?: string; imageUUID?: string; cost?: number }>;
       errors?: Array<{ message?: string }>;
       error?: string;
     };
     const images = (payload.data ?? [])
-      .filter((item): item is { imageURL: string; imageUUID?: string } => Boolean(item.imageURL))
-      .map((item) => ({ imageURL: item.imageURL, imageUUID: item.imageUUID }));
+      .filter((item): item is { imageURL: string; imageUUID?: string; cost?: number } => Boolean(item.imageURL))
+      .map((item) => ({ imageURL: item.imageURL, imageUUID: item.imageUUID, cost: item.cost }));
 
     if (!runwareResponse.ok || !images.length) {
       const providerMessage = payload.errors?.[0]?.message || payload.error;
@@ -195,11 +196,16 @@ export async function POST(request: Request) {
     generationCompleted = true;
     return json({ images, model, outputType, width: dimensions.width, height: dimensions.height }, 200, identity);
   } catch (error) {
-    const message = error instanceof Error && error.name === "AbortError"
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const timedOut = error instanceof Error && error.name === "AbortError";
+    const infrastructureFailed = /\bD1\b|DB D1 binding|rate limiter/i.test(errorMessage);
+    const message = timedOut
       ? "The image model took too long to respond. Please try again."
-      : "The image model couldn’t complete that request.";
-    console.error("Generation route error", error instanceof Error ? error.message : error);
-    return json({ error: message }, 500);
+      : infrastructureFailed
+        ? "Logo creation is temporarily unavailable. Please try again shortly."
+        : "The image model couldn’t complete that request.";
+    console.error("Generation route error", errorMessage);
+    return json({ error: message }, infrastructureFailed ? 503 : 500);
   } finally {
     if (reservedBrowserId && !generationCompleted) {
       try {

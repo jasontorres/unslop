@@ -1,7 +1,7 @@
 export type ModelId = "openai:gpt-image@2" | "ideogram:4@0";
 export type OutputType = "logo" | "app-icon" | "mascot" | "poster" | "logo-with-name";
 
-export type GeneratedImage = { imageURL: string; imageUUID?: string };
+export type GeneratedImage = { imageURL: string; imageUUID?: string; cost?: number };
 
 export type GenerationResult = {
   images: GeneratedImage[];
