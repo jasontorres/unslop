@@ -27,6 +27,7 @@ type SearchResult = {
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const DEFAULT_MODEL: ModelId = "openai:gpt-image@2";
 
 const modelLabels: Record<ModelId, string> = {
   "openai:gpt-image@2": "Model 1",
@@ -62,7 +63,6 @@ export function LogoMaker() {
   const [appName, setAppName] = useState("");
   const [context, setContext] = useState("");
   const [outputType, setOutputType] = useState<OutputType>("app-icon");
-  const [model, setModel] = useState<ModelId>("openai:gpt-image@2");
   const [sourceImage, setSourceImage] = useState("");
   const [sourceName, setSourceName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -187,7 +187,7 @@ export function LogoMaker() {
           appName: appName.trim(),
           context: context.trim(),
           outputType,
-          model,
+          model: DEFAULT_MODEL,
           sourceImage: sourceImage || undefined,
         }),
       });
@@ -225,7 +225,6 @@ export function LogoMaker() {
     setAppName(item.appName);
     setContext(item.context);
     setOutputType(item.result.outputType);
-    setModel(item.result.model);
     setResult(item.result);
     setActiveImage(0);
     setProgress(100);
@@ -333,27 +332,16 @@ export function LogoMaker() {
                 <p className="poly-rights-note">Use an image you own or have permission to adapt.</p>
               </div>
 
-              <fieldset className="poly-model-fieldset">
-                <legend>04 · Pick your maker</legend>
-                <div className="poly-model-grid">
-                  <label className={model === "openai:gpt-image@2" ? "is-selected" : ""}>
-                    <input type="radio" name="model" value="openai:gpt-image@2" checked={model === "openai:gpt-image@2"} onChange={() => setModel("openai:gpt-image@2")} />
-                    <span className="poly-model-radio" /><span><strong>Model 1</strong><small>Best match to a reference</small></span><em>Recommended</em>
-                  </label>
-                  <label className={model === "ideogram:4@0" ? "is-selected" : ""}>
-                    <input type="radio" name="model" value="ideogram:4@0" checked={model === "ideogram:4@0"} onChange={() => setModel("ideogram:4@0")} />
-                    <span className="poly-model-radio" /><span><strong>Model 2</strong><small>Best for names + typography</small></span>
-                  </label>
-                </div>
-                {model === "ideogram:4@0" && sourceImage ? <p className="poly-model-note">Model 2 builds from your written brief; choose Model 1 to transform the uploaded reference directly.</p> : null}
-              </fieldset>
-
               {error ? <p className="poly-error" role="alert"><span>!</span>{error}</p> : null}
               <button className="poly-create-button" type="submit" disabled={isGenerating || !appName.trim() || !context.trim()}>
                 <span>{isGenerating ? `Creating a direction… ${progress}%` : result ? "Create a new variation" : "Create a variation"}</span>
                 <span aria-hidden="true">{isGenerating ? "◌" : "✦"}</span>
               </button>
-              <p className="poly-showcase-note">Up to 10 generations per browser. Generated images may appear in the community showcase.</p>
+              <aside className="poly-publishing-disclaimer" aria-label="Public gallery publishing notice">
+                <strong>Free-use publishing notice.</strong>{" "}
+                By using this free Logo Maker, you agree that unslop.site may publish and display your generated results in the public <Link href="/logo/gallery">Logo Gallery</Link>.
+                <span>Uploaded source images are not published. Up to 10 generations per browser.</span>
+              </aside>
             </form>
           </div>
 

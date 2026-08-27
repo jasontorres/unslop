@@ -211,9 +211,15 @@ test("serves the identity maker only under /logo", async () => {
   assert.match(logo, /Logo \+ name/i);
   assert.match(logo, /Create a variation/i);
   assert.match(logo, /1 variation/i);
+  assert.match(logo, /Free-use publishing notice/i);
+  assert.match(logo, /By using this free Logo Maker, you agree that unslop\.site may publish and display your generated results/i);
+  assert.match(logo, /href="\/logo\/gallery"[^>]*>Logo Gallery<\/a>/i);
+  assert.match(logo, /Uploaded source images are not published/i);
   assert.match(logo, /Find existing logo/i);
-  assert.match(logo, />Model 1</i);
-  assert.match(logo, />Model 2</i);
+  assert.doesNotMatch(logo, /Pick your maker/i);
+  assert.doesNotMatch(logo, /name="model"/i);
+  assert.doesNotMatch(logo, />Model 1</i);
+  assert.doesNotMatch(logo, />Model 2</i);
   assert.match(logo, /aria-controls="logo-history"/i);
   assert.match(logo, /href="\/logo\/history"[^>]*>Browse all/i);
   assert.doesNotMatch(logo, />OpenAI Image</i);
@@ -302,7 +308,7 @@ test("limits logo generation overall and to 10 successful generations per browse
         data: [{
           imageURL: "https://im.runware.ai/test-logo.jpg",
           imageUUID: `00000000-0000-4000-8000-${String(runwareCalls).padStart(12, "0")}`,
-          cost: 0.006,
+          cost: runwareTask.model === "ideogram:4@0" ? 0.03 : 0.006,
         }],
       });
     }
@@ -312,7 +318,7 @@ test("limits logo generation overall and to 10 successful generations per browse
     return originalFetch(input);
   };
 
-  const generate = (cookie = "", environment = {}) => render("/api/logo/generate", {
+  const generate = (cookie = "", environment = {}, body = {}) => render("/api/logo/generate", {
     RUNWARE_API_KEY: "test-runware-key",
     ...environment,
   }, {
@@ -322,7 +328,7 @@ test("limits logo generation overall and to 10 successful generations per browse
       "content-type": "application/json",
       ...(cookie ? { cookie } : {}),
     },
-    body: JSON.stringify({ appName: "Acorn", context: "A calm savings app" }),
+    body: JSON.stringify({ appName: "Acorn", context: "A calm savings app", ...body }),
   });
 
   try {
@@ -347,6 +353,7 @@ test("limits logo generation overall and to 10 successful generations per browse
     assert.equal(browserLimited.status, 429);
     assert.match((await browserLimited.json()).error, /limit of 10 generations/i);
     assert.equal(runwareCalls, 10);
+    assert.equal(runwareTask.model, "openai:gpt-image@2");
     assert.equal(runwareTask.providerSettings.openai.quality, "low");
     assert.equal(runwareTask.includeCost, true);
     assert.equal(runwareTask.outputQuality, 95);
@@ -361,6 +368,19 @@ test("limits logo generation overall and to 10 successful generations per browse
     assert.match((await overallLimited.json()).error, /try again in a minute/i);
     assert.deepEqual([...logoGenerationCounts.values()], [0]);
     assert.equal(runwareCalls, 10);
+
+    logoGenerationCounts.clear();
+    const ideogramResponse = await generate("", {}, {
+      model: "ideogram:4@0",
+      outputType: "logo",
+    });
+    assert.equal(ideogramResponse.status, 200);
+    assert.equal((await ideogramResponse.json()).images[0].cost, 0.03);
+    assert.equal(runwareTask.model, "ideogram:4@0");
+    assert.equal(runwareTask.width, 2048);
+    assert.equal(runwareTask.height, 2048);
+    assert.equal(runwareTask.settings.renderingSpeed, "TURBO");
+    assert.equal(runwareTask.includeCost, true);
   } finally {
     globalThis.fetch = originalFetch;
   }

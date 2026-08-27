@@ -148,6 +148,8 @@ export async function POST(request: Request) {
     if (model === "openai:gpt-image@2") {
       task.providerSettings = { openai: { quality: "low", background: "opaque", moderation: "auto" } };
       if (sourceImage) task.inputs = { referenceImages: [sourceImage] };
+    } else {
+      task.settings = { renderingSpeed: "TURBO" };
     }
 
     const controller = new AbortController();

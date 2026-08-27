@@ -837,7 +837,20 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 }
 .logo-maker-page .poly-create-button:hover { transform: translateY(-1px); background: #2949d8; box-shadow: 0 10px 22px rgba(52, 88, 244, .27); }
 .logo-maker-page .poly-create-button:disabled { background: #bbb9b1; box-shadow: none; color: #f8f7f2; }
-.logo-maker-page .poly-showcase-note { margin: -5px 0 0; color: var(--muted); font-size: 9px; text-align: center; }
+.logo-maker-page .poly-publishing-disclaimer {
+  margin: -4px 0 0;
+  border: 1px solid #d8d6cb;
+  border-radius: 8px;
+  padding: 7px 9px;
+  background: #f8f7f2;
+  color: #66655e;
+  font-size: 9px;
+  line-height: 1.35;
+  text-align: center;
+}
+.logo-maker-page .poly-publishing-disclaimer strong { color: var(--ink); font-weight: 680; }
+.logo-maker-page .poly-publishing-disclaimer a { color: var(--blue); font-weight: 650; text-decoration: underline; text-underline-offset: 2px; }
+.logo-maker-page .poly-publishing-disclaimer span { display: block; margin-top: 2px; color: #85847c; font-size: 8px; }
 .logo-maker-page .poly-preview-panel {
   position: relative;
   background: linear-gradient(155deg, #eeede7 0%, #e6e5df 100%);
