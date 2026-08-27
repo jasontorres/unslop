@@ -190,6 +190,17 @@ export const categoryDefinitions: CategoryDefinition[] = [
           ["s-tollgate", "20 · Tollgate · API Console"],
         ],
       },
+      {
+        title: "Further Dashboards",
+        sectionId: "saas-dash-vol3",
+        model: "GLM 5.3 Flash",
+        entries: [
+          ["s-klaxon", "21 · Klaxon · Incident Command"],
+          ["s-slipway", "22 · Slipway · Pipeline Monitor"],
+          ["s-murmur", "23 · Murmur · Lifecycle Journeys"],
+          ["s-verbatim", "24 · Verbatim · Locale Coverage"],
+        ],
+      },
     ],
   },
   {

@@ -533,10 +533,11 @@ test("serves linkable category and featured collection pages", async () => {
 
   assert.match(saas, /<title>SaaS Interface References — unslop\.site<\/title>/i);
   assert.match(saas, /<link rel="canonical" href="https:\/\/unslop\.site\/saas"\/>/i);
-  assert.match(saas, /20(?:<!-- -->|\s)+references/i);
+  assert.match(saas, /24(?:<!-- -->|\s)+references/i);
   assert.match(saas, /Bento Wall/i);
   assert.match(saas, /Nock · Activation/i);
   assert.match(saas, /Tollgate · API Console/i);
+  assert.match(saas, /Verbatim · Locale Coverage/i);
   assert.match(saas, /GLM 5\.3 Flash/i);
   assert.match(saas, /Grok 4\.6/i);
   assert.doesNotMatch(saas, /Editorial Serif design preview/i);
@@ -668,5 +669,5 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/nock-activation<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/solstice-aurora-drift<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/helix-dna-spin<\/loc>/i);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 219);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 223);
 });

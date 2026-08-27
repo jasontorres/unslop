@@ -1169,6 +1169,7 @@ function SaasCanvas() {
       {window.DashSaasProductSection ? <window.DashSaasProductSection /> : null}
       {window.DashSaasPlatformSection ? <window.DashSaasPlatformSection /> : null}
       <SaasDashMoreSection />
+      {window.SaasDashVol3Section ? <window.SaasDashVol3Section /> : null}
     </DesignCanvas>
   );
 }
