@@ -800,7 +800,6 @@ function App() {
       {window.BrutalSysSection ? <window.BrutalSysSection /> : null}
       {window.MinimalLabSection ? <window.MinimalLabSection /> : null}
       {window.AgencyLandSection ? <window.AgencyLandSection /> : null}
-      {window.SaasLandSection ? <window.SaasLandSection /> : null}
       {window.DashboardSection ? <window.DashboardSection /> : null}
     </DesignCanvas>
   );

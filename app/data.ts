@@ -36,7 +36,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     slug: "landing",
     name: "Landing",
     sourceFile: "Themes and Typography.html",
-    description: "Landing pages, typographic systems, brutalist and minimalist studies, agency and SaaS variations, saturated color studies, and dashboards.",
+    description: "Landing pages, typographic systems, brutalist and minimalist studies, agency variations, saturated color studies, and dashboards.",
     model: "Claude 4.7",
     groups: [
       {
@@ -115,17 +115,6 @@ export const categoryDefinitions: CategoryDefinition[] = [
         ],
       },
       {
-        title: "SaaS Landings",
-        sectionId: "saas-land",
-        model: "GLM 5.3 Flash",
-        entries: [
-          ["s-bento", "37 · Bento Wall"],
-          ["s-cloudsoft", "38 · Soft Cloud Gradient"],
-          ["s-clitool", "39 · Terminal Dev Tool"],
-          ["s-signupfirst", "40 · Signup First"],
-        ],
-      },
-      {
         title: "Dashboards",
         sectionId: "dashboards",
         entries: [
@@ -135,6 +124,70 @@ export const categoryDefinitions: CategoryDefinition[] = [
           ["dash-home", "D · Smart Home"],
           ["dash-crm", "E · Kanban CRM"],
           ["dash-devops", "F · DevOps Status Wall"],
+        ],
+      },
+    ],
+  },
+  {
+    slug: "saas",
+    name: "SaaS",
+    sourceFile: "SaaS.html",
+    description: "SaaS marketing landings plus product and platform consoles—activation, health, billing, support, attribution, access, trust, revenue, experiments, onboarding, and API operations.",
+    model: "GLM 5.3 Flash",
+    groups: [
+      {
+        title: "Landings",
+        sectionId: "saas-land",
+        model: "GLM 5.3 Flash",
+        entries: [
+          ["s-bento", "01 · Bento Wall"],
+          ["s-cloudsoft", "02 · Soft Cloud Gradient"],
+          ["s-clitool", "03 · Terminal Dev Tool"],
+          ["s-signupfirst", "04 · Signup First"],
+        ],
+      },
+      {
+        title: "More Landings",
+        sectionId: "saas-land-more",
+        model: "GLM 5.3 Flash",
+        entries: [
+          ["s-entrust", "05 · Enterprise Trust"],
+          ["s-copilotglow", "06 · AI Copilot Glow"],
+          ["s-slotwise", "07 · Vertical Suite"],
+          ["s-kudos", "08 · Social Proof Wall"],
+        ],
+      },
+      {
+        title: "Product Dashboards",
+        sectionId: "dash-saas-product",
+        model: "Grok 4.6",
+        entries: [
+          ["s-nock", "09 · Nock · Activation"],
+          ["s-quorum", "10 · Quorum · Account Health"],
+          ["s-metered", "11 · Metered · Usage Billing"],
+          ["s-deskline", "12 · Deskline · Support Queue"],
+        ],
+      },
+      {
+        title: "Platform Dashboards",
+        sectionId: "dash-saas-platform",
+        model: "Grok 4.6",
+        entries: [
+          ["s-catchment", "13 · Catchment · Attribution"],
+          ["s-keystone", "14 · Keystone · Access Admin"],
+          ["s-thresh", "15 · Thresh · Trust Queue"],
+          ["s-lumen", "16 · Lumen · Model Spend"],
+        ],
+      },
+      {
+        title: "More Dashboards",
+        sectionId: "saas-dash-more",
+        model: "GLM 5.3 Flash",
+        entries: [
+          ["s-tallyline", "17 · Tallyline · Revenue Desk"],
+          ["s-splitrun", "18 · Splitrun · Experiment Board"],
+          ["s-stageline", "19 · Stageline · Onboarding Rollout"],
+          ["s-tollgate", "20 · Tollgate · API Console"],
         ],
       },
     ],
@@ -478,7 +531,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     slug: "dashboards",
     name: "Dashboards",
     sourceFile: "Dashboards.html",
-    description: "Industry operations desks plus SaaS product consoles—activation, customer health, usage billing, support, attribution, identity, trust, and model spend—each with its own information architecture.",
+    description: "Twelve industry operations desks—hospital command, fleet, factory, airside, lodging, restaurant, farm, grid, legal, insurance, people ops, and studio production—each with its own information architecture.",
     model: "Grok 4.6",
     groups: [
       {
@@ -509,26 +562,6 @@ export const categoryDefinitions: CategoryDefinition[] = [
           ["d-claimwell", "10 · Claimwell · Adjuster Desk"],
           ["d-roster", "11 · Roster · People Ops"],
           ["d-cutroom", "12 · Cut Room · Studio Pipeline"],
-        ],
-      },
-      {
-        title: "SaaS Product",
-        sectionId: "dash-saas-product",
-        entries: [
-          ["s-nock", "13 · Nock · Activation"],
-          ["s-quorum", "14 · Quorum · Account Health"],
-          ["s-metered", "15 · Metered · Usage Billing"],
-          ["s-deskline", "16 · Deskline · Support Queue"],
-        ],
-      },
-      {
-        title: "SaaS Platform",
-        sectionId: "dash-saas-platform",
-        entries: [
-          ["s-catchment", "17 · Catchment · Attribution"],
-          ["s-keystone", "18 · Keystone · Access Admin"],
-          ["s-thresh", "19 · Thresh · Trust Queue"],
-          ["s-lumen", "20 · Lumen · Model Spend"],
         ],
       },
     ],

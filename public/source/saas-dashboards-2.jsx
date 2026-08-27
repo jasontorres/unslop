@@ -489,10 +489,10 @@ function DashSaasPlatformSection() {
   return (
     <DCSection id="dash-saas-platform" title="Dashboards — SaaS Platform"
       subtitle="Four platform consoles with a persistent sidebar, KPI stats, and charts: attribution, identity, trust, and model spend.">
-      <DCArtboard id="s-catchment" label="17 · Catchment · Attribution" width={PW} height={PH}><SaasCatchment /></DCArtboard>
-      <DCArtboard id="s-keystone" label="18 · Keystone · Access Admin" width={PW} height={PH}><SaasKeystone /></DCArtboard>
-      <DCArtboard id="s-thresh" label="19 · Thresh · Trust Queue" width={PW} height={PH}><SaasThresh /></DCArtboard>
-      <DCArtboard id="s-lumen" label="20 · Lumen · Model Spend" width={PW} height={PH}><SaasLumen /></DCArtboard>
+      <DCArtboard id="s-catchment" label="13 · Catchment · Attribution" width={PW} height={PH}><SaasCatchment /></DCArtboard>
+      <DCArtboard id="s-keystone" label="14 · Keystone · Access Admin" width={PW} height={PH}><SaasKeystone /></DCArtboard>
+      <DCArtboard id="s-thresh" label="15 · Thresh · Trust Queue" width={PW} height={PH}><SaasThresh /></DCArtboard>
+      <DCArtboard id="s-lumen" label="16 · Lumen · Model Spend" width={PW} height={PH}><SaasLumen /></DCArtboard>
     </DCSection>
   );
 }
