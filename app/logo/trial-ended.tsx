@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SiteNavigation } from "../site-navigation";
 import { LogoWaitlistForm } from "./waitlist-form";
 
 export function LogoTrialEnded() {
@@ -9,12 +10,7 @@ export function LogoTrialEnded() {
           <span className="brand-mark">u.</span>
           <span>unslop.site</span>
         </Link>
-        <nav className="site-nav" aria-label="Primary navigation">
-          <Link href="/">Gallery</Link>
-          <Link href="/logo" className="active" aria-current="page">Logo Maker</Link>
-          <Link href="/logo/gallery">Logo Gallery</Link>
-          <Link href="/logo/history">History</Link>
-        </nav>
+        <SiteNavigation active="logo-maker" includeHistory />
         <p className="topbar-context">We’ll be back</p>
       </header>
 

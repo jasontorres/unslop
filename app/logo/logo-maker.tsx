@@ -5,6 +5,7 @@
 import { ChangeEvent, DragEvent, FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { CarbonAd } from "../carbon-ad";
+import { SiteNavigation } from "../site-navigation";
 import {
   HISTORY_STORAGE_KEY,
   HISTORY_UPDATE_EVENT,
@@ -266,12 +267,7 @@ export function LogoMaker() {
           <span className="brand-mark">u.</span>
           <span>unslop.site</span>
         </Link>
-        <nav className="site-nav" aria-label="Primary navigation">
-          <Link href="/">Gallery</Link>
-          <Link href="/logo" className="active" aria-current="page">Logo Maker</Link>
-          <Link href="/logo/gallery">Logo Gallery</Link>
-          <Link href="/logo/history">History</Link>
-        </nav>
+        <SiteNavigation active="logo-maker" includeHistory />
         <p className="topbar-context">One focused direction</p>
       </header>
 

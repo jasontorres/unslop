@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CarbonAd } from "./carbon-ad";
 import { writeTextToClipboard } from "./clipboard";
+import { SiteNavigation } from "./site-navigation";
 import {
   allSites,
   categoryDefinitions,
@@ -93,11 +94,7 @@ export function Gallery({ initialCategory = "all", showLandingAd = false }: Gall
           <span className="brand-mark">u.</span>
           <span>unslop.site</span>
         </Link>
-        <nav className="site-nav" aria-label="Primary navigation">
-          <Link href="/" className="active" aria-current="page">Gallery</Link>
-          <Link href="/logo">Logo Maker</Link>
-          <Link href="/logo/gallery">Logo Gallery</Link>
-        </nav>
+        <SiteNavigation active="gallery" />
         <a className="topbar-link" href="#library">Browse library <span>↓</span></a>
       </header>
 

@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
+import { SiteNavigation } from "../../site-navigation";
 import {
   historySnapshot,
   parseHistory,
@@ -108,12 +109,7 @@ export function LogoHistoryBrowser() {
           <span className="brand-mark">u.</span>
           <span>unslop.site</span>
         </Link>
-        <nav className="site-nav" aria-label="Primary navigation">
-          <Link href="/">Gallery</Link>
-          <Link href="/logo">Logo Maker</Link>
-          <Link href="/logo/gallery">Logo Gallery</Link>
-          <Link href="/logo/history" className="active" aria-current="page">History</Link>
-        </nav>
+        <SiteNavigation active="history" includeHistory />
         <p className="topbar-context">Private to this browser</p>
       </header>
 

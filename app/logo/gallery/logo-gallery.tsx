@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CarbonAd } from "../../carbon-ad";
 import type { PublicGalleryImage } from "../../api/logo/gallery/storage";
+import { SiteNavigation } from "../../site-navigation";
 
 const outputLabels: Record<PublicGalleryImage["outputType"], string> = {
   logo: "Logo",
@@ -125,11 +126,7 @@ export function LogoGallery({ initialPage }: { initialPage: number }) {
           <span className="brand-mark">u.</span>
           <span>unslop.site</span>
         </Link>
-        <nav className="site-nav" aria-label="Primary navigation">
-          <Link href="/">Gallery</Link>
-          <Link href="/logo">Logo Maker</Link>
-          <Link href="/logo/gallery" className="active" aria-current="page">Logo Gallery</Link>
-        </nav>
+        <SiteNavigation active="logo-gallery" />
         <p className="topbar-context">Community showcase</p>
       </header>
 

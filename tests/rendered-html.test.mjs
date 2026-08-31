@@ -164,6 +164,9 @@ test("server-renders the unslop.site landing page", async () => {
   assert.match(html, /href="\/" class="active" aria-current="page">Gallery/i);
   assert.match(html, /href="\/logo">Logo Maker/i);
   assert.match(html, /href="\/logo\/gallery">Logo Gallery/i);
+  assert.match(html, /class="mobile-site-menu"/i);
+  assert.match(html, /aria-label="Open primary navigation menu"/i);
+  assert.match(html, /aria-label="Mobile primary navigation"/i);
   assert.match(html, /<h2>Browse<\/h2>/i);
   assert.match(html, /<img src="\/previews\/editorial-serif\.png"/i);
   assert.match(html, /href="\/featured"[^>]*>Featured/i);
