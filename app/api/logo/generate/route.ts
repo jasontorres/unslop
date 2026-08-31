@@ -3,26 +3,30 @@ import { storeGalleryImage } from "../gallery/storage";
 import {
   browserGenerationLimit,
   browserIdentity,
-  overallGenerationAllowed,
+  dailyGenerationLimit,
+  generationRateAllowed,
   releaseBrowserGeneration,
+  releaseDailyGeneration,
   reserveBrowserGeneration,
+  reserveDailyGeneration,
   type BrowserIdentity,
   workerBinding,
 } from "./rate-limit";
+import { requestSecurityFailure } from "./request-security";
+import { validateTurnstile } from "./turnstile";
 
 export const runtime = "edge";
 
-const MODELS = ["openai:gpt-image@2", "ideogram:4@0"] as const;
+const GENERATION_MODEL = "openai:gpt-image@2";
 const OUTPUT_TYPES = ["logo", "app-icon", "mascot", "poster", "logo-with-name"] as const;
-type ModelId = (typeof MODELS)[number];
 type OutputType = (typeof OUTPUT_TYPES)[number];
 
 type GenerateBody = {
   appName?: unknown;
   context?: unknown;
   outputType?: unknown;
-  model?: unknown;
   sourceImage?: unknown;
+  turnstileToken?: unknown;
 };
 
 const outputSpecs: Record<OutputType, { width: number; height: number; direction: string }> = {
@@ -53,14 +57,6 @@ const outputSpecs: Record<OutputType, { width: number; height: number; direction
   },
 };
 
-const ideogramDimensions: Record<OutputType, { width: number; height: number }> = {
-  logo: { width: 2048, height: 2048 },
-  "app-icon": { width: 2048, height: 2048 },
-  mascot: { width: 2048, height: 2048 },
-  poster: { width: 1664, height: 2496 },
-  "logo-with-name": { width: 2496, height: 1664 },
-};
-
 function cleanText(value: unknown, maxLength: number) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
 }
@@ -84,16 +80,26 @@ function json(payload: Record<string, unknown>, status = 200, identity?: Browser
 
 export async function POST(request: Request) {
   let reservedBrowserId = "";
+  let reservedBudgetDay = "";
   let generationCompleted = false;
   try {
-    const body = (await request.json()) as GenerateBody;
+    const securityFailure = requestSecurityFailure(request);
+    if (securityFailure) {
+      console.warn("Logo generation request rejected", securityFailure.reason);
+      return json({ error: securityFailure.error }, securityFailure.status);
+    }
+
+    let body: GenerateBody;
+    try {
+      body = (await request.json()) as GenerateBody;
+    } catch {
+      return json({ error: "The request body must be valid JSON." }, 400);
+    }
     const appName = cleanText(body.appName, 60);
     const context = cleanText(body.context, 240);
     const sourceImage = cleanText(body.sourceImage, 7_500_000);
-    const model = MODELS.includes(body.model as ModelId) ? (body.model as ModelId) : "openai:gpt-image@2";
     const outputType = OUTPUT_TYPES.includes(body.outputType as OutputType) ? (body.outputType as OutputType) : "app-icon";
     const spec = outputSpecs[outputType];
-    const dimensions = model === "ideogram:4@0" ? ideogramDimensions[outputType] : spec;
 
     if (!appName || !context) {
       return json({ error: "An app name and short context are required." }, 400);
@@ -102,27 +108,43 @@ export async function POST(request: Request) {
       return json({ error: "The source must be a small image upload or public HTTPS image URL." }, 400);
     }
 
+    const turnstile = await validateTurnstile(request, body.turnstileToken);
+    if (!turnstile.ok) {
+      console.warn("Logo generation security check failed", turnstile.reason);
+      return json({ error: turnstile.error }, turnstile.status);
+    }
+
     const apiKey = await workerBinding<string>("RUNWARE_API_KEY") || process.env.RUNWARE_API_KEY;
     if (!apiKey) return json({ error: "Image generation isn’t configured yet." }, 503);
 
-    const identity = browserIdentity(request);
+    const identity = await browserIdentity(request);
+    const rateLimit = await generationRateAllowed(request, identity.id);
+    if (!rateLimit.allowed) {
+      console.warn("Logo generation rate limited", rateLimit.scope);
+      const error = rateLimit.scope === "client"
+        ? "You’re creating logos too quickly. Try again in a minute."
+        : "Logo creation is busy right now. Try again in a minute.";
+      return json({ error }, 429, identity, 60);
+    }
+
     const browserAllowed = await reserveBrowserGeneration(identity.id);
     if (!browserAllowed) {
       return json({ error: `This browser has reached its limit of ${browserGenerationLimit} generations.` }, 429, identity);
     }
     reservedBrowserId = identity.id;
 
-    if (!await overallGenerationAllowed()) {
-      await releaseBrowserGeneration(identity.id);
-      reservedBrowserId = "";
-      return json({ error: "Logo creation is busy right now. Try again in a minute." }, 429, identity, 60);
+    const dailyReservation = await reserveDailyGeneration();
+    if (!dailyReservation.allowed) {
+      console.warn("Logo generation daily budget reached", dailyReservation.budgetDay);
+      return json({ error: `The daily limit of ${dailyGenerationLimit.toLocaleString("en-US")} logo generations has been reached. Try again tomorrow.` }, 429, identity);
     }
+    reservedBudgetDay = dailyReservation.budgetDay;
 
     const prompt = [
       `Design a polished visual identity direction for an app named “${appName}”.`,
       `App context: ${context}.`,
       spec.direction,
-      sourceImage && model === "openai:gpt-image@2"
+      sourceImage
         ? "Transform the subject in the reference image. Preserve its most recognizable silhouette, proportions, expression, and core colors while simplifying it into a charming graphic identity."
         : "Invent a memorable visual metaphor from the app name and context.",
       "Art direction: friendly modern cartoon style, bold readable silhouette, clean faceted shapes, crisp edges, subtle dimensional shading, restrained color palette, playful but professional.",
@@ -133,10 +155,10 @@ export async function POST(request: Request) {
     const task: Record<string, unknown> = {
       taskType: "imageInference",
       taskUUID: crypto.randomUUID(),
-      model,
+      model: GENERATION_MODEL,
       positivePrompt: prompt,
-      width: dimensions.width,
-      height: dimensions.height,
+      width: spec.width,
+      height: spec.height,
       numberResults: 1,
       outputFormat: "JPG",
       outputQuality: 95,
@@ -145,12 +167,8 @@ export async function POST(request: Request) {
       deliveryMethod: "sync",
     };
 
-    if (model === "openai:gpt-image@2") {
-      task.providerSettings = { openai: { quality: "low", background: "opaque", moderation: "auto" } };
-      if (sourceImage) task.inputs = { referenceImages: [sourceImage] };
-    } else {
-      task.settings = { renderingSpeed: "TURBO" };
-    }
+    task.providerSettings = { openai: { quality: "low", background: "opaque", moderation: "auto" } };
+    if (sourceImage) task.inputs = { referenceImages: [sourceImage] };
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 240_000);
@@ -184,10 +202,10 @@ export async function POST(request: Request) {
     const galleryWrites = await Promise.allSettled(images.map((image) => storeGalleryImage({
       ...image,
       appName,
-      model,
+      model: GENERATION_MODEL,
       outputType,
-      width: dimensions.width,
-      height: dimensions.height,
+      width: spec.width,
+      height: spec.height,
     })));
     for (const write of galleryWrites) {
       if (write.status === "rejected") {
@@ -196,7 +214,7 @@ export async function POST(request: Request) {
     }
 
     generationCompleted = true;
-    return json({ images, model, outputType, width: dimensions.width, height: dimensions.height }, 200, identity);
+    return json({ images, model: GENERATION_MODEL, outputType, width: spec.width, height: spec.height }, 200, identity);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const timedOut = error instanceof Error && error.name === "AbortError";
@@ -214,6 +232,13 @@ export async function POST(request: Request) {
         await releaseBrowserGeneration(reservedBrowserId);
       } catch (error) {
         console.error("Browser generation reservation release failed", error instanceof Error ? error.message : error);
+      }
+    }
+    if (reservedBudgetDay && !generationCompleted) {
+      try {
+        await releaseDailyGeneration(reservedBudgetDay);
+      } catch (error) {
+        console.error("Daily generation reservation release failed", error instanceof Error ? error.message : error);
       }
     }
   }

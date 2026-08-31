@@ -17,8 +17,10 @@ using the Next.js build system.
   short brief and an optional source image.
 - Keep recent logo generations in browser-local history.
 - Publish generated images to a public, numbered and linkable R2 showcase.
-- Protect generation credits with an overall burst limit and a D1-backed limit
-  of 10 successful generations per browser.
+- Protect generation credits with strict same-origin checks, Cloudflare
+  Turnstile, per-client and shared burst limits, signed browser IDs, a
+  D1-backed limit of 10 successful generations per browser, and a 10,000-per-day
+  global D1 budget.
 - Collect Logo Maker return notifications in a D1-backed email waitlist.
 
 ## Requirements
@@ -28,6 +30,7 @@ using the Next.js build system.
 - Optional Google Programmable Search credentials for in-app image search
 - An R2 bucket for the shared generated-logo showcase
 - A D1 database for site data
+- A Cloudflare Turnstile widget for the production domain
 
 ## Local development
 
@@ -99,6 +102,8 @@ Authenticate with Wrangler and configure production secrets:
 ```bash
 npx wrangler login
 npx wrangler secret put RUNWARE_API_KEY
+npx wrangler secret put TURNSTILE_SECRET
+npx wrangler secret put BROWSER_ID_SECRET
 npx wrangler secret put GOOGLE_SEARCH_API_KEY
 npx wrangler secret put GOOGLE_SEARCH_ENGINE_ID
 npm run deploy
@@ -121,13 +126,15 @@ npx wrangler d1 create unslop-site
 npm run db:migrate:remote
 ```
 
-The migrations create `waitlist_entries` and the browser generation-limit
-table. Email addresses are normalized to lowercase and duplicate submissions
-are ignored. The Logo Maker allows 10 successful generations per persistent
-browser ID, while a Cloudflare Rate Limiting binding protects the Runware route
-from bursts above 10 generation starts per minute. Local development uses the
-same migrations through `npm run db:migrate:local` and stores its database
-state under Wrangler’s ignored local state directory.
+The migrations create `waitlist_entries`, the browser generation-limit table,
+and the atomic daily generation budget. Email addresses are normalized to
+lowercase and duplicate submissions are ignored. The Logo Maker allows 10
+successful generations per signed persistent browser ID, limits each client to
+5 starts per minute, limits the service to 10 starts per minute, and stops at
+10,000 successful generations per UTC day. Local development uses Cloudflare's
+official always-pass Turnstile test keys automatically, applies the same D1
+migrations through `npm run db:migrate:local`, and stores database state under
+Wrangler’s ignored local state directory.
 
 ### Importing a Runware usage export
 
@@ -165,8 +172,14 @@ npm run deploy:dry-run
 - Never commit `.env.local`, `.dev.vars`, API keys, or Cloudflare tokens.
 - Image-provider credentials are read only by server routes and are not exposed
   to browser bundles.
-- A random, HttpOnly browser ID enforces the 10-generation allowance. It does
-  not contain personal information; clearing browser data creates a new ID.
+- A signed, random, HttpOnly, `SameSite=Strict` browser ID enforces the
+  10-generation allowance. It does not contain personal information; clearing
+  browser data creates a new ID, while Turnstile, client throttling, and the
+  global daily budget continue to protect provider spend.
+- `/api/logo/generate` accepts only same-origin JSON requests and validates a
+  single-use Turnstile token, action, and hostname before quota checks or the
+  image-provider call. Validation failures and limit events are written to
+  Cloudflare Worker observability without logging tokens or prompts.
 - Personal logo history remains in the visitor's browser. Generated images are
   also copied to the public R2 bucket and exposed through the public community
   showcase; source images and full prompts are not stored.

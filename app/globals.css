@@ -512,6 +512,9 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 .poly-model-grid small { color: #7f7e76; font-size: 8px; white-space: nowrap; }
 .poly-model-grid em { position: absolute; right: 7px; top: 6px; color: #6d6837; font-family: var(--font-geist-mono); font-size: 6px; font-style: normal; text-transform: uppercase; letter-spacing: .04em; }
 .poly-model-note { margin: 9px 0 0; padding-left: 9px; border-left: 2px solid var(--poly-yellow); color: #77756e; font-size: 9px; line-height: 1.45; }
+.poly-turnstile-wrap { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.poly-turnstile { width: 100%; min-width: 0; }
+.poly-turnstile-wrap > small { color: #85847c; font-size: 8px; line-height: 1.4; }
 .poly-error { margin: -4px 0 0; display: flex; align-items: center; gap: 9px; color: #9e2e1f; font-size: 10px; line-height: 1.4; }
 .poly-error span { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: #ffe2db; font-family: var(--font-geist-mono); font-size: 9px; font-weight: 700; }
 .poly-create-button { height: 55px; border: 1.5px solid var(--poly-ink); display: flex; align-items: center; justify-content: space-between; padding: 0 18px 0 21px; background: var(--poly-coral); cursor: pointer; font-size: 13px; font-weight: 750; box-shadow: 4px 4px 0 var(--poly-ink); transition: transform .15s, box-shadow .15s; }

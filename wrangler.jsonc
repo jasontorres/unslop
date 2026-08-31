@@ -32,6 +32,14 @@
   ],
   "ratelimits": [
     {
+      "name": "LOGO_GENERATION_CLIENT_RATE_LIMITER",
+      "namespace_id": "2026082602",
+      "simple": {
+        "limit": 5,
+        "period": 60
+      }
+    },
+    {
       "name": "LOGO_GENERATION_RATE_LIMITER",
       "namespace_id": "2026082601",
       "simple": {

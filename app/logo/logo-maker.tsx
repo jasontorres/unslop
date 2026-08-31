@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { ChangeEvent, DragEvent, FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { ChangeEvent, DragEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { CarbonAd } from "../carbon-ad";
 import { SiteNavigation } from "../site-navigation";
@@ -29,7 +29,19 @@ type SearchResult = {
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const DEFAULT_MODEL: ModelId = "openai:gpt-image@2";
+const LOCAL_TURNSTILE_SITE_KEY = "1x00000000000000000000AA";
+
+type TurnstileApi = {
+  render(container: HTMLElement, options: Record<string, unknown>): string;
+  reset(widgetId: string): void;
+  remove(widgetId: string): void;
+};
+
+declare global {
+  interface Window {
+    turnstile?: TurnstileApi;
+  }
+}
 
 const modelLabels: Record<ModelId, string> = {
   "openai:gpt-image@2": "Model 1",
@@ -61,7 +73,7 @@ function fileToDataUrl(file: File) {
   });
 }
 
-export function LogoMaker() {
+export function LogoMaker({ turnstileSiteKey }: { turnstileSiteKey: string }) {
   const [appName, setAppName] = useState("");
   const [context, setContext] = useState("");
   const [outputType, setOutputType] = useState<OutputType>("app-icon");
@@ -74,12 +86,72 @@ export function LogoMaker() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [activeImage, setActiveImage] = useState(0);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isCarbonPlaceholderAvailable, setIsCarbonPlaceholderAvailable] = useState(true);
   const historyValue = useSyncExternalStore(subscribeToHistory, historySnapshot, serverHistorySnapshot);
   const history = useMemo(() => parseHistory(historyValue), [historyValue]);
+  const turnstileContainer = useRef<HTMLDivElement>(null);
+  const turnstileWidgetId = useRef("");
+
+  const renderTurnstile = useCallback(() => {
+    if (!window.turnstile || !turnstileContainer.current || turnstileWidgetId.current) return;
+    const localHostnames = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
+    turnstileWidgetId.current = window.turnstile.render(turnstileContainer.current, {
+      sitekey: localHostnames.has(window.location.hostname) ? LOCAL_TURNSTILE_SITE_KEY : turnstileSiteKey,
+      action: "logo_generate",
+      appearance: "interaction-only",
+      size: "flexible",
+      theme: "light",
+      callback: (token: string) => {
+        setTurnstileToken(token);
+        setError((message) => message.includes("security check") ? "" : message);
+      },
+      "expired-callback": () => setTurnstileToken(""),
+      "error-callback": () => {
+        setTurnstileToken("");
+        setError("The security check couldn’t load. Refresh and try again.");
+      },
+    });
+  }, [turnstileSiteKey]);
+
+  const resetTurnstile = useCallback(() => {
+    setTurnstileToken("");
+    if (window.turnstile && turnstileWidgetId.current) {
+      window.turnstile.reset(turnstileWidgetId.current);
+    }
+  }, []);
+
+  useEffect(() => {
+    const scriptSource = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    if (window.turnstile) {
+      renderTurnstile();
+      return;
+    }
+
+    let script = document.querySelector<HTMLScriptElement>(`script[src="${scriptSource}"]`);
+    const handleLoad = () => renderTurnstile();
+    if (!script) {
+      script = document.createElement("script");
+      script.src = scriptSource;
+      script.async = true;
+      script.defer = true;
+      script.addEventListener("load", handleLoad);
+      document.head.appendChild(script);
+    } else {
+      script.addEventListener("load", handleLoad);
+    }
+    return () => script?.removeEventListener("load", handleLoad);
+  }, [renderTurnstile]);
+
+  useEffect(() => () => {
+    if (window.turnstile && turnstileWidgetId.current) {
+      window.turnstile.remove(turnstileWidgetId.current);
+      turnstileWidgetId.current = "";
+    }
+  }, []);
 
   const selectedOutput = outputOptions.find((option) => option.id === outputType) ?? outputOptions[0];
   const googleSearchUrl = useMemo(() => {
@@ -180,6 +252,10 @@ export function LogoMaker() {
       setError("Add an app name and a short line of context first.");
       return;
     }
+    if (!turnstileToken) {
+      setError("Complete the security check before creating a logo.");
+      return;
+    }
 
     setIsGenerating(true);
     setProgress(7);
@@ -193,8 +269,8 @@ export function LogoMaker() {
           appName: appName.trim(),
           context: context.trim(),
           outputType,
-          model: DEFAULT_MODEL,
           sourceImage: sourceImage || undefined,
+          turnstileToken,
         }),
       });
       const payload = await response.json() as GenerationResult & { error?: string };
@@ -218,6 +294,7 @@ export function LogoMaker() {
       setError(reason instanceof Error ? reason.message : "Something went wrong while creating your images.");
     } finally {
       setIsGenerating(false);
+      resetTurnstile();
     }
   }
 
@@ -344,6 +421,10 @@ export function LogoMaker() {
                 <p className="poly-rights-note">Use an image you own or have permission to adapt.</p>
               </div>
 
+              <div className="poly-turnstile-wrap">
+                <div ref={turnstileContainer} className="poly-turnstile" aria-label="Cloudflare security check" />
+                <small>Protected by Cloudflare Turnstile. Verification expires after each attempt.</small>
+              </div>
               {error ? <p className="poly-error" role="alert"><span>!</span>{error}</p> : null}
               <button className="poly-create-button" type="submit" disabled={isGenerating || !appName.trim() || !context.trim()}>
                 <span>{isGenerating ? `Creating a direction… ${progress}%` : result ? "Create a new variation" : "Create a variation"}</span>

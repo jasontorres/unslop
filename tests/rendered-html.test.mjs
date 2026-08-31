@@ -79,6 +79,7 @@ const mockGalleryBucket = {
 
 const waitlistRows = new Map();
 const logoGenerationCounts = new Map();
+const dailyGenerationCounts = new Map();
 const mockWaitlistDatabase = {
   prepare(query) {
     let values = [];
@@ -110,6 +111,21 @@ const mockWaitlistDatabase = {
           return { success: true, meta: { changes: current > 0 ? 1 : 0 } };
         }
 
+        if (/INSERT INTO logo_daily_generation_budget/i.test(query)) {
+          const [budgetDay, maximum] = values;
+          const current = dailyGenerationCounts.get(budgetDay) ?? 0;
+          if (current >= maximum) return { success: true, meta: { changes: 0 } };
+          dailyGenerationCounts.set(budgetDay, current + 1);
+          return { success: true, meta: { changes: 1 } };
+        }
+
+        if (/UPDATE logo_daily_generation_budget/i.test(query)) {
+          const [budgetDay] = values;
+          const current = dailyGenerationCounts.get(budgetDay) ?? 0;
+          if (current > 0) dailyGenerationCounts.set(budgetDay, current - 1);
+          return { success: true, meta: { changes: current > 0 ? 1 : 0 } };
+        }
+
         assert.fail(`Unexpected D1 query: ${query}`);
       },
     };
@@ -138,6 +154,9 @@ async function render(pathname = "/", environment = {}, init = {}) {
       },
       LOGO_GALLERY: mockGalleryBucket,
       DB: mockWaitlistDatabase,
+      BROWSER_ID_SECRET: "test-browser-signing-secret",
+      TURNSTILE_SECRET: "test-turnstile-secret",
+      LOGO_GENERATION_CLIENT_RATE_LIMITER: mockLogoRateLimiter,
       LOGO_GENERATION_RATE_LIMITER: mockLogoRateLimiter,
       ...environment,
     },
@@ -221,6 +240,9 @@ test("serves the identity maker only under /logo", async () => {
   assert.match(logo, /Poster \+ app name/i);
   assert.match(logo, /Logo \+ name/i);
   assert.match(logo, /Create a variation/i);
+  assert.match(logo, /Protected by Cloudflare Turnstile/i);
+  assert.match(logo, /0x4AAAAAAEjMBc0BFD2ytEra/i);
+  assert.match(await readFile(new URL("../app/logo/logo-maker.tsx", import.meta.url), "utf8"), /challenges\.cloudflare\.com\/turnstile\/v0\/api\.js\?render=explicit/i);
   assert.match(logo, /1 variation/i);
   assert.match(logo, /Free-use publishing notice/i);
   assert.match(logo, /By using this free Logo Maker, you agree that unslop\.site may publish and display your generated results/i);
@@ -322,7 +344,7 @@ test("stores valid waitlist signups in D1 without duplicate rows", async () => {
 test("serves the public logo generator APIs", async () => {
   const generateInit = {
     method: "POST",
-    headers: { accept: "application/json", "content-type": "application/json" },
+    headers: { accept: "application/json", "content-type": "application/json", origin: "https://unslop.site", "sec-fetch-site": "same-origin" },
     body: "{}",
   };
   const [generateResponse, searchResponse] = await Promise.all([
@@ -336,13 +358,93 @@ test("serves the public logo generator APIs", async () => {
   assert.deepEqual(await searchResponse.json(), { configured: false, items: [] });
 });
 
+test("rejects cross-site, non-JSON, unverified, throttled, and over-budget logo generation before a paid call", async () => {
+  logoGenerationCounts.clear();
+  dailyGenerationCounts.clear();
+  const originalFetch = globalThis.fetch;
+  let turnstileCalls = 0;
+  let runwareCalls = 0;
+  globalThis.fetch = async (input, init) => {
+    const url = String(input);
+    if (url === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
+      turnstileCalls += 1;
+      const token = new URLSearchParams(String(init?.body)).get("response");
+      return Response.json(token === "valid-token"
+        ? { success: true, hostname: "unslop.site", action: "logo_generate" }
+        : { success: false, hostname: "unslop.site", action: "logo_generate", "error-codes": ["invalid-input-response"] });
+    }
+    if (url === "https://api.runware.ai/v1") {
+      runwareCalls += 1;
+      return Response.json({ data: [] });
+    }
+    return originalFetch(input, init);
+  };
+
+  const generate = (headers = {}, body = {}, environment = {}) => render("/api/logo/generate", {
+    RUNWARE_API_KEY: "test-runware-key",
+    ...environment,
+  }, {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      origin: "https://unslop.site",
+      "sec-fetch-site": "same-origin",
+      "cf-connecting-ip": "203.0.113.20",
+      ...headers,
+    },
+    body: JSON.stringify({ appName: "Acorn", context: "A calm savings app", ...body }),
+  });
+
+  try {
+    const crossSite = await generate({ origin: "https://attacker.example", "sec-fetch-site": "cross-site" });
+    assert.equal(crossSite.status, 403);
+
+    const nonJson = await generate({ "content-type": "text/plain" });
+    assert.equal(nonJson.status, 415);
+
+    const missingToken = await generate();
+    assert.equal(missingToken.status, 403);
+    assert.match((await missingToken.json()).error, /security check/i);
+
+    const forgedToken = await generate({}, { turnstileToken: "forged-token" });
+    assert.equal(forgedToken.status, 403);
+
+    const clientLimited = await generate({}, { turnstileToken: "valid-token" }, {
+      LOGO_GENERATION_CLIENT_RATE_LIMITER: { async limit() { return { success: false }; } },
+    });
+    assert.equal(clientLimited.status, 429);
+    assert.equal(clientLimited.headers.get("retry-after"), "60");
+    assert.match((await clientLimited.json()).error, /too quickly/i);
+
+    dailyGenerationCounts.set(new Date().toISOString().slice(0, 10), 10_000);
+    const dailyLimited = await generate({}, { turnstileToken: "valid-token" });
+    assert.equal(dailyLimited.status, 429);
+    assert.match((await dailyLimited.json()).error, /daily limit of 10,000/i);
+    assert.deepEqual([...logoGenerationCounts.values()], [0]);
+
+    assert.equal(turnstileCalls, 3);
+    assert.equal(runwareCalls, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+    logoGenerationCounts.clear();
+    dailyGenerationCounts.clear();
+  }
+});
+
 test("limits logo generation overall and to 10 successful generations per browser", async () => {
   logoGenerationCounts.clear();
+  dailyGenerationCounts.clear();
   const originalFetch = globalThis.fetch;
   let runwareCalls = 0;
   let runwareTask;
   globalThis.fetch = async (input, init) => {
     const url = String(input);
+    if (url === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
+      const form = new URLSearchParams(String(init?.body));
+      assert.equal(form.get("response"), "test-turnstile-token");
+      return Response.json({ success: true, hostname: "unslop.site", action: "logo_generate" });
+    }
     if (url === "https://api.runware.ai/v1") {
       runwareCalls += 1;
       runwareTask = JSON.parse(String(init?.body))[0];
@@ -368,9 +470,12 @@ test("limits logo generation overall and to 10 successful generations per browse
     headers: {
       accept: "application/json",
       "content-type": "application/json",
+      origin: "https://unslop.site",
+      "sec-fetch-site": "same-origin",
+      "cf-connecting-ip": "203.0.113.10",
       ...(cookie ? { cookie } : {}),
     },
-    body: JSON.stringify({ appName: "Acorn", context: "A calm savings app", ...body }),
+    body: JSON.stringify({ appName: "Acorn", context: "A calm savings app", turnstileToken: "test-turnstile-token", ...body }),
   });
 
   try {
@@ -383,6 +488,7 @@ test("limits logo generation overall and to 10 successful generations per browse
         assert.match(setCookie, /^unslop_logo_browser=[^;]+;/i);
         assert.match(setCookie, /HttpOnly/i);
         assert.match(setCookie, /Secure/i);
+        assert.match(setCookie, /SameSite=Strict/i);
         cookie = setCookie.split(";", 1)[0];
       }
       if (index === 0) {
@@ -402,26 +508,29 @@ test("limits logo generation overall and to 10 successful generations per browse
     assert.equal(runwareTask.deliveryMethod, "sync");
 
     logoGenerationCounts.clear();
+    dailyGenerationCounts.clear();
     const overallLimited = await generate("", {
       LOGO_GENERATION_RATE_LIMITER: { async limit() { return { success: false }; } },
     });
     assert.equal(overallLimited.status, 429);
     assert.equal(overallLimited.headers.get("retry-after"), "60");
     assert.match((await overallLimited.json()).error, /try again in a minute/i);
-    assert.deepEqual([...logoGenerationCounts.values()], [0]);
+    assert.deepEqual([...logoGenerationCounts.values()], []);
     assert.equal(runwareCalls, 10);
 
     logoGenerationCounts.clear();
-    const ideogramResponse = await generate("", {}, {
+    dailyGenerationCounts.clear();
+    const modelOverrideResponse = await generate("", {}, {
       model: "ideogram:4@0",
       outputType: "logo",
     });
-    assert.equal(ideogramResponse.status, 200);
-    assert.equal((await ideogramResponse.json()).images[0].cost, 0.03);
-    assert.equal(runwareTask.model, "ideogram:4@0");
-    assert.equal(runwareTask.width, 2048);
-    assert.equal(runwareTask.height, 2048);
-    assert.equal(runwareTask.settings.renderingSpeed, "TURBO");
+    assert.equal(modelOverrideResponse.status, 200);
+    assert.equal((await modelOverrideResponse.json()).images[0].cost, 0.006);
+    assert.equal(runwareTask.model, "openai:gpt-image@2");
+    assert.equal(runwareTask.width, 1024);
+    assert.equal(runwareTask.height, 1024);
+    assert.equal(runwareTask.settings, undefined);
+    assert.equal(runwareTask.providerSettings.openai.quality, "low");
     assert.equal(runwareTask.includeCost, true);
   } finally {
     globalThis.fetch = originalFetch;
@@ -429,10 +538,13 @@ test("limits logo generation overall and to 10 successful generations per browse
 });
 
 test("creates the browser generation limit schema when a deployment skipped migrations", async () => {
-  let schemaReady = false;
+  let browserSchemaReady = false;
+  let dailySchemaReady = false;
   let tableCreates = 0;
   let indexCreates = 0;
+  let dailyTableCreates = 0;
   let generationCount = 0;
+  let dailyGenerationCount = 0;
   const databaseWithoutMigrations = {
     prepare(query) {
       let values = [];
@@ -444,7 +556,7 @@ test("creates the browser generation limit schema when a deployment skipped migr
         async run() {
           if (/CREATE TABLE IF NOT EXISTS logo_browser_generation_limits/i.test(query)) {
             tableCreates += 1;
-            schemaReady = true;
+            browserSchemaReady = true;
             return { success: true, meta: { changes: 0 } };
           }
           if (/CREATE INDEX IF NOT EXISTS logo_browser_generation_limits_updated_at_idx/i.test(query)) {
@@ -452,9 +564,20 @@ test("creates the browser generation limit schema when a deployment skipped migr
             return { success: true, meta: { changes: 0 } };
           }
           if (/INSERT INTO logo_browser_generation_limits/i.test(query)) {
-            if (!schemaReady) throw new Error("D1_ERROR: no such table: logo_browser_generation_limits");
+            if (!browserSchemaReady) throw new Error("D1_ERROR: no such table: logo_browser_generation_limits");
             assert.equal(values[1], 10);
             generationCount += 1;
+            return { success: true, meta: { changes: 1 } };
+          }
+          if (/CREATE TABLE IF NOT EXISTS logo_daily_generation_budget/i.test(query)) {
+            dailyTableCreates += 1;
+            dailySchemaReady = true;
+            return { success: true, meta: { changes: 0 } };
+          }
+          if (/INSERT INTO logo_daily_generation_budget/i.test(query)) {
+            if (!dailySchemaReady) throw new Error("D1_ERROR: no such table: logo_daily_generation_budget");
+            assert.equal(values[1], 10_000);
+            dailyGenerationCount += 1;
             return { success: true, meta: { changes: 1 } };
           }
           assert.fail(`Unexpected D1 query: ${query}`);
@@ -466,6 +589,9 @@ test("creates the browser generation limit schema when a deployment skipped migr
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {
     const url = String(input);
+    if (url === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
+      return Response.json({ success: true, hostname: "unslop.site", action: "logo_generate" });
+    }
     if (url === "https://api.runware.ai/v1") {
       return Response.json({
         data: [{
@@ -486,8 +612,8 @@ test("creates the browser generation limit schema when a deployment skipped migr
       RUNWARE_API_KEY: "test-runware-key",
     }, {
       method: "POST",
-      headers: { accept: "application/json", "content-type": "application/json" },
-      body: JSON.stringify({ appName: "Acorn", context: "A calm savings app" }),
+      headers: { accept: "application/json", "content-type": "application/json", origin: "https://unslop.site", "sec-fetch-site": "same-origin" },
+      body: JSON.stringify({ appName: "Acorn", context: "A calm savings app", turnstileToken: "test-turnstile-token" }),
     });
 
     assert.equal(response.status, 200);
@@ -495,6 +621,8 @@ test("creates the browser generation limit schema when a deployment skipped migr
     assert.equal(tableCreates, 1);
     assert.equal(indexCreates, 1);
     assert.equal(generationCount, 1);
+    assert.equal(dailyTableCreates, 1);
+    assert.equal(dailyGenerationCount, 1);
   } finally {
     globalThis.fetch = originalFetch;
   }

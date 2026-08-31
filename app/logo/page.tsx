@@ -21,5 +21,5 @@ export const metadata: Metadata = {
 };
 
 export default function LogoPage() {
-  return <LogoMaker />;
+  return <LogoMaker turnstileSiteKey="0x4AAAAAAEjMBc0BFD2ytEra" />;
 }
