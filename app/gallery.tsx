@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { CarbonAd } from "./carbon-ad";
 import { writeTextToClipboard } from "./clipboard";
 import {
   allSites,
@@ -47,14 +48,19 @@ function Preview({ slug, name, index }: { slug: string; name: string; index: num
   );
 }
 
-export function Gallery({ initialCategory = "all" }: { initialCategory?: string }) {
+type GalleryProps = {
+  initialCategory?: string;
+  showLandingAd?: boolean;
+};
+
+export function Gallery({ initialCategory = "all", showLandingAd = false }: GalleryProps) {
   const [query, setQuery] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
   const category = initialCategory;
 
   const visibleSites = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    const featuredRank = new Map(featuredSlugs.map((slug, index) => [slug, index]));
+    const featuredRank = new Map<string, number>(featuredSlugs.map((slug, index) => [slug, index]));
 
     return allSites
       .filter((site) => {
@@ -94,7 +100,7 @@ export function Gallery({ initialCategory = "all" }: { initialCategory?: string 
         <a className="topbar-link" href="#library">Browse library <span>↓</span></a>
       </header>
 
-      <section className="hero">
+      <section className={`hero${showLandingAd ? " has-carbon" : ""}`}>
         <div className="hero-kicker"><span /> The anti-slop design archive</div>
         <h1>Find the interface<br />you mean.</h1>
         <p className="hero-copy">
@@ -106,6 +112,7 @@ export function Gallery({ initialCategory = "all" }: { initialCategory?: string 
           <div><strong>{categoryDefinitions.length}</strong><span>Categories</span></div>
           <div><strong>1-click</strong><span>Agent brief</span></div>
         </div>
+        {showLandingAd ? <CarbonAd placement="landing-hero" className="carbon-slot-hero" /> : null}
       </section>
 
       <section id="library" className="library">

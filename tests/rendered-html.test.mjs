@@ -174,6 +174,14 @@ test("server-renders the unslop.site landing page", async () => {
   assert.match(html, /Fable 5/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 
+  assert.equal((html.match(/data-carbon-slot=/g) ?? []).length, 1);
+  assert.match(html, /data-carbon-slot="landing-hero"/i);
+  assert.ok(
+    html.indexOf('data-carbon-slot="landing-hero"') > html.indexOf('class="hero"')
+      && html.indexOf('data-carbon-slot="landing-hero"') < html.indexOf('id="library"'),
+    "landing Carbon slot must render inside the hero before the library",
+  );
+
   const agencyCategory = html.indexOf("Software Agency");
   const financialCategory = html.indexOf("Financial Apps");
   const dashboardsCategory = html.indexOf('href="/dashboards"');
@@ -244,6 +252,29 @@ test("serves the identity maker only under /logo", async () => {
   assert.match(history, /Your saved work will live here/i);
   assert.match(history, /href="\/logo\/gallery">Logo Gallery/i);
   assert.match(history, /name="robots" content="noindex, nofollow"/i);
+
+  assert.equal((logo.match(/data-carbon-slot=/g) ?? []).length, 1);
+  assert.match(logo, /data-carbon-slot="logo-maker-preview"/i);
+  assert.ok(
+    logo.indexOf('data-carbon-slot="logo-maker-preview"') > logo.indexOf('class="poly-preview-panel"'),
+    "Logo Maker Carbon slot must render in the preview panel",
+  );
+  assert.equal((gallery.match(/data-carbon-slot=/g) ?? []).length, 1);
+  assert.match(gallery, /data-carbon-slot="logo-gallery-top"/i);
+  assert.ok(
+    gallery.indexOf('data-carbon-slot="logo-gallery-top"') > gallery.indexOf('class="logo-gallery-intro"')
+      && gallery.indexOf('data-carbon-slot="logo-gallery-top"') < gallery.indexOf('class="logo-gallery-library"'),
+    "Logo Gallery Carbon slot must render between the intro and library",
+  );
+  assert.doesNotMatch(history, /data-carbon-slot|carbonads/i);
+});
+
+test("keeps the Carbon dashboard embed exact", async () => {
+  const source = await readFile(new URL("../app/carbon-ad.tsx", import.meta.url), "utf8");
+  assert.match(source, /\/\/cdn\.carbonads\.com\/carbon\.js\?serve=CWBIT5QI&placement=unslopsite&format=responsive/);
+  assert.match(source, /["']_carbonads_js["']/);
+  assert.match(source, /script\.type\s*=\s*["']text\/javascript["']/);
+  assert.match(source, /script\.async\s*=\s*true/);
 });
 
 test("stores valid waitlist signups in D1 without duplicate rows", async () => {
@@ -559,6 +590,10 @@ test("serves linkable category and featured collection pages", async () => {
   assert.match(featured, /Display \/ Anti-design/i);
   assert.match(featured, /Nock · Activation/i);
   assert.match(featured, /Helix · DNA Spin/i);
+
+  for (const html of [financial, dashboards, saas, animation, featured]) {
+    assert.doesNotMatch(html, /data-carbon-slot|carbonads/i);
+  }
 });
 
 test("server-renders an AI-ready detail page", async () => {
@@ -576,6 +611,43 @@ test("server-renders an AI-ready detail page", async () => {
   assert.match(html, /Claude 4\.7/i);
   assert.match(html, /<link rel="canonical" href="https:\/\/unslop\.site\/site\/editorial-serif"\/>/i);
   assert.match(html, /"@type":"CreativeWork"/i);
+});
+
+test("mounts one Carbon ad band in the /site detail seam and nowhere on the fullscreen shells", async () => {
+  const [detailResponse, viewResponse, referenceResponse] = await Promise.all([
+    render("/site/editorial-serif"),
+    render("/view/editorial-serif"),
+    render("/reference/editorial-serif"),
+  ]);
+
+  const [detail, view, reference] = await Promise.all([
+    detailResponse.text(),
+    viewResponse.text(),
+    referenceResponse.text(),
+  ]);
+
+  assert.equal((detail.match(/data-carbon-slot=/g) ?? []).length, 1);
+  const slotTag = detail.match(/<div[^>]*data-carbon-slot="site-detail-band"[^>]*>/i)?.[0] ?? "";
+  assert.match(slotTag, /class="[^"]*\bcarbon-slot\b[^"]*"/i);
+  assert.match(slotTag, /min-height:\s*155px/i);
+
+  const introIndex = detail.indexOf('class="detail-intro"');
+  const slotIndex = detail.indexOf("data-carbon-slot=");
+  const stageIndex = detail.indexOf('class="reference-stage"');
+  assert.ok(introIndex >= 0, "detail intro section is missing");
+  assert.ok(stageIndex >= 0, "reference stage section is missing");
+  assert.ok(slotIndex > introIndex, "Carbon slot must render after the detail intro");
+  assert.ok(slotIndex < stageIndex, "Carbon slot must render before the reference stage");
+
+  assert.equal((detail.match(/id="reference-frame"/g) ?? []).length, 1);
+  assert.match(detail, /<section class="reference-stage"[^>]*>\s*<iframe id="reference-frame"/i);
+
+  for (const html of [view, reference]) {
+    assert.doesNotMatch(html, /data-carbon-slot/i);
+    assert.doesNotMatch(html, /carbon-slot/i);
+    assert.doesNotMatch(html, /carbonads/i);
+  }
+  assert.equal((view.match(/id="reference-frame"/g) ?? []).length, 1);
 });
 
 test("serves a full-screen reference with persistent copy actions", async () => {

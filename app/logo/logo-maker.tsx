@@ -4,6 +4,7 @@
 
 import { ChangeEvent, DragEvent, FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { CarbonAd } from "../carbon-ad";
 import {
   HISTORY_STORAGE_KEY,
   HISTORY_UPDATE_EVENT,
@@ -75,6 +76,7 @@ export function LogoMaker() {
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [activeImage, setActiveImage] = useState(0);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isCarbonPlaceholderAvailable, setIsCarbonPlaceholderAvailable] = useState(true);
   const historyValue = useSyncExternalStore(subscribeToHistory, historySnapshot, serverHistorySnapshot);
   const history = useMemo(() => parseHistory(historyValue), [historyValue]);
 
@@ -105,6 +107,7 @@ export function LogoMaker() {
     }
     try {
       setSourceImage(await fileToDataUrl(file));
+      setIsCarbonPlaceholderAvailable(false);
       setSourceName(file.name);
       setImageUrl("");
       setResult(null);
@@ -115,6 +118,7 @@ export function LogoMaker() {
 
   function selectSearchResult(item: SearchResult) {
     setSourceImage(item.imageUrl);
+    setIsCarbonPlaceholderAvailable(false);
     setSourceName(item.title || "Google image result");
     setImageUrl("");
     setSearchResults([]);
@@ -153,6 +157,7 @@ export function LogoMaker() {
       const parsed = new URL(imageUrl.trim());
       if (parsed.protocol !== "https:") throw new Error();
       setSourceImage(parsed.toString());
+      setIsCarbonPlaceholderAvailable(false);
       setSourceName(parsed.hostname);
       setSearchResults([]);
       setResult(null);
@@ -196,6 +201,7 @@ export function LogoMaker() {
         throw new Error(payload.error || "The image model didn’t return a result. Try again.");
       }
       setProgress(100);
+      setIsCarbonPlaceholderAvailable(false);
       setResult(payload);
       const historyItem: GenerationHistoryItem = {
         id: payload.images[0]?.imageUUID || crypto.randomUUID(),
@@ -226,6 +232,7 @@ export function LogoMaker() {
     setContext(item.context);
     setOutputType(item.result.outputType);
     setResult(item.result);
+    setIsCarbonPlaceholderAvailable(false);
     setActiveImage(0);
     setProgress(100);
     setError("");
@@ -238,7 +245,16 @@ export function LogoMaker() {
     window.dispatchEvent(new Event(HISTORY_UPDATE_EVENT));
   }
 
+  function toggleHistory() {
+    if (!isHistoryOpen) setIsCarbonPlaceholderAvailable(false);
+    setIsHistoryOpen(!isHistoryOpen);
+  }
+
   const currentImage = result?.images[activeImage] ?? result?.images[0];
+  const showCarbonPlaceholder = isCarbonPlaceholderAvailable
+    && !currentImage
+    && !sourceImage
+    && !isHistoryOpen;
   const dimensions = result
     ? `${result.width} × ${result.height}`
     : outputType === "poster" ? "Portrait" : outputType === "logo-with-name" ? "Landscape" : "Square";
@@ -351,7 +367,7 @@ export function LogoMaker() {
               <span className="poly-preview-tools">
                 <span>{dimensions}</span>
                 <Link href="/logo/history">Browse all</Link>
-                <button type="button" onClick={() => setIsHistoryOpen((value) => !value)} aria-expanded={isHistoryOpen} aria-controls="logo-history">
+                <button type="button" onClick={toggleHistory} aria-expanded={isHistoryOpen} aria-controls="logo-history">
                   History{history.length ? ` · ${history.length}` : ""}
                 </button>
               </span>
@@ -384,6 +400,22 @@ export function LogoMaker() {
             <div className={`poly-preview-canvas${isGenerating ? " is-generating" : ""}${currentImage ? " has-result" : ""}`}>
               {currentImage ? (
                 <><img className="poly-result-image" src={currentImage.imageURL} alt={`${selectedOutput.label} variation ${activeImage + 1} for ${appName}`} /><span className="poly-result-badge">Variation {activeImage + 1} of {result?.images.length}</span></>
+              ) : showCarbonPlaceholder ? (
+                <div className="poly-ad-placeholder">
+                  <CarbonAd placement="logo-maker-preview" className="carbon-slot-logo-maker" />
+                  {isGenerating ? (
+                    <div className="poly-ad-progress">
+                      <strong>Creating one focused direction.</strong>
+                      <small>{progress}% · This can take a minute</small>
+                      <div className="poly-progress"><span style={{ width: `${progress}%` }} /></div>
+                    </div>
+                  ) : (
+                    <div className="poly-ad-caption">
+                      <strong>Your idea will appear here.</strong>
+                      <small>Clean background. Strong personality.</small>
+                    </div>
+                  )}
+                </div>
               ) : isGenerating ? (
                 <div className="poly-generating-state"><div className="poly-loader"><i /><i /><i /></div><strong>Creating one<br />focused direction.</strong><small>{progress}% · This can take a minute</small><div className="poly-progress"><span style={{ width: `${progress}%` }} /></div></div>
               ) : sourceImage ? (

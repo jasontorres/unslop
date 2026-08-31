@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { allSites, getAgentBrief, getEmbeddedSourceUrl, sitesBySlug } from "../../data";
+import { CarbonAd } from "../../carbon-ad";
 import { CopyBrief, SiteActions } from "./actions";
 
 export function generateStaticParams() {
@@ -102,6 +103,8 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
           viewHref={`/view/${site.slug}`}
         />
       </section>
+
+      <CarbonAd placement="site-detail-band" className="carbon-slot-detail" />
 
       <section className="reference-stage" aria-label={`${site.name} interactive design reference`}>
         <iframe id="reference-frame" src={sourceUrl} title={`${site.name} interactive preview`} loading="eager" />

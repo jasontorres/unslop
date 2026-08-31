@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { CarbonAd } from "../../carbon-ad";
 import type { PublicGalleryImage } from "../../api/logo/gallery/storage";
 
 const outputLabels: Record<PublicGalleryImage["outputType"], string> = {
@@ -143,6 +144,8 @@ export function LogoGallery({ initialPage }: { initialPage: number }) {
           <Link href="/logo">Create yours <b aria-hidden="true">↗</b></Link>
         </div>
       </section>
+
+      <CarbonAd placement="logo-gallery-top" className="carbon-slot-logo-gallery" />
 
       <section className="logo-gallery-library" aria-label="Community logo generations">
         {error ? <p className="logo-gallery-error" role="alert">{error}</p> : null}
