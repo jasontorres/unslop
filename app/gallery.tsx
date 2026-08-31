@@ -56,6 +56,7 @@ type GalleryProps = {
 export function Gallery({ initialCategory = "all", showLandingAd = false }: GalleryProps) {
   const [query, setQuery] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
+  const [hasLandingAd, setHasLandingAd] = useState(false);
   const category = initialCategory;
 
   const visibleSites = useMemo(() => {
@@ -100,7 +101,7 @@ export function Gallery({ initialCategory = "all", showLandingAd = false }: Gall
         <a className="topbar-link" href="#library">Browse library <span>↓</span></a>
       </header>
 
-      <section className={`hero${showLandingAd ? " has-carbon" : ""}`}>
+      <section className={`hero${showLandingAd && hasLandingAd ? " has-carbon" : ""}`}>
         <div className="hero-kicker"><span /> The anti-slop design archive</div>
         <h1>Find the interface<br />you mean.</h1>
         <p className="hero-copy">
@@ -112,7 +113,13 @@ export function Gallery({ initialCategory = "all", showLandingAd = false }: Gall
           <div><strong>{categoryDefinitions.length}</strong><span>Categories</span></div>
           <div><strong>1-click</strong><span>Agent brief</span></div>
         </div>
-        {showLandingAd ? <CarbonAd placement="landing-hero" className="carbon-slot-hero" /> : null}
+        {showLandingAd ? (
+          <CarbonAd
+            placement="landing-hero"
+            className="carbon-slot-hero"
+            onAvailabilityChange={setHasLandingAd}
+          />
+        ) : null}
       </section>
 
       <section id="library" className="library">

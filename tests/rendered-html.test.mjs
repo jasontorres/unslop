@@ -269,12 +269,20 @@ test("serves the identity maker only under /logo", async () => {
   assert.doesNotMatch(history, /data-carbon-slot|carbonads/i);
 });
 
-test("keeps the Carbon dashboard embed exact", async () => {
-  const source = await readFile(new URL("../app/carbon-ad.tsx", import.meta.url), "utf8");
+test("keeps the Carbon dashboard embed exact and collapses blocked slots", async () => {
+  const [source, styles] = await Promise.all([
+    readFile(new URL("../app/carbon-ad.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
   assert.match(source, /\/\/cdn\.carbonads\.com\/carbon\.js\?serve=CWBIT5QI&placement=unslopsite&format=responsive/);
   assert.match(source, /["']_carbonads_js["']/);
   assert.match(source, /script\.type\s*=\s*["']text\/javascript["']/);
   assert.match(source, /script\.async\s*=\s*true/);
+  assert.match(source, /new MutationObserver\(syncAvailability\)/);
+  assert.match(source, /querySelector<HTMLElement>\(["']#carbonads["']\)/);
+  assert.match(source, /data-carbon-status=/);
+  assert.match(styles, /\.carbon-slot\s*\{[^}]*height:\s*0;[^}]*min-height:\s*0;/s);
+  assert.match(styles, /\.carbon-slot\.is-available\s*\{[^}]*min-height:\s*155px;/s);
 });
 
 test("stores valid waitlist signups in D1 without duplicate rows", async () => {
@@ -629,7 +637,9 @@ test("mounts one Carbon ad band in the /site detail seam and nowhere on the full
   assert.equal((detail.match(/data-carbon-slot=/g) ?? []).length, 1);
   const slotTag = detail.match(/<div[^>]*data-carbon-slot="site-detail-band"[^>]*>/i)?.[0] ?? "";
   assert.match(slotTag, /class="[^"]*\bcarbon-slot\b[^"]*"/i);
-  assert.match(slotTag, /min-height:\s*155px/i);
+  assert.match(slotTag, /data-carbon-status="pending"/i);
+  assert.match(slotTag, /aria-hidden="true"/i);
+  assert.doesNotMatch(slotTag, /min-height/i);
 
   const introIndex = detail.indexOf('class="detail-intro"');
   const slotIndex = detail.indexOf("data-carbon-slot=");

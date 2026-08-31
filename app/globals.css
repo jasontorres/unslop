@@ -99,6 +99,8 @@ button { color: inherit; }
   right: 3.2vw;
   top: 235px;
   width: min(360px, 30vw);
+}
+.carbon-slot-hero.is-available {
   border: 1px solid var(--line);
   background: rgba(255, 254, 251, .9);
 }
@@ -208,10 +210,28 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 .exit-fullscreen-action .exit-symbol { margin-left: 9px; font-size: 13px; }
 .action-group .icon-action { width: 43px; padding: 0; border-radius: 50%; }
 .copy-error { flex-basis: 100%; margin: 2px 0 0; color: #a43d2b; font-family: var(--font-geist-mono); font-size: 8px; text-align: right; }
-.carbon-slot { display: flex; min-height: 155px; align-items: center; justify-content: center; }
+.carbon-slot {
+  display: flex;
+  height: 0;
+  min-height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  align-items: center;
+  justify-content: center;
+}
+.carbon-slot.is-available {
+  height: auto;
+  min-height: 155px;
+  overflow: visible;
+  visibility: visible;
+  pointer-events: auto;
+}
 .carbon-slot-detail {
   width: 100%;
   padding: 0 3.2vw;
+}
+.carbon-slot-detail.is-available {
   border-top: 1px solid #cdccc5;
   background: var(--paper);
 }
@@ -997,10 +1017,13 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
   display: flex;
   align-items: stretch;
   flex-direction: column;
-  gap: 17px;
+  gap: 0;
 }
+.logo-maker-page .poly-ad-placeholder:has(.carbon-slot.is-available) { gap: 17px; }
 .logo-maker-page .carbon-slot-logo-maker {
   width: 100%;
+}
+.logo-maker-page .carbon-slot-logo-maker.is-available {
   border: 1px solid var(--line);
   border-radius: 12px;
   background: rgba(255, 254, 251, .96);
@@ -1525,6 +1548,8 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
 .carbon-slot-logo-gallery {
   width: 100%;
   padding: 0 3.2vw;
+}
+.carbon-slot-logo-gallery.is-available {
   border-bottom: 1px solid var(--line);
   background: rgba(255, 254, 251, .48);
 }
