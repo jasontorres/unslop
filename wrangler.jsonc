@@ -43,7 +43,7 @@
       "name": "LOGO_GENERATION_RATE_LIMITER",
       "namespace_id": "2026082601",
       "simple": {
-        "limit": 10,
+        "limit": 100,
         "period": 60
       }
     }

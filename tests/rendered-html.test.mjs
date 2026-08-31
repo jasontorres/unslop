@@ -417,10 +417,10 @@ test("rejects cross-site, non-JSON, unverified, throttled, and over-budget logo 
     assert.equal(clientLimited.headers.get("retry-after"), "60");
     assert.match((await clientLimited.json()).error, /too quickly/i);
 
-    dailyGenerationCounts.set(new Date().toISOString().slice(0, 10), 10_000);
+    dailyGenerationCounts.set(new Date().toISOString().slice(0, 10), 2_000);
     const dailyLimited = await generate({}, { turnstileToken: "valid-token" });
     assert.equal(dailyLimited.status, 429);
-    assert.match((await dailyLimited.json()).error, /daily limit of 10,000/i);
+    assert.match((await dailyLimited.json()).error, /daily limit of 2,000/i);
     assert.deepEqual([...logoGenerationCounts.values()], [0]);
 
     assert.equal(turnstileCalls, 3);
@@ -576,7 +576,7 @@ test("creates the browser generation limit schema when a deployment skipped migr
           }
           if (/INSERT INTO logo_daily_generation_budget/i.test(query)) {
             if (!dailySchemaReady) throw new Error("D1_ERROR: no such table: logo_daily_generation_budget");
-            assert.equal(values[1], 10_000);
+            assert.equal(values[1], 2_000);
             dailyGenerationCount += 1;
             return { success: true, meta: { changes: 1 } };
           }

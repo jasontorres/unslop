@@ -1,6 +1,6 @@
 const BROWSER_COOKIE_NAME = "unslop_logo_browser";
 const BROWSER_GENERATION_LIMIT = 10;
-const DAILY_GENERATION_LIMIT = 10_000;
+const DAILY_GENERATION_LIMIT = 2_000;
 const BROWSER_COOKIE_MAX_AGE = 60 * 60 * 24 * 400;
 
 type D1Result = {

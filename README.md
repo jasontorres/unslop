@@ -19,7 +19,7 @@ using the Next.js build system.
 - Publish generated images to a public, numbered and linkable R2 showcase.
 - Protect generation credits with strict same-origin checks, Cloudflare
   Turnstile, per-client and shared burst limits, signed browser IDs, a
-  D1-backed limit of 10 successful generations per browser, and a 10,000-per-day
+  D1-backed limit of 10 successful generations per browser, and a 2,000-per-day
   global D1 budget.
 - Collect Logo Maker return notifications in a D1-backed email waitlist.
 
@@ -130,8 +130,8 @@ The migrations create `waitlist_entries`, the browser generation-limit table,
 and the atomic daily generation budget. Email addresses are normalized to
 lowercase and duplicate submissions are ignored. The Logo Maker allows 10
 successful generations per signed persistent browser ID, limits each client to
-5 starts per minute, limits the service to 10 starts per minute, and stops at
-10,000 successful generations per UTC day. Local development uses Cloudflare's
+5 starts per minute, limits the service to 100 starts per minute, and stops at
+2,000 successful generations per UTC day. Local development uses Cloudflare's
 official always-pass Turnstile test keys automatically, applies the same D1
 migrations through `npm run db:migrate:local`, and stores database state under
 Wrangler’s ignored local state directory.
