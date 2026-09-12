@@ -1,0 +1,2110 @@
+/* Six distinct visual systems. All rules are scoped to the original collection. */
+.od-design {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  font:
+    14px/1.45 "DM Sans",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.od-design *,
+.od-design *::before,
+.od-design *::after {
+  box-sizing: border-box;
+}
+.od-design h1,
+.od-design h2,
+.od-design h3,
+.od-design p,
+.od-design figure,
+.od-design blockquote {
+  margin: 0;
+}
+.od-design button,
+.od-design input,
+.od-design textarea {
+  font: inherit;
+}
+.od-design button {
+  color: inherit;
+  cursor: pointer;
+  border: 0;
+  background: none;
+}
+.od-design a {
+  color: inherit;
+  text-decoration: none;
+}
+.od-design button:focus-visible,
+.od-design a:focus-visible,
+.od-design input:focus-visible,
+.od-design textarea:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 4px;
+}
+.od-design button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.od-design button {
+  touch-action: manipulation;
+}
+.od-design button:hover:not(:disabled) {
+  filter: brightness(0.93);
+}
+.od-mono {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  line-height: 1.6;
+  letter-spacing: 0.045em;
+}
+.od-dialog {
+  position: fixed;
+  color: #282b24;
+  background: #fbf8f0;
+  border: 1px solid #6d7163;
+  border-radius: 8px;
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 40px);
+  padding: 26px;
+  font:
+    15px/1.6 "DM Sans",
+    sans-serif;
+  box-shadow: 0 24px 90px #0004;
+}
+.od-dialog::backdrop {
+  background: #15191099;
+}
+.od-dialog-head {
+  display: flex;
+  gap: 16px;
+  align-items: start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.od-dialog-head h2 {
+  font:
+    600 30px/1.05 "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -0.04em;
+}
+.od-dialog-head button {
+  flex-shrink: 0;
+  font-size: 28px;
+  min-width: 36px;
+  line-height: 32px;
+  border-radius: 50%;
+  background: #e7e7dc;
+}
+.od-dialog p {
+  margin: 14px 0;
+}
+.od-dialog .od-primary {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  margin-top: 18px;
+  background: #263a2b;
+  color: #fff;
+  border-radius: 3px;
+}
+.od-choice-list {
+  display: grid;
+  gap: 6px;
+  margin: 24px 0;
+}
+.od-choice-list button {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 14px;
+  padding: 15px 10px;
+  border-top: 1px solid #d5d4c8;
+}
+.od-choice-list button strong {
+  flex: 1;
+}
+.od-choice-list button[aria-pressed="true"] {
+  background: #e4e8d7;
+}
+.od-field {
+  display: grid;
+  gap: 10px;
+}
+.od-field textarea {
+  resize: vertical;
+  min-height: 140px;
+  padding: 14px;
+  color: #282b24;
+  background: white;
+  border: 1px solid #9a9d90;
+  border-radius: 3px;
+}
+
+/* OFFSCRIPT: an oversized optical poster meets a tightly ruled cinema programme. */
+.os {
+  background: #efefb9;
+  color: #20231b;
+}
+.os-header {
+  height: 98px;
+  display: flex;
+  align-items: center;
+  margin: 0 34px;
+  gap: 35px;
+  border-bottom: 1.5px solid #20231b;
+}
+.os-logo {
+  font:
+    800 39px/1 "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -2.5px;
+  white-space: nowrap;
+}
+.os-logo span {
+  display: inline-block;
+  font-size: 44px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+.os-header > .od-mono {
+  font-size: 8px;
+  line-height: 1.6;
+}
+.os-header nav {
+  display: flex;
+  gap: 24px;
+  margin-left: auto;
+}
+.os-header nav button {
+  padding: 14px 0;
+  font-size: 11px;
+}
+.os-header nav button span {
+  padding-left: 7px;
+}
+.os-open {
+  font:
+    8px "IBM Plex Mono",
+    monospace;
+  border: 1px solid #717455;
+  border-radius: 30px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.os-open i,
+.mg-bottom i,
+.ah-live i,
+.ah-capacity-bottom i,
+.ah-footer i,
+.rm-map-label i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+}
+.os-hero {
+  display: grid;
+  grid-template-columns: 1.13fr 1fr;
+  padding: 28px 34px 26px;
+  gap: 25px;
+}
+.os-copy {
+  position: relative;
+  padding-right: 12px;
+}
+.os-kicker {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  margin: 2px 0 28px;
+}
+.os h1 {
+  font:
+    800 105px/0.9 "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -7px;
+  margin-left: -5px;
+}
+.os h1 em {
+  font-weight: 500;
+  font-family: "Newsreader", serif;
+  letter-spacing: -6px;
+}
+.os-copy > p {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 24px 0;
+}
+.os-cta {
+  display: flex;
+  gap: 35px;
+  align-items: center;
+  background: #20231b !important;
+  color: #f1f1c6 !important;
+  padding: 17px 19px;
+  font-weight: 500 !important;
+}
+.os-footnote {
+  margin-top: 35px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.os-star {
+  font-size: 37px;
+}
+.os-footnote b {
+  font-weight: 500;
+}
+.os-poster {
+  position: relative;
+  min-width: 0;
+  background: #20231b;
+  color: #f5f1d6;
+}
+.os-poster > svg {
+  display: block;
+  width: 100%;
+  height: 394px;
+  object-fit: cover;
+}
+.os-poster-caption {
+  padding: 15px 21px 17px;
+  display: grid;
+  gap: 3px;
+}
+.os-poster-caption > .od-mono {
+  font-size: 8px;
+  color: #c6c5aa;
+}
+.os-poster-caption strong {
+  font:
+    500 25px/1.2 "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -0.6px;
+}
+.os-poster-caption > span:last-child {
+  font-size: 10px;
+  color: #c6c5aa;
+}
+.os-ticket {
+  position: absolute;
+  top: 282px;
+  right: -9px;
+  background: #efefb9;
+  color: #20231b;
+  padding: 14px 18px;
+  font:
+    10px/1.5 "IBM Plex Mono",
+    monospace;
+  transform: rotate(-8deg);
+  box-shadow: 2px 3px 0 #20231b;
+  border: 1px solid #20231b;
+}
+.os-programme {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr 1.35fr 1.35fr;
+  margin: 0 34px;
+  border-top: 1.5px solid #20231b;
+  border-bottom: 1.5px solid #20231b;
+}
+.os-tonight {
+  padding: 19px 19px 18px 0;
+}
+.os-tonight > span {
+  font-size: 8px;
+}
+.os-tonight h2 {
+  font:
+    600 34px "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -1.5px;
+  margin-top: 7px;
+}
+.os-tonight h2 span {
+  margin-left: 20px;
+}
+.os-screening {
+  padding: 20px 17px !important;
+  text-align: left;
+  position: relative;
+  border-left: 1px solid #7e805e !important;
+}
+.os-screening.selected {
+  background: #dedfa8;
+}
+.os-screening > .od-mono {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+}
+.os-screening > .od-mono span {
+  color: #6a6d4d;
+  font-size: 8px;
+}
+.os-screening strong {
+  display: block;
+  font:
+    600 17px "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -0.5px;
+  margin: 9px 0 3px;
+}
+.os-screening small {
+  font-size: 10px;
+}
+.os-screening-arrow {
+  position: absolute;
+  right: 13px;
+  bottom: 15px;
+  font-size: 18px;
+}
+.os-bottom {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 34px;
+  font-size: 8px;
+}
+
+/* MARGINALIA: lavender filing rail, warm paper, and a deliberately quiet reader. */
+.mg {
+  display: flex;
+  background: #f5f3ed;
+  color: #33332f;
+}
+.mg-rail {
+  width: 212px;
+  flex-shrink: 0;
+  padding: 26px 17px;
+  background: #e5e2ed;
+  border-right: 1px solid #ccc8d6;
+  display: flex;
+  flex-direction: column;
+}
+.mg-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font:
+    600 23px "Newsreader",
+    serif;
+  letter-spacing: -0.6px;
+}
+.mg-brand > span {
+  font:
+    italic 500 39px/0.8 "Newsreader",
+    serif;
+}
+.mg-brand > span > span {
+  color: #ad4c2d;
+}
+.mg-workspace {
+  margin: 38px 0 29px;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  font-size: 11px;
+}
+.mg-avatar {
+  width: 30px;
+  height: 30px;
+  background: #ccc7d9;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 9px;
+}
+.mg-workspace small {
+  display: block;
+  font-size: 8px;
+  color: #676370;
+  margin-top: 4px;
+}
+.mg-rail-label {
+  color: #716a7f;
+  font-size: 8px;
+  padding: 0 10px;
+  margin-bottom: 8px;
+}
+.mg-rail > button {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  padding: 11px;
+  border-radius: 4px;
+  font-size: 16px;
+}
+.mg-rail > button span {
+  font-size: 11px;
+}
+.mg-rail > button small {
+  margin-left: auto;
+  font:
+    9px "IBM Plex Mono",
+    monospace;
+}
+.mg-rail-active {
+  background: #f6f4fa !important;
+}
+.mg-collection {
+  margin: 31px 8px 0;
+}
+.mg-collection > span {
+  font-size: 8px;
+  color: #716a7f;
+}
+.mg-collection button {
+  margin-top: 15px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0;
+  font-size: 10px;
+}
+.mg-collection button i {
+  width: 6px;
+  height: 6px;
+  background: #a17440;
+  border-radius: 2px;
+}
+.mg-collection button small {
+  color: #716a7f;
+  margin-left: 6px;
+}
+.mg-collection > p {
+  margin-top: 18px;
+  padding-left: 14px;
+  color: #766e80;
+  font:
+    italic 17px/1.3 "Newsreader",
+    serif;
+}
+.mg-rail-bottom {
+  margin-top: auto;
+  padding: 20px 10px 0;
+}
+.mg-flower {
+  font-size: 61px;
+  color: #81718c;
+}
+.mg-rail-bottom p {
+  font:
+    400 24px/1.08 "Newsreader",
+    serif;
+  letter-spacing: -0.4px;
+  margin-top: 9px;
+}
+.mg-rail-bottom > .od-mono {
+  display: block;
+  margin-top: 16px;
+  font-size: 6px;
+}
+.mg-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.mg-top {
+  height: 70px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #e0ddd4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  font-size: 10px;
+}
+.mg-top > span > span {
+  margin: 0 13px;
+  color: #a09b8f;
+}
+.mg-top b {
+  font-weight: 500;
+}
+.mg-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #75736d;
+}
+.mg-search > span {
+  font-size: 23px;
+}
+.mg-search input {
+  background: transparent;
+  border: 0;
+  width: 150px;
+  font-size: 11px;
+  color: #33332f;
+  padding: 8px 0;
+}
+.mg-search input::placeholder {
+  color: #75736d;
+}
+.mg-heading {
+  padding: 33px 30px 27px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mg-heading .od-mono {
+  color: #77736a;
+  font-size: 8px;
+}
+.mg-heading h1 {
+  font:
+    400 42px/1.1 "Newsreader",
+    serif;
+  letter-spacing: -1.5px;
+  margin: 12px 0 8px;
+}
+.mg-heading h1 span {
+  font-size: 33px;
+  color: #a04e34;
+  margin-left: 24px;
+}
+.mg-heading p {
+  color: #797469;
+  font-size: 11px;
+}
+.mg-add {
+  background: #383d32 !important;
+  color: #fff !important;
+  border-radius: 4px;
+  padding: 11px 15px;
+  font-size: 11px !important;
+}
+.mg-tabs {
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  border-bottom: 1px solid #dcd8cf;
+}
+.mg-tabs button {
+  padding: 12px 0;
+  font-size: 11px;
+  border-bottom: 2px solid transparent;
+}
+.mg-tabs button[aria-selected="true"] {
+  border-color: #4d5542;
+}
+.mg-tabs button > span {
+  color: #878175;
+  font:
+    8px "IBM Plex Mono",
+    monospace;
+  margin-left: 8px;
+}
+.mg-tabs > span {
+  margin-left: auto;
+  font:
+    7px "IBM Plex Mono",
+    monospace;
+  color: #878175;
+}
+.mg-panel {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  flex: 1;
+  min-height: 0;
+}
+.mg-source-list {
+  padding: 25px 17px;
+  border-right: 1px solid #e0ddd4;
+}
+.mg-list-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  margin: 0 7px 20px;
+  color: #77736a;
+}
+.mg-source {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 10px;
+  text-align: left;
+  border-radius: 4px;
+  width: 100%;
+  margin-bottom: 9px;
+}
+.mg-source.selected {
+  background: #eae6dc;
+}
+.mg-book {
+  width: 37px;
+  height: 49px;
+  flex-shrink: 0;
+  border-radius: 1px 3px 3px 1px;
+  border-left: 3px solid #0002;
+  box-shadow: 1px 2px 3px #0001;
+  display: grid;
+  place-items: center;
+}
+.mg-book span {
+  font:
+    23px "Newsreader",
+    serif;
+}
+.mg-source > div:nth-child(2) {
+  flex: 1;
+}
+.mg-source .od-mono {
+  font-size: 7px;
+  color: #77736a;
+}
+.mg-source strong {
+  font-size: 11px;
+  line-height: 1.3;
+  display: block;
+  font-weight: 500;
+  margin: 5px 0;
+}
+.mg-source small {
+  font-size: 9px;
+  color: #6d675d;
+}
+.mg-source-dot {
+  font-size: 9px;
+  color: #8b593f;
+}
+.mg-source-note {
+  display: flex;
+  gap: 8px;
+  align-items: start;
+  margin: 40px 10px;
+  color: #81796e;
+}
+.mg-source-note span {
+  font-size: 24px;
+}
+.mg-source-note p {
+  font:
+    italic 18px/1.35 "Newsreader",
+    serif;
+}
+.mg-empty {
+  padding: 20px 8px;
+  color: #756f65;
+  font-size: 12px;
+}
+.mg-reader {
+  padding: 27px 35px 16px;
+  background: #fffcf5;
+  position: relative;
+}
+.mg-reader-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  color: #7b7569;
+  margin-bottom: 21px;
+}
+.mg-reader-kind {
+  color: #9b593d;
+  font-size: 9px;
+}
+.mg-reader h2 {
+  font:
+    400 32px/1.02 "Newsreader",
+    serif;
+  letter-spacing: -0.7px;
+  margin: 12px 0 18px;
+  max-width: 300px;
+}
+.mg-reader > p:not(.mg-copy-status) {
+  font:
+    400 16px/1.65 "Newsreader",
+    serif;
+  color: #5b584f;
+}
+.mg-reader blockquote {
+  margin: 19px 0;
+  font:
+    400 19px/1.6 "Newsreader",
+    serif;
+  position: relative;
+}
+.mg-reader mark {
+  background: #f5dfa7;
+  color: #494032;
+  padding: 2px 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.mg-annotation {
+  position: absolute;
+  right: -23px;
+  top: 0;
+  font:
+    8px "IBM Plex Mono",
+    monospace;
+  color: #a05b3a;
+}
+.mg-margin-note {
+  border-left: 2px solid #b8805b;
+  background: #f2eade;
+  margin-top: 19px;
+  padding: 10px 13px;
+}
+.mg-margin-note > span {
+  color: #935934;
+  font-size: 7px;
+}
+.mg-margin-note p {
+  margin-top: 4px;
+  font-size: 10px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.mg-reader-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 22px;
+  border-top: 1px solid #e6dfd1;
+  padding-top: 13px;
+}
+.mg-reader-bottom > span {
+  font-size: 6px;
+  color: #7b7569;
+}
+.mg-reader-bottom button {
+  font-size: 9px;
+}
+.mg-copy-status {
+  margin-top: 6px !important;
+  font-size: 9px;
+  color: #53633e;
+}
+.mg-bottom {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 30px;
+  border-top: 1px solid #e0ddd4;
+  color: #797469;
+  font-size: 8px;
+  margin-top: auto;
+}
+.mg-bottom i {
+  margin-right: 5px;
+  background: #809167;
+}
+.mg-bottom > .od-mono {
+  font-size: 7px;
+}
+.mg-alternative {
+  grid-column: 1/-1;
+  padding: 38px;
+}
+.mg-alternative h2 {
+  font:
+    36px "Newsreader",
+    serif;
+  margin: 12px 0 26px;
+}
+.mg-alternative > button:not(.mg-add) {
+  display: flex;
+  gap: 23px;
+  text-align: left;
+  align-items: center;
+  width: 100%;
+  border-top: 1px solid #d3cfc4;
+  padding: 24px 0;
+}
+.mg-alternative > button > div {
+  flex: 1;
+}
+.mg-alternative p {
+  margin-top: 9px;
+  font:
+    18px "Newsreader",
+    serif;
+}
+.mg-alternative blockquote {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #ede5d6;
+  font:
+    22px/1.4 "Newsreader",
+    serif;
+}
+
+/* ODDMENTS: cobalt masthead, curved typography, and illustrated catalogue finds. */
+.om {
+  background: #faf8ef;
+  color: #2738b7;
+}
+.om-strip {
+  background: #2738b7;
+  color: #f7f5e9;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 32px;
+  font-size: 8px;
+}
+.om-header {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  margin: 0 32px;
+  padding: 24px 0 20px;
+  border-bottom: 1px solid #2738b7;
+}
+.om-logo {
+  padding: 0;
+  font:
+    800 55px/0.9 "Bricolage Grotesque",
+    sans-serif !important;
+  letter-spacing: -3px;
+}
+.om-logo > span {
+  font:
+    15px "DM Sans",
+    sans-serif;
+  vertical-align: top;
+  letter-spacing: 0;
+  margin-left: 6px;
+}
+.om-header > p {
+  font-size: 10px;
+  border-left: 1px solid #a2a6ca;
+  padding-left: 22px;
+  line-height: 1.6;
+}
+.om-saved {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px !important;
+}
+.om-saved > span {
+  border: 1px solid #acafd2;
+  padding: 4px 8px;
+  border-radius: 20px;
+}
+.om-intro {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px 34px 21px;
+}
+.om-intro .od-mono {
+  font-size: 8px;
+}
+.om-intro h1 {
+  position: relative;
+  font:
+    600 91px/0.84 "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -5px;
+  margin: 18px 0 0;
+}
+.om-intro h1 > span {
+  font-family: "Newsreader", serif;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.03;
+}
+.om-intro h1 > svg {
+  width: 236px;
+  height: 100px;
+  position: absolute;
+  left: -21px;
+  bottom: -4px;
+}
+.om-intro-right {
+  width: 415px;
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  align-content: center;
+  align-items: center;
+  gap: 17px 30px;
+  padding-top: 5px;
+}
+.om-stamp {
+  width: 124px;
+  height: 124px;
+  border: 1.5px solid #2738b7;
+  border-radius: 50%;
+  transform: rotate(12deg);
+  display: grid;
+  place-content: center;
+  text-align: center;
+  font:
+    7px "IBM Plex Mono",
+    monospace;
+}
+.om-stamp > span {
+  font:
+    italic 49px/1.25 "Newsreader",
+    serif;
+  letter-spacing: -4px;
+}
+.om-intro-right p {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.om-intro-right > .od-mono {
+  grid-column: 2;
+  font-size: 7px;
+}
+.om-filters {
+  margin: 0 32px;
+  padding: 17px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #c3c4d2;
+}
+.om-filters > div {
+  display: flex;
+  gap: 8px;
+}
+.om-filters button {
+  font-size: 10px;
+  border: 1px solid #c3c4d2;
+  border-radius: 30px;
+  padding: 9px 17px;
+}
+.om-filters button[aria-pressed="true"] {
+  background: #2738b7;
+  color: #fff;
+  border-color: #2738b7;
+}
+.om-filters button > span {
+  margin-left: 9px;
+  font-size: 8px;
+}
+.om-filters > .od-mono {
+  font-size: 8px;
+}
+.om-filters > .od-mono > span {
+  margin-left: 45px;
+  font-size: 16px;
+}
+.om-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  padding: 0 32px 22px;
+}
+.om-product-image {
+  height: 285px;
+  position: relative;
+}
+.om-object {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.om-object svg {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.25s;
+}
+.om-object:hover svg {
+  transform: translateY(-4px);
+}
+.om-number {
+  position: absolute;
+  left: 15px;
+  top: 15px;
+  font-size: 8px;
+  pointer-events: none;
+}
+.om-heart {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  z-index: 1;
+  font-size: 24px !important;
+  width: 33px;
+  height: 33px;
+}
+.om-image-label {
+  position: absolute;
+  bottom: 13px;
+  left: 15px;
+  font-size: 7px;
+  pointer-events: none;
+}
+.om-small-stamp {
+  position: absolute;
+  bottom: 16px;
+  right: 15px;
+  width: 53px;
+  height: 53px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background: #f6f4cf;
+  border: 1px solid #2738b7;
+  transform: rotate(-12deg);
+  font:
+    8px/1.3 "IBM Plex Mono",
+    monospace;
+  pointer-events: none;
+}
+.om-product-info {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  align-items: start;
+  justify-content: space-between;
+  padding: 13px 0 !important;
+  gap: 10px;
+}
+.om-product-info strong {
+  font:
+    600 18px "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -0.5px;
+}
+.om-product-info small {
+  display: block;
+  font-size: 10px;
+  margin-top: 4px;
+  color: #626891;
+}
+.om-product-info > span:last-child {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  align-items: center;
+}
+.om-product-info svg {
+  width: 16px;
+}
+.om-bottom {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 32px;
+  border-top: 1px solid #c3c4d2;
+  font-size: 7px;
+}
+.om-empty {
+  grid-column: 1/-1;
+  min-height: 285px;
+  display: grid;
+  align-content: center;
+  justify-content: center;
+  gap: 15px;
+}
+.om-empty h2 {
+  font:
+    34px "Bricolage Grotesque",
+    sans-serif;
+}
+.om-empty button {
+  text-align: left;
+  padding: 12px 0;
+  text-decoration: underline;
+}
+.om-dialog-object {
+  height: 220px;
+}
+.om-dialog-object > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* UNDERSTORY: a bookish field essay and its large, original botanical plate. */
+.us {
+  background: #f2efdf;
+  color: #38422d;
+}
+.us-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 97px;
+  margin: 0 35px;
+  border-bottom: 1px solid #566047;
+}
+.us-mark {
+  font-size: 43px;
+}
+.us-header > .od-mono {
+  font-size: 7px;
+}
+.us-logo {
+  font:
+    400 61px/0.9 "Newsreader",
+    serif;
+  letter-spacing: -3.3px;
+  margin: 0 auto;
+}
+.us-logo span {
+  display: inline-block;
+  font:
+    29px "DM Sans",
+    sans-serif;
+  transform: translateY(-18px);
+  margin-left: 4px;
+}
+.us-header button {
+  font-size: 10px;
+}
+.us-header button > span {
+  margin-left: 8px;
+}
+.us-bookmark {
+  border: 1px solid #6c735b !important;
+  padding: 10px 13px;
+  margin-left: 12px;
+}
+.us-issue {
+  margin: 0 35px;
+  padding: 13px 0;
+  border-bottom: 1px solid #c5c7b4;
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+}
+.us-feature {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 21px 35px 0;
+  gap: 28px;
+}
+.us-story {
+  padding: 22px 7px 0 3px;
+}
+.us-kicker {
+  font:
+    italic 18px "Newsreader",
+    serif;
+  color: #8d5b39;
+}
+.us h1 {
+  font:
+    400 80px/0.98 "Newsreader",
+    serif;
+  letter-spacing: -3.5px;
+  margin: 18px 0 21px;
+}
+.us h1 em {
+  color: #805835;
+  font-weight: 400;
+}
+.us-rule {
+  width: 54px;
+  border-top: 2px solid #9e7148;
+  margin-bottom: 20px;
+}
+.us-deck {
+  max-width: 360px;
+  font:
+    400 19px/1.5 "Newsreader",
+    serif;
+  color: #5e644f;
+}
+.us-author {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 10px;
+  margin-top: 20px;
+}
+.us-author > span {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #9aa085;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font:
+    13px "Newsreader",
+    serif;
+}
+.us-author small {
+  display: block;
+  color: #747864;
+  font-size: 8px;
+  margin-top: 2px;
+}
+.us-read {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  border-bottom: 1px solid #637050 !important;
+  padding: 10px 0;
+  margin-top: 18px;
+  font-size: 11px !important;
+}
+.us-page {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  color: #747864;
+  margin-top: 24px;
+}
+.us-page > span {
+  margin-right: 18px;
+}
+.us-plate {
+  background: #e5e8d5;
+  border: 1px solid #c9ceba;
+  padding: 0 12px;
+}
+.us-plate > svg {
+  width: 100%;
+  height: 546px;
+  display: block;
+}
+.us-plate figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 10px 13px;
+  border-top: 1px solid #b9c2a8;
+  font:
+    italic 14px "Newsreader",
+    serif;
+}
+.us-plate .od-mono {
+  font-size: 7px;
+  font-style: normal;
+  color: #687159;
+}
+.us-bottom {
+  display: flex;
+  align-items: center;
+  gap: 23px;
+  border-top: 1px solid #9ea58a;
+  margin: 25px 35px 0;
+  padding: 16px 0;
+}
+.us-bottom > .od-mono {
+  font-size: 7px;
+  color: #747864;
+  margin-right: 17px;
+}
+.us-bottom button {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  text-align: left;
+  gap: 2px 12px;
+  padding: 0 26px 0 0;
+}
+.us-bottom button > span {
+  grid-row: 1/3;
+  font:
+    20px "Newsreader",
+    serif;
+  color: #8e6d4b;
+}
+.us-bottom strong {
+  font:
+    19px "Newsreader",
+    serif;
+}
+.us-bottom small {
+  font-size: 8px;
+  color: #747864;
+}
+.us-bottom blockquote {
+  margin-left: auto;
+  border-left: 1px solid #afb59b;
+  padding-left: 35px;
+  font:
+    italic 21px/1.1 "Newsreader",
+    serif;
+}
+.us-essay {
+  border-top: 1px solid #9ea58a;
+  margin: 35px;
+  padding: 35px max(25px, 18%);
+}
+.us-back {
+  display: block;
+  padding: 10px 0;
+  margin-bottom: 22px;
+  font-size: 12px !important;
+  text-decoration: underline;
+}
+.us-essay h2 {
+  font:
+    40px "Newsreader",
+    serif;
+  margin: 18px 0;
+}
+.us-essay p {
+  font:
+    22px/1.6 "Newsreader",
+    serif;
+  margin-bottom: 20px;
+}
+.us:has(.us-essay) .us-feature {
+  display: none;
+}
+
+/* AFTERHOURS: a charcoal technical desk punctuated by live acid-green signals. */
+.ah {
+  display: flex;
+  background: #1f231e;
+  color: #e1e6d9;
+}
+.ah-rail {
+  width: 76px;
+  flex-shrink: 0;
+  background: #181c17;
+  border-right: 1px solid #3c4438;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 25px 0 20px;
+}
+.ah-logo {
+  position: relative;
+  font:
+    700 31px/0.8 "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -5px;
+  color: #c5f27b;
+}
+.ah-logo span {
+  font-weight: 400;
+}
+.ah-logo i {
+  font:
+    normal 12px "DM Sans",
+    sans-serif;
+  position: absolute;
+  top: -5px;
+  right: -13px;
+}
+.ah-rail nav {
+  display: grid;
+  gap: 14px;
+  margin-top: 47px;
+}
+.ah-rail nav button {
+  font-size: 24px;
+  width: 42px;
+  height: 42px;
+  border-radius: 4px;
+  color: #949f89;
+}
+.ah-rail nav button[aria-pressed="true"] {
+  color: #c5f27b;
+  background: #35412a;
+}
+.ah-rail-tag {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font:
+    7px "IBM Plex Mono",
+    monospace;
+  letter-spacing: 0.12em;
+  color: #8b9680;
+  margin-top: auto;
+  margin-bottom: 36px;
+}
+.ah-avatar {
+  border: 1px solid #68745c !important;
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  font-size: 10px !important;
+}
+.ah-main {
+  flex: 1;
+  min-width: 0;
+}
+.ah-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 76px;
+  padding: 0 30px;
+  border-bottom: 1px solid #3d4439;
+}
+.ah-header > div {
+  display: flex;
+  align-items: center;
+}
+.ah-header .od-mono {
+  font-size: 9px;
+}
+.ah-divider {
+  margin: 0 17px;
+  color: #627054;
+}
+.ah-header strong {
+  font-size: 11px;
+  font-weight: 400;
+  color: #aab4a0;
+}
+.ah-header-right {
+  gap: 21px;
+}
+.ah-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #c5f27b;
+  font:
+    8px "IBM Plex Mono",
+    monospace;
+  white-space: nowrap;
+}
+.ah-header-right > .od-mono {
+  color: #aab4a0;
+  font-size: 8px;
+}
+.ah-header-right > button {
+  border: 1px solid #626c58;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 9px;
+}
+.ah-header-right > button svg {
+  width: 13px;
+  height: 17px;
+}
+.ah-title {
+  padding: 30px 30px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ah-title .od-mono {
+  font-size: 8px;
+  color: #aab4a0;
+}
+.ah-title h1 {
+  font:
+    500 43px/1.12 "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -1.5px;
+  margin-top: 10px;
+}
+.ah-weather {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.ah-weather > span:first-child {
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: -2px;
+}
+.ah-weather .od-mono {
+  font-size: 7px;
+}
+.ah-rooms {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0 30px 22px;
+}
+.ah-rooms > button {
+  border: 1px solid #4a5342;
+  padding: 13px;
+  display: flex;
+  gap: 12px;
+  text-align: left;
+  align-items: center;
+}
+.ah-rooms > button[aria-pressed="true"] {
+  border-color: #c5f27b;
+  background: #303b25;
+}
+.ah-room-letter {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 34px;
+  border: 1px solid #69755b;
+  font:
+    16px "IBM Plex Mono",
+    monospace;
+}
+.ah-rooms strong {
+  font-size: 11px;
+  font-weight: 500;
+  display: block;
+}
+.ah-rooms small {
+  font:
+    7px "IBM Plex Mono",
+    monospace;
+  display: block;
+  color: #aab4a0;
+  margin-top: 5px;
+}
+.ah-room-status {
+  margin-left: auto;
+  font:
+    6px "IBM Plex Mono",
+    monospace;
+  color: #c5f27b;
+}
+.ah-dashboard {
+  display: grid;
+  grid-template-columns: 1.85fr 1fr;
+  margin: 0 30px;
+  gap: 18px;
+}
+.ah-floor,
+.ah-capacity {
+  border: 1px solid #46503d;
+}
+.ah-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 17px 19px 10px;
+}
+.ah-panel-head h2 {
+  font-size: 12px;
+  font-weight: 500;
+}
+.ah-panel-head .od-mono {
+  font-size: 7px;
+  color: #aab4a0;
+}
+.ah-floor > svg {
+  display: block;
+  width: 100%;
+  height: 261px;
+}
+.ah-now {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-top: 1px solid #46503d;
+  padding: 16px 18px;
+  background: #282f22;
+}
+.ah-now .od-mono {
+  font-size: 7px;
+  color: #aab4a0;
+}
+.ah-now h3 {
+  font:
+    500 22px "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -0.5px;
+}
+.ah-now > .od-mono {
+  margin-left: auto;
+  font-size: 6px;
+}
+.ah-now-arrow {
+  color: #c5f27b;
+  font-size: 23px;
+  margin-left: 9px;
+}
+.ah-equalizer {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 29px;
+}
+.ah-equalizer i {
+  width: 3px;
+  background: #c5f27b;
+  height: 15px;
+}
+.ah-equalizer i:nth-child(2) {
+  height: 27px;
+}
+.ah-equalizer i:nth-child(3) {
+  height: 21px;
+}
+.ah-equalizer i:nth-child(4) {
+  height: 10px;
+}
+.ah-capacity {
+  padding-bottom: 18px;
+}
+.ah-count {
+  font:
+    500 69px/0.95 "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -3px;
+  margin: 18px 22px 24px;
+}
+.ah-count > span {
+  font:
+    18px "DM Sans",
+    sans-serif;
+  letter-spacing: -0.5px;
+  color: #aab4a0;
+  margin-left: 12px;
+}
+.ah-capacity-bars {
+  height: 103px;
+  display: flex;
+  align-items: end;
+  gap: 6px;
+  margin: 0 22px;
+}
+.ah-capacity-bars > span {
+  background: #7d985d;
+  flex: 1;
+  min-height: 5px;
+}
+.ah-capacity-bars > span:nth-last-child(-n + 3) {
+  background: #c5f27b;
+}
+.ah-capacity-label {
+  display: flex;
+  justify-content: space-between;
+  color: #aab4a0;
+  font-size: 7px;
+  margin: 9px 22px 25px;
+}
+.ah-meter {
+  background: #47513d;
+  height: 5px;
+  margin: 0 22px 13px;
+}
+.ah-meter > span {
+  height: 100%;
+  background: #c5f27b;
+  display: block;
+}
+.ah-capacity-bottom {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 22px;
+  font-size: 9px;
+  color: #aab4a0;
+}
+.ah-capacity-bottom > span:first-child {
+  color: #c5f27b;
+}
+.ah-capacity-bottom i {
+  margin-right: 4px;
+}
+.ah-lower {
+  display: grid;
+  grid-template-columns: 1fr 1.22fr 0.85fr;
+  margin: 20px 30px 0;
+  border-top: 1px solid #46503d;
+  border-bottom: 1px solid #46503d;
+}
+.ah-lower > div {
+  padding: 20px 20px 20px 0;
+}
+.ah-lower > div + div {
+  border-left: 1px solid #46503d;
+  padding-left: 20px;
+}
+.ah-lower .od-mono {
+  font-size: 7px;
+  color: #aab4a0;
+}
+.ah-lower h3 {
+  font:
+    500 22px "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -0.5px;
+  margin: 10px 0;
+}
+.ah-next > span:last-child {
+  font:
+    8px "IBM Plex Mono",
+    monospace;
+  display: flex;
+  justify-content: space-between;
+  color: #aab4a0;
+}
+.ah-next > span:last-child > span {
+  font-size: 6px;
+  color: #c5f27b;
+}
+.ah-check button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  padding: 0;
+  width: 100%;
+}
+.ah-check button > span:first-child {
+  color: #c5f27b;
+  font-size: 16px;
+}
+.ah-check button > span:last-child {
+  margin-left: auto;
+  color: #c5f27b;
+}
+.ah-pulse {
+  position: relative;
+  overflow: hidden;
+}
+.ah-pulse > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+.ah-pulse strong {
+  font:
+    500 38px "Bricolage Grotesque",
+    sans-serif;
+}
+.ah-pulse > div > span {
+  font:
+    6px/1.5 "IBM Plex Mono",
+    monospace;
+  color: #aab4a0;
+}
+.ah-pulse svg {
+  position: absolute;
+  width: 120px;
+  height: 45px;
+  bottom: 8px;
+  right: 9px;
+  opacity: 0.7;
+}
+.ah-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 18px 30px;
+  font-size: 6px;
+  color: #aab4a0;
+}
+.ah-footer i {
+  color: #c5f27b;
+  margin-right: 6px;
+}
+.ah-table {
+  margin: 0 30px;
+  min-height: 518px;
+  border: 1px solid #46503d;
+}
+.ah-table > div:not(.ah-panel-head) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 25px;
+  border-top: 1px solid #46503d;
+  font-size: 12px;
+}
+.ah-table strong {
+  width: 165px;
+}
+.ah-table .od-mono {
+  font-size: 9px;
+}
+
+/* RAMBLE: a compact, fully illustrated walk card with a calm native rhythm. */
+.rm {
+  background: #faf5e9;
+  color: #314d3d;
+  display: flex;
+  flex-direction: column;
+}
+.rm-status {
+  height: 33px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 26px 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+.rm-status > span:last-child {
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.rm-header {
+  height: 53px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 23px;
+}
+.rm-logo {
+  font:
+    700 30px "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -1.8px;
+}
+.rm-logo > span {
+  color: #b95c3b;
+  margin-left: 5px;
+  font-size: 34px;
+}
+.rm-location {
+  font-size: 9px !important;
+  padding: 10px 0;
+}
+.rm-location > span {
+  margin-left: 8px;
+}
+.rm-intro {
+  padding: 13px 24px 18px;
+  flex-shrink: 0;
+}
+.rm-intro > .od-mono {
+  font-size: 7px;
+  color: #777961;
+  letter-spacing: 0.08em;
+}
+.rm h1 {
+  font:
+    500 43px/0.98 "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -2px;
+  margin: 11px 0 10px;
+}
+.rm h1 > span {
+  color: #b95c3b;
+  display: inline-block;
+  font-size: 37px;
+  margin-left: 18px;
+  transform: rotate(9deg);
+}
+.rm-intro p {
+  font-size: 11px;
+  color: #707660;
+}
+.rm-map {
+  position: relative;
+  height: 267px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-top: 1px solid #d1d6c1;
+  border-bottom: 1px solid #d1d6c1;
+}
+.rm-map > svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rm-map-label {
+  position: absolute;
+  top: 13px;
+  left: 20px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  background: #faf5e9;
+  padding: 7px 9px;
+  border: 1px solid #d3d7c3;
+  border-radius: 20px;
+  font:
+    6px "IBM Plex Mono",
+    monospace;
+}
+.rm-map-label i {
+  width: 4px;
+  height: 4px;
+}
+.rm-map-info {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  width: 29px;
+  height: 29px;
+  border: 1px solid #9ea88f !important;
+  border-radius: 50%;
+  background: #faf5e9 !important;
+  font:
+    italic 18px "Newsreader",
+    serif !important;
+}
+.rm-route {
+  padding: 14px 22px 0;
+  flex-shrink: 0;
+}
+.rm-route-tabs {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 15px;
+}
+.rm-route-tabs button {
+  border: 1px solid #c9cebc;
+  border-radius: 20px;
+  padding: 7px 12px;
+  font-size: 9px;
+}
+.rm-route-tabs button[aria-pressed="true"] {
+  background: #e1e8d3;
+  border-color: #b2c09b;
+}
+.rm-route-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.rm-route-title .od-mono {
+  font-size: 6px;
+  color: #797c67;
+}
+.rm-route-title h2 {
+  font:
+    500 24px "Bricolage Grotesque",
+    sans-serif;
+  letter-spacing: -0.9px;
+  margin-top: 4px;
+}
+.rm-route-title > button {
+  font-size: 30px;
+  width: 35px;
+  height: 40px;
+  padding: 0;
+  color: #b05c3f;
+}
+.rm-stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 0 14px;
+  font-size: 9px;
+  color: #707660;
+}
+.rm-stats > span + span {
+  padding-left: 18px;
+  border-left: 1px solid #c9cebc;
+}
+.rm-stats b {
+  color: #314d3d;
+  font-size: 15px;
+  font-weight: 500;
+}
+.rm-stats > span:last-child > span {
+  margin-left: 4px;
+}
+.rm-start {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #355640 !important;
+  color: #faf5e9 !important;
+  border-radius: 5px;
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 12px !important;
+}
+.rm-start > svg {
+  width: 18px;
+  height: 18px;
+}
+.rm-footnote {
+  text-align: center;
+  font-size: 8px;
+  color: #797c67;
+  padding: 9px 0 12px;
+}
+.rm-nav {
+  margin-top: auto;
+  min-height: 57px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  border-top: 1px solid #d9dbc9;
+  padding: 6px 22px 0;
+}
+.rm-nav button {
+  display: grid;
+  justify-items: center;
+  min-width: 65px;
+  font-size: 8px;
+  color: #7c806c;
+  gap: 2px;
+  padding: 4px 15px;
+}
+.rm-nav button > span {
+  font-size: 20px;
+  line-height: 22px;
+}
+.rm-nav button[aria-current="page"] {
+  color: #355640;
+}
+.rm-nav button[aria-current="page"] > span {
+  background: #e3e8d6;
+  border-radius: 20px;
+  padding: 0 12px;
+}
+.rm-home-indicator {
+  width: 108px;
+  height: 4px;
+  background: #314d3d;
+  border-radius: 4px;
+  margin: 9px auto 7px;
+  flex-shrink: 0;
+}
+.rm-saved-hint {
+  font-size: 11px !important;
+  margin-top: 16px !important;
+}
+.rm-saved-view {
+  padding: 45px 25px;
+  flex: 1;
+}
+.rm-saved-view .od-mono {
+  font-size: 8px;
+}
+.rm-saved-view h1 {
+  margin: 20px 0;
+}
+.rm-saved-view p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #707660;
+}
+.rm-saved-view > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 30px;
+  padding: 20px 0;
+  border-top: 1px solid #c9cebc;
+  border-bottom: 1px solid #c9cebc;
+}
+.rm-saved-flower {
+  display: block;
+  font-size: 150px;
+  color: #c8d0b7;
+  margin: 35px 0;
+  text-align: center;
+}
+.rm-you-stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 28px 0;
+}
+.rm-you-stat strong {
+  font:
+    75px "Bricolage Grotesque",
+    sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .od-design *,
+  .od-design *::before,
+  .od-design *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
