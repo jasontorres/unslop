@@ -504,7 +504,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     slug: "financial-apps",
     name: "Financial Apps",
     sourceFile: "Financial Apps.html",
-    description: "Twelve mobile-first money products spanning budgeting, planning, payoff, treasury, tax, investing, and subscription management.",
+    description: "Thirteen mobile-first money products spanning budgeting, shared trips, planning, payoff, treasury, tax, investing, and subscription management.",
     model: "GPT 5.6 Sol",
     groups: [
       {
@@ -582,7 +582,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     slug: "animation",
     name: "Animation",
     sourceFile: "Animation.html",
-    description: "Sixteen landing pages with animated hero sections—ambient backdrops, kinetic foreground motion, and industry-specific set pieces across biotech, racing, surgery, maritime, architecture, coffee, alpine sport, and cinema.",
+    description: "Seventeen landing pages with animated hero sections—ambient backdrops, kinetic foreground motion, and industry-specific set pieces across biotech, racing, surgery, maritime, architecture, coffee, alpine sport, cinema, and interactive sound.",
     model: "Fable 5",
     groups: [
       {
@@ -667,6 +667,46 @@ for (const category of categoryDefinitions) {
   const direction = originalDirections[category.slug];
   if (direction) {
     category.groups.push({ ...direction, sourceFile: "Original Directions.html", model: "GPT 6" });
+  }
+}
+
+const secondDirections: Record<string, Group> = {
+  civic: {
+    title: "Community Spaces",
+    sectionId: "second-civic",
+    entries: [["common-shelf", "Common Shelf · A Library for Everyone"]],
+  },
+  agency: {
+    title: "Independent Studios",
+    sectionId: "second-agency",
+    entries: [["counterform", "Counterform · Digital Craft Studio"]],
+  },
+  "profiles-products": {
+    title: "Tools for Attention",
+    sectionId: "second-product",
+    entries: [["interval", "Interval · A Little Time to Think"]],
+  },
+  "financial-apps": {
+    title: "Money Together",
+    sectionId: "second-financial",
+    entries: [["gather", "Gather · The Shared Trip Fund"]],
+  },
+  "social-media": {
+    title: "Culture Carousels",
+    sectionId: "second-social",
+    entries: [["sideplate", "Sideplate · The Supper Club"]],
+  },
+  animation: {
+    title: "Playable Motion",
+    sectionId: "second-animation",
+    entries: [["sonder", "Sonder · Shapes of Sound"]],
+  },
+};
+
+for (const category of categoryDefinitions) {
+  const direction = secondDirections[category.slug];
+  if (direction) {
+    category.groups.push({ ...direction, sourceFile: "Original Directions II.html", model: "GPT 6" });
   }
 }
 

@@ -1,0 +1,142 @@
+{
+  "source_input": {
+    "kind": "repository",
+    "location": "public/source/original-directions-ii.jsx (CommonShelf)",
+    "observed_at": "2026-09-12T00:00:00Z",
+    "notes": "Original fictional library concept created for the gallery. No real agency or authoritative public-service source was supplied. These records describe prototype tasks, not verified services."
+  },
+  "services": [
+    {
+      "id": "find-a-book",
+      "title": "Find a book",
+      "purpose": "Search three fictional books and save a local reading list.",
+      "category": "Library concept",
+      "responsible_agency": null,
+      "official_url": null,
+      "actions": [
+        {
+          "label": "Find a book (demo)",
+          "url": null
+        }
+      ],
+      "eligibility": [],
+      "requirements": [],
+      "fees": [],
+      "processing_time": [],
+      "channels": [],
+      "sources": [
+        {
+          "kind": "repository",
+          "location": "public/source/original-directions-ii.jsx (CommonShelf)",
+          "observed_at": "2026-09-12T00:00:00Z",
+          "notes": "Original fictional library concept created for the gallery. No real agency or authoritative public-service source was supplied. These records describe prototype tasks, not verified services."
+        }
+      ],
+      "confidence": "unverified",
+      "unknowns": [
+        "No real library or official website is identified.",
+        "Eligibility, documents, fees, processing times, opening hours, locations, accessibility facilities, and contact channels are unverified.",
+        "The books and authors are fictional. Reading-list changes are in memory only."
+      ]
+    },
+    {
+      "id": "explore-membership",
+      "title": "Explore membership",
+      "purpose": "Explain where real membership requirements must be checked without collecting personal data.",
+      "category": "Library concept",
+      "responsible_agency": null,
+      "official_url": null,
+      "actions": [
+        {
+          "label": "Explore membership (demo)",
+          "url": null
+        }
+      ],
+      "eligibility": [],
+      "requirements": [],
+      "fees": [],
+      "processing_time": [],
+      "channels": [],
+      "sources": [
+        {
+          "kind": "repository",
+          "location": "public/source/original-directions-ii.jsx (CommonShelf)",
+          "observed_at": "2026-09-12T00:00:00Z",
+          "notes": "Original fictional library concept created for the gallery. No real agency or authoritative public-service source was supplied. These records describe prototype tasks, not verified services."
+        }
+      ],
+      "confidence": "unverified",
+      "unknowns": [
+        "No real library or official website is identified.",
+        "Eligibility, documents, fees, processing times, opening hours, locations, accessibility facilities, and contact channels are unverified.",
+        "The books and authors are fictional. Reading-list changes are in memory only."
+      ]
+    },
+    {
+      "id": "plan-a-visit",
+      "title": "Plan a visit",
+      "purpose": "Explore a concept for library spaces while keeping all actual branch facts explicitly unverified.",
+      "category": "Library concept",
+      "responsible_agency": null,
+      "official_url": null,
+      "actions": [
+        {
+          "label": "Plan a visit (demo)",
+          "url": null
+        }
+      ],
+      "eligibility": [],
+      "requirements": [],
+      "fees": [],
+      "processing_time": [],
+      "channels": [],
+      "sources": [
+        {
+          "kind": "repository",
+          "location": "public/source/original-directions-ii.jsx (CommonShelf)",
+          "observed_at": "2026-09-12T00:00:00Z",
+          "notes": "Original fictional library concept created for the gallery. No real agency or authoritative public-service source was supplied. These records describe prototype tasks, not verified services."
+        }
+      ],
+      "confidence": "unverified",
+      "unknowns": [
+        "No real library or official website is identified.",
+        "Eligibility, documents, fees, processing times, opening hours, locations, accessibility facilities, and contact channels are unverified.",
+        "The books and authors are fictional. Reading-list changes are in memory only."
+      ]
+    },
+    {
+      "id": "get-help",
+      "title": "Find help getting started",
+      "purpose": "Explain the demo catalogue and local reading-list controls.",
+      "category": "Library concept",
+      "responsible_agency": null,
+      "official_url": null,
+      "actions": [
+        {
+          "label": "Find help getting started (demo)",
+          "url": null
+        }
+      ],
+      "eligibility": [],
+      "requirements": [],
+      "fees": [],
+      "processing_time": [],
+      "channels": [],
+      "sources": [
+        {
+          "kind": "repository",
+          "location": "public/source/original-directions-ii.jsx (CommonShelf)",
+          "observed_at": "2026-09-12T00:00:00Z",
+          "notes": "Original fictional library concept created for the gallery. No real agency or authoritative public-service source was supplied. These records describe prototype tasks, not verified services."
+        }
+      ],
+      "confidence": "unverified",
+      "unknowns": [
+        "No real library or official website is identified.",
+        "Eligibility, documents, fees, processing times, opening hours, locations, accessibility facilities, and contact channels are unverified.",
+        "The books and authors are fictional. Reading-list changes are in memory only."
+      ]
+    }
+  ]
+}

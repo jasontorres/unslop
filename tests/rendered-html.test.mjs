@@ -687,7 +687,7 @@ test("serves linkable category and featured collection pages", async () => {
 
   assert.match(financial, /<title>Financial Apps Interface References — unslop\.site<\/title>/i);
   assert.match(financial, /<link rel="canonical" href="https:\/\/unslop\.site\/financial-apps"\/>/i);
-  assert.match(financial, /12(?:<!-- -->|\s)+references/i);
+  assert.match(financial, /13(?:<!-- -->|\s)+references/i);
   assert.match(financial, /Centsible · Envelope Budget/i);
   assert.match(financial, /GPT 5\.6 Sol/i);
   assert.doesNotMatch(financial, /Editorial Serif design preview/i);
@@ -715,7 +715,7 @@ test("serves linkable category and featured collection pages", async () => {
 
   assert.match(animation, /<title>Animation Interface References — unslop\.site<\/title>/i);
   assert.match(animation, /<link rel="canonical" href="https:\/\/unslop\.site\/animation"\/>/i);
-  assert.match(animation, /16(?:<!-- -->|\s)+references/i);
+  assert.match(animation, /17(?:<!-- -->|\s)+references/i);
   assert.match(animation, /Solstice · Aurora Drift/i);
   assert.match(animation, /Voltlane · Glitch Neon/i);
   assert.match(animation, /Helix · DNA Spin/i);
@@ -735,7 +735,7 @@ test("serves linkable category and featured collection pages", async () => {
   }
 });
 
-test("routes original designs across categories to their shared source canvas", async () => {
+test("routes both original design collections across categories to their source canvases", async () => {
   const originals = [
     ["offscript-independent-cinema", "landing", "original-landing", "offscript"],
     ["marginalia-research-desk", "saas", "original-saas", "marginalia"],
@@ -743,9 +743,15 @@ test("routes original designs across categories to their shared source canvas", 
     ["understory-the-living-forest", "editorial", "original-editorial", "understory"],
     ["afterhours-venue-control", "dashboards", "original-dashboard", "afterhours"],
     ["ramble-unhurried-walks", "mobile-apps", "original-mobile", "ramble"],
+    ["common-shelf-a-library-for-everyone", "civic", "second-civic", "common-shelf", "Original Directions II.html"],
+    ["counterform-digital-craft-studio", "agency", "second-agency", "counterform", "Original Directions II.html"],
+    ["interval-a-little-time-to-think", "profiles-products", "second-product", "interval", "Original Directions II.html"],
+    ["gather-the-shared-trip-fund", "financial-apps", "second-financial", "gather", "Original Directions II.html"],
+    ["sideplate-the-supper-club", "social-media", "second-social", "sideplate", "Original Directions II.html"],
+    ["sonder-shapes-of-sound", "animation", "second-animation", "sonder", "Original Directions II.html"],
   ];
 
-  for (const [slug, category, section, artboard] of originals) {
+  for (const [slug, category, section, artboard, sourceFile = "Original Directions.html"] of originals) {
     const [detailResponse, categoryResponse, referenceResponse] = await Promise.all([
       render(`/site/${slug}`), render(`/${category}`), render(`/reference/${slug}`),
     ]);
@@ -755,12 +761,12 @@ test("routes original designs across categories to their shared source canvas", 
     const detail = await detailResponse.text();
     const collection = await categoryResponse.text();
     const reference = await referenceResponse.text();
-    const source = `/source/Original%20Directions.html?focus=${section}%2F${artboard}`;
+    const source = `/source/${encodeURIComponent(sourceFile)}?focus=${section}%2F${artboard}`;
     assert.ok(detail.includes(source), `${slug} must use its group's source override`);
     assert.ok(reference.includes(`${source}&amp;embed=1`));
     assert.ok(collection.includes(`/site/${slug}`));
     assert.match(detail, /GPT 6/);
-    if (category === "mobile-apps") assert.match(reference, /fit=contain/);
+    if (["mobile-apps", "financial-apps", "social-media"].includes(category)) assert.match(reference, /fit=contain/);
     const preview = await readFile(new URL(`../public/previews/${slug}.png`, import.meta.url));
     assert.deepEqual([...preview.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
     assert.ok(preview.length > 5000, `${slug} needs a rendered thumbnail`);
@@ -914,5 +920,5 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/nock-activation<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/solstice-aurora-drift<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/helix-dna-spin<\/loc>/i);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 229);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 235);
 });
