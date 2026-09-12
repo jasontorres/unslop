@@ -695,7 +695,7 @@ test("serves linkable category and featured collection pages", async () => {
 
   assert.match(dashboards, /<title>Dashboards Interface References — unslop\.site<\/title>/i);
   assert.match(dashboards, /<link rel="canonical" href="https:\/\/unslop\.site\/dashboards"\/>/i);
-  assert.match(dashboards, /12(?:<!-- -->|\s)+references/i);
+  assert.match(dashboards, /13(?:<!-- -->|\s)+references/i);
   assert.match(dashboards, /Meridian · Hospital Command/i);
   assert.doesNotMatch(dashboards, /Nock · Activation/i);
   assert.match(dashboards, /Grok 4\.6/i);
@@ -703,7 +703,7 @@ test("serves linkable category and featured collection pages", async () => {
 
   assert.match(saas, /<title>SaaS Interface References — unslop\.site<\/title>/i);
   assert.match(saas, /<link rel="canonical" href="https:\/\/unslop\.site\/saas"\/>/i);
-  assert.match(saas, /24(?:<!-- -->|\s)+references/i);
+  assert.match(saas, /25(?:<!-- -->|\s)+references/i);
   assert.match(saas, /Bento Wall/i);
   assert.match(saas, /Nock · Activation/i);
   assert.match(saas, /Tollgate · API Console/i);
@@ -732,6 +732,38 @@ test("serves linkable category and featured collection pages", async () => {
 
   for (const html of [financial, dashboards, saas, animation, featured]) {
     assert.doesNotMatch(html, /data-carbon-slot|carbonads/i);
+  }
+});
+
+test("routes original designs across categories to their shared source canvas", async () => {
+  const originals = [
+    ["offscript-independent-cinema", "landing", "original-landing", "offscript"],
+    ["marginalia-research-desk", "saas", "original-saas", "marginalia"],
+    ["oddments-objects-with-history", "marketplaces", "original-marketplace", "oddments"],
+    ["understory-the-living-forest", "editorial", "original-editorial", "understory"],
+    ["afterhours-venue-control", "dashboards", "original-dashboard", "afterhours"],
+    ["ramble-unhurried-walks", "mobile-apps", "original-mobile", "ramble"],
+  ];
+
+  for (const [slug, category, section, artboard] of originals) {
+    const [detailResponse, categoryResponse, referenceResponse] = await Promise.all([
+      render(`/site/${slug}`), render(`/${category}`), render(`/reference/${slug}`),
+    ]);
+    assert.equal(detailResponse.status, 200);
+    assert.equal(categoryResponse.status, 200);
+    assert.equal(referenceResponse.status, 200);
+    const detail = await detailResponse.text();
+    const collection = await categoryResponse.text();
+    const reference = await referenceResponse.text();
+    const source = `/source/Original%20Directions.html?focus=${section}%2F${artboard}`;
+    assert.ok(detail.includes(source), `${slug} must use its group's source override`);
+    assert.ok(reference.includes(`${source}&amp;embed=1`));
+    assert.ok(collection.includes(`/site/${slug}`));
+    assert.match(detail, /GPT 6/);
+    if (category === "mobile-apps") assert.match(reference, /fit=contain/);
+    const preview = await readFile(new URL(`../public/previews/${slug}.png`, import.meta.url));
+    assert.deepEqual([...preview.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    assert.ok(preview.length > 5000, `${slug} needs a rendered thumbnail`);
   }
 });
 
@@ -882,5 +914,5 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/nock-activation<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/solstice-aurora-drift<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/helix-dna-spin<\/loc>/i);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 223);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 229);
 });

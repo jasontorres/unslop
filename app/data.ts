@@ -1,4 +1,4 @@
-export const generatorModels = ["Claude 4.7", "GPT 5.6 Sol", "Grok 4.6", "Fable 5", "GLM 5.3 Flash"] as const;
+export const generatorModels = ["Claude 4.7", "GPT 5.6 Sol", "GPT 6", "Grok 4.6", "Fable 5", "GLM 5.3 Flash"] as const;
 export type GeneratorModel = (typeof generatorModels)[number];
 
 export type GallerySite = {
@@ -20,6 +20,7 @@ type Group = {
   sectionId: string;
   entries: [artboardId: string, label: string][];
   model?: GeneratorModel;
+  sourceFile?: string;
 };
 
 type CategoryDefinition = {
@@ -207,7 +208,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     slug: "mobile-apps",
     name: "Mobile Apps",
     sourceFile: "Mobile Apps.html",
-    description: "Sixteen iOS product directions, from finance and navigation to media and wellbeing.",
+    description: "Seventeen mobile product directions, from finance and navigation to media, wellbeing, and unhurried neighborhood walks.",
     model: "Claude 4.7",
     groups: [
       {
@@ -542,7 +543,7 @@ export const categoryDefinitions: CategoryDefinition[] = [
     slug: "dashboards",
     name: "Dashboards",
     sourceFile: "Dashboards.html",
-    description: "Twelve industry operations desks—hospital command, fleet, factory, airside, lodging, restaurant, farm, grid, legal, insurance, people ops, and studio production—each with its own information architecture.",
+    description: "Industry operations desks—hospital command, fleet, factory, airside, lodging, restaurant, farm, grid, legal, insurance, people ops, studio production, and live venues—each with its own information architecture.",
     model: "Grok 4.6",
     groups: [
       {
@@ -628,6 +629,47 @@ export const categoryDefinitions: CategoryDefinition[] = [
   },
 ];
 
+// One original collection spans existing categories while sharing its canvas assets.
+const originalDirections: Record<string, Group> = {
+  landing: {
+    title: "Independent Culture",
+    sectionId: "original-landing",
+    entries: [["offscript", "Offscript · Independent Cinema"]],
+  },
+  saas: {
+    title: "Research & Thinking",
+    sectionId: "original-saas",
+    entries: [["marginalia", "Marginalia · Research Desk"]],
+  },
+  marketplaces: {
+    title: "Collectible Objects",
+    sectionId: "original-marketplace",
+    entries: [["oddments", "Oddments · Objects with History"]],
+  },
+  editorial: {
+    title: "Field Journals",
+    sectionId: "original-editorial",
+    entries: [["understory", "Understory · The Living Forest"]],
+  },
+  dashboards: {
+    title: "Live Culture",
+    sectionId: "original-dashboard",
+    entries: [["afterhours", "Afterhours · Venue Control"]],
+  },
+  "mobile-apps": {
+    title: "Everyday Exploration",
+    sectionId: "original-mobile",
+    entries: [["ramble", "Ramble · Unhurried Walks"]],
+  },
+};
+
+for (const category of categoryDefinitions) {
+  const direction = originalDirections[category.slug];
+  if (direction) {
+    category.groups.push({ ...direction, sourceFile: "Original Directions.html", model: "GPT 6" });
+  }
+}
+
 function cleanName(label: string) {
   return label.replace(/^[A-P0-9]+\s*·\s*/, "").replace(/\s+/g, " ").trim();
 }
@@ -668,7 +710,7 @@ export const allSites: GallerySite[] = categoryDefinitions.flatMap((category) =>
         subcategory: group.title,
         sectionId: group.sectionId,
         artboardId,
-        sourceFile: category.sourceFile,
+        sourceFile: group.sourceFile ?? category.sourceFile,
         model: group.model ?? category.model,
         tags,
         index: itemIndex++,
