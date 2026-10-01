@@ -1,35 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { allSites, categoryDefinitions, featuredSlugSet } from "../data";
+import { categoryDefinitions, getCollection, modelDefinitions } from "../data";
 import { Gallery } from "../gallery";
 
 const canonicalOrigin = "https://unslop.site";
-
-function getCollection(slug: string) {
-  if (slug === "featured") {
-    return {
-      slug,
-      name: "Featured",
-      description: "A hand-picked selection of standout interface references across the unslop.site library.",
-      sites: allSites.filter((site) => featuredSlugSet.has(site.slug)),
-    };
-  }
-
-  const category = categoryDefinitions.find((item) => item.slug === slug);
-  if (!category) return null;
-
-  return {
-    slug: category.slug,
-    name: category.name,
-    description: category.description,
-    sites: allSites.filter((site) => site.categorySlug === category.slug),
-  };
-}
 
 export function generateStaticParams() {
   return [
     { category: "featured" },
     ...categoryDefinitions.map(({ slug }) => ({ category: slug })),
+    ...modelDefinitions.map(({ slug }) => ({ category: slug })),
   ];
 }
 

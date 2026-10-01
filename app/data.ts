@@ -778,6 +778,54 @@ export const featuredSlugs = [
 
 export const featuredSlugSet = new Set<string>(featuredSlugs);
 
+export const modelDefinitions = generatorModels.map((name) => ({
+  slug: slugify(name),
+  name,
+  description: `Browse interface references generated with ${name} across the unslop.site design library, with AI-ready briefs and standalone HTML.`,
+}));
+
+export function getCollection(slug: string) {
+  if (slug === "featured") {
+    return {
+      slug,
+      name: "Featured",
+      description: "A hand-picked selection of standout interface references across the unslop.site library.",
+      sites: featuredSlugs.flatMap((siteSlug) => {
+        const site = sitesBySlug.get(siteSlug);
+        return site ? [site] : [];
+      }),
+    };
+  }
+
+  const category = categoryDefinitions.find((item) => item.slug === slug);
+  if (category) {
+    return {
+      slug: category.slug,
+      name: category.name,
+      description: category.description,
+      sites: allSites.filter((site) => site.categorySlug === category.slug),
+    };
+  }
+
+  const model = modelDefinitions.find((item) => item.slug === slug);
+  if (model) {
+    return {
+      ...model,
+      sites: allSites.filter((site) => site.model === model.name),
+    };
+  }
+
+  return null;
+}
+
+export function getModelUrl(model: GeneratorModel) {
+  return `/${slugify(model)}`;
+}
+
+export function getModelCount(model: GeneratorModel) {
+  return allSites.filter((site) => site.model === model).length;
+}
+
 export function getCategoryCount(slug: string) {
   return allSites.filter((site) => site.categorySlug === slug).length;
 }

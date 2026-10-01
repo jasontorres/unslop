@@ -151,6 +151,11 @@ button { color: inherit; }
 .filters a.featured-filter:not(.active)::before { content: "✦"; margin-right: 6px; color: #758700; }
 .filters a.featured-filter.active { background: var(--acid); border-color: var(--ink); color: var(--ink); }
 .filters a.featured-filter.active span { color: #596500; }
+.category-filters { margin-bottom: 14px; }
+.model-filter-group { display: flex; align-items: center; gap: 16px; margin-bottom: 31px; }
+.model-filter-label { margin: 0; flex-shrink: 0; color: var(--muted); font-family: var(--font-geist-mono); font-size: 9px; text-transform: uppercase; letter-spacing: .07em; }
+.model-filter-group .filters { min-width: 0; margin-bottom: 0; }
+.filters a:focus-visible, a.model-chip:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
 .results-row { border-top: 1px solid var(--line); padding: 15px 0 25px; display: flex; justify-content: space-between; }
 .results-row p { margin: 0; color: var(--muted); font-family: var(--font-geist-mono); text-transform: uppercase; letter-spacing: .07em; font-size: 9px; }
 .results-row a { text-decoration: underline; font-size: 11px; }
@@ -180,6 +185,7 @@ button { color: inherit; }
 .preview-link:hover .open-corner { transform: translateY(0); }
 .card-meta { padding-top: 13px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .card-meta a { min-width: 0; }
+.card-info { min-width: 0; max-width: 100%; }
 .card-meta h3 { margin: 0 0 5px; font-size: 15px; line-height: 1.2; letter-spacing: -.025em; font-weight: 570; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card-meta p { margin: 0; color: var(--muted); font-family: var(--font-geist-mono); font-size: 8px; line-height: 1.5; text-transform: uppercase; letter-spacing: .055em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card-meta p span { color: var(--blue); }
@@ -195,6 +201,7 @@ button { color: inherit; }
 .model-chip[data-model="Grok 4.6"] { background: var(--acid); border-color: var(--ink); color: var(--ink); }
 .model-chip[data-model="Fable 5"] { background: #fbe7dc; border-color: #d98d66; color: #8a3d17; }
 .model-chip[data-model="GLM 5.3 Flash"] { background: #efe9fd; border-color: #b39de0; color: #4f2d9c; }
+a.model-chip:hover { text-decoration: underline; text-underline-offset: 2px; }
 .copy-mini { border: 0; border-bottom: 1px solid #aaa9a2; padding: 0 0 3px; background: transparent; white-space: nowrap; font-size: 9px; cursor: pointer; color: #62615c; }
 .empty-state { min-height: 360px; display: grid; place-items: center; align-content: center; text-align: center; border: 1px solid var(--line); }
 .empty-state > span { font-size: 42px; }
@@ -320,6 +327,7 @@ footer > a { margin-top: 8px; justify-self: end; font-size: 12px; border-bottom:
   .carbon-slot-hero { top: auto; right: 18px; bottom: 88px; left: 18px; width: auto; }
   .library { padding: 65px 18px 90px; }
   .library-head { align-items: stretch; flex-direction: column; margin-bottom: 35px; gap: 30px; }
+  .model-filter-group { align-items: stretch; flex-direction: column; gap: 10px; }
   .searchbox { width: 100%; }
   .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px 9px; }
   .card-meta { flex-direction: column; gap: 8px; }

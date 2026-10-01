@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { allSites, categoryDefinitions } from "./data";
+import { allSites, categoryDefinitions, modelDefinitions } from "./data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -23,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily",
       priority: 0.8,
     },
-    ...categoryDefinitions.map((category) => ({
+    ...[...categoryDefinitions, ...modelDefinitions].map((category) => ({
       url: `https://unslop.site/${category.slug}`,
       changeFrequency: "weekly" as const,
       priority: 0.8,

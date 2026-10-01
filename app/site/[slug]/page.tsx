@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { allSites, getAgentBrief, getEmbeddedSourceUrl, sitesBySlug } from "../../data";
+import { allSites, getAgentBrief, getEmbeddedSourceUrl, getModelUrl, sitesBySlug } from "../../data";
 import { CarbonAd } from "../../carbon-ad";
 import { CopyBrief, SiteActions } from "./actions";
 
@@ -91,7 +91,7 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
         <div>
           <p className="eyebrow">
             <span>{String(site.index + 1).padStart(3, "0")}</span> {site.category} / {site.subcategory}
-            <span className="model-chip" data-model={site.model} aria-label={`Generated with ${site.model}`}>{site.model}</span>
+            <Link href={getModelUrl(site.model)} className="model-chip" data-model={site.model} aria-label={`Browse designs generated with ${site.model}`}>{site.model}</Link>
           </p>
           <h1>{site.name}</h1>
           <p className="detail-summary">Copy the direction as an agent brief—or take the standalone HTML with its styles included.</p>
@@ -125,7 +125,7 @@ export default async function SitePage({ params }: { params: Promise<{ slug: str
             the standalone HTML when the agent also needs exact type, spacing, color, and layout values.
           </p>
           <div className="tag-list">
-            <span className="model-chip" data-model={site.model} aria-label={`Generated with ${site.model}`}>{site.model}</span>
+            <Link href={getModelUrl(site.model)} className="model-chip" data-model={site.model} aria-label={`Browse designs generated with ${site.model}`}>{site.model}</Link>
             {site.tags.map((tag) => <span key={tag}>{tag}</span>)}
           </div>
         </div>

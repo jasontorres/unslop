@@ -735,6 +735,61 @@ test("serves linkable category and featured collection pages", async () => {
   }
 });
 
+test("model collections show only their attributed references across design categories", async () => {
+  const models = [
+    { slug: "claude-4-7", name: "Claude 4.7", count: 131 },
+    { slug: "gpt-5-6-sol", name: "GPT 5.6 Sol", count: 12 },
+    { slug: "gpt-6", name: "GPT 6", count: 12 },
+    { slug: "grok-4-6", name: "Grok 4.6", count: 20 },
+    { slug: "fable-5", name: "Fable 5", count: 16 },
+    { slug: "glm-5-3-flash", name: "GLM 5.3 Flash", count: 28 },
+  ];
+  const home = await (await render()).text();
+  const sitemap = await (await render("/sitemap.xml")).text();
+  const modelNavigation = home.match(/<nav class="filters" aria-labelledby="model-filter-label">([\s\S]*?)<\/nav>/)?.[1];
+  assert.ok(modelNavigation, "home should offer a separate model navigation row");
+
+  for (const { slug, name, count } of models) {
+    assert.ok(modelNavigation.includes(`href="/${slug}"`), `${name} must be linkable from the library`);
+    assert.ok(modelNavigation.includes(`${name}<!-- --> <span>${count}</span>`));
+    assert.ok(sitemap.includes(`<loc>https://unslop.site/${slug}</loc>`));
+
+    const response = await render(`/${slug}`);
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.ok(html.includes(`<title>${name} Interface References — unslop.site</title>`));
+    assert.ok(html.includes(`<h2>${name}</h2>`));
+    assert.ok(html.includes(`<link rel="canonical" href="https://unslop.site/${slug}"/>`));
+    assert.ok(html.includes(`href="/${slug}" class="active" aria-current="page"`));
+    assert.ok(html.includes(`<meta property="og:title" content="${name} Interface References — unslop.site"/>`));
+    assert.ok(html.includes(`<meta name="twitter:title" content="${name} Interface References — unslop.site"/>`));
+
+    const cards = [...html.matchAll(/<article class="gallery-card(?: is-featured)?">([\s\S]*?)<\/article>/g)];
+    assert.equal(cards.length, count, `${name} should render exactly its own references`);
+    for (const [, card] of cards) {
+      assert.ok(card.includes(`data-model="${name}"`), `${name} must not show other models' work`);
+      assert.ok(card.includes(`href="/${slug}" class="model-chip"`));
+    }
+
+    const structuredData = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+    assert.equal(structuredData.mainEntity.numberOfItems, count);
+    assert.equal(structuredData.mainEntity.itemListElement.length, count);
+
+    // Group-level attribution overrides the original category's model.
+    if (slug === "gpt-6") {
+      assert.ok(cards.some(([, card]) => card.includes("/site/offscript-independent-cinema")));
+      assert.ok(cards.some(([, card]) => card.includes("/site/gather-the-shared-trip-fund")));
+    }
+    if (slug === "glm-5-3-flash") {
+      assert.ok(cards.some(([, card]) => card.includes("/site/raw-web-casual")));
+      assert.ok(cards.some(([, card]) => card.includes("/site/bento-wall")));
+    }
+  }
+
+  const missing = await render("/unknown-model");
+  assert.equal(missing.status, 404);
+});
+
 test("routes both original design collections across categories to their source canvases", async () => {
   const originals = [
     ["offscript-independent-cinema", "landing", "original-landing", "offscript"],
@@ -920,5 +975,5 @@ test("publishes crawl directives and every reference in the sitemap", async () =
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/nock-activation<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/solstice-aurora-drift<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/unslop\.site\/site\/helix-dna-spin<\/loc>/i);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 235);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 241);
 });

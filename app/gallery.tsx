@@ -13,6 +13,10 @@ import {
   featuredSlugs,
   featuredSlugSet,
   getCategoryCount,
+  getCollection,
+  getModelCount,
+  getModelUrl,
+  modelDefinitions,
 } from "./data";
 
 const fallbackColors = [
@@ -59,19 +63,20 @@ export function Gallery({ initialCategory = "all", showLandingAd = false }: Gall
   const [copied, setCopied] = useState<string | null>(null);
   const [hasLandingAd, setHasLandingAd] = useState(false);
   const category = initialCategory;
+  const activeModel = modelDefinitions.find((model) => model.slug === category);
 
   const visibleSites = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     const featuredRank = new Map<string, number>(featuredSlugs.map((slug, index) => [slug, index]));
 
-    return allSites
+    const collectionSites = category === "all" ? allSites : getCollection(category)?.sites ?? [];
+
+    return collectionSites
       .filter((site) => {
-        const inCategory = category === "all"
-          || (category === "featured" ? featuredSlugSet.has(site.slug) : site.categorySlug === category);
         const haystack = [site.name, site.category, site.subcategory, site.model, ...site.tags]
           .join(" ")
           .toLowerCase();
-        return inCategory && (!normalizedQuery || haystack.includes(normalizedQuery));
+        return !normalizedQuery || haystack.includes(normalizedQuery);
       })
       .sort((a, b) => {
         const aRank = featuredRank.get(a.slug) ?? Number.POSITIVE_INFINITY;
@@ -122,8 +127,8 @@ export function Gallery({ initialCategory = "all", showLandingAd = false }: Gall
       <section id="library" className="library">
         <div className="library-head">
           <div>
-            <p className="section-label">Library / 2026</p>
-            <h2>Browse</h2>
+            <p className="section-label">{activeModel ? "Library / Model" : "Library / 2026"}</p>
+            <h2>{activeModel?.name ?? "Browse"}</h2>
           </div>
           <label className="searchbox">
             <span aria-hidden="true">⌕</span>
@@ -137,11 +142,11 @@ export function Gallery({ initialCategory = "all", showLandingAd = false }: Gall
           </label>
         </div>
 
-        <nav className="filters" aria-label="Design categories">
-          <Link href="/" className={category === "all" ? "active" : ""}>
+        <nav className="filters category-filters" aria-label="Design categories">
+          <Link href="/" className={category === "all" ? "active" : ""} aria-current={category === "all" ? "page" : undefined}>
             All <span>{allSites.length}</span>
           </Link>
-          <Link href="/featured" className={category === "featured" ? "active featured-filter" : "featured-filter"}>
+          <Link href="/featured" className={category === "featured" ? "active featured-filter" : "featured-filter"} aria-current={category === "featured" ? "page" : undefined}>
             Featured <span>{featuredSlugs.length}</span>
           </Link>
           {orderedCategoryDefinitions.map((item) => (
@@ -149,11 +154,28 @@ export function Gallery({ initialCategory = "all", showLandingAd = false }: Gall
               key={item.slug}
               href={`/${item.slug}`}
               className={category === item.slug ? "active" : ""}
+              aria-current={category === item.slug ? "page" : undefined}
             >
               {item.name} <span>{getCategoryCount(item.slug)}</span>
             </Link>
           ))}
         </nav>
+
+        <div className="model-filter-group">
+          <p className="model-filter-label" id="model-filter-label">Browse by model</p>
+          <nav className="filters" aria-labelledby="model-filter-label">
+            {modelDefinitions.map((model) => (
+              <Link
+                key={model.slug}
+                href={getModelUrl(model.name)}
+                className={category === model.slug ? "active" : ""}
+                aria-current={category === model.slug ? "page" : undefined}
+              >
+                {model.name} <span>{getModelCount(model.name)}</span>
+              </Link>
+            ))}
+          </nav>
+        </div>
 
         <div className="results-row">
           <p>{visibleSites.length} {visibleSites.length === 1 ? "reference" : "references"}</p>
@@ -174,11 +196,13 @@ export function Gallery({ initialCategory = "all", showLandingAd = false }: Gall
                   <span className="open-corner" aria-hidden="true">↗</span>
                 </Link>
                 <div className="card-meta">
-                  <Link href={`/site/${site.slug}`}>
-                    <h3>{site.name}</h3>
-                    <p>{site.category} <span>·</span> {site.subcategory}</p>
-                    <span className="model-chip" data-model={site.model} aria-label={`Generated with ${site.model}`}>{site.model}</span>
-                  </Link>
+                  <div className="card-info">
+                    <Link href={`/site/${site.slug}`}>
+                      <h3>{site.name}</h3>
+                      <p>{site.category} <span>·</span> {site.subcategory}</p>
+                    </Link>
+                    <Link href={getModelUrl(site.model)} className="model-chip" data-model={site.model} aria-label={`Browse designs generated with ${site.model}`}>{site.model}</Link>
+                  </div>
                   <button className="copy-mini" onClick={() => copySite(site.slug)} aria-label={`Copy link to ${site.name}`}>
                     {copied === site.slug ? "Copied" : "Copy link"}
                   </button>
